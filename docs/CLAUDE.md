@@ -1,33 +1,33 @@
-# Docs Directory
+# 文档目录
 
-When authoring or editing files in this directory, follow these standards.
+在此目录中创作或编辑文件时，请遵循以下标准。
 
-## Architecture Decision Records (`docs/architecture/`)
+## 架构决策记录（`docs/architecture/`）
 
-Use the ADR template: `.claude/docs/templates/architecture-decision-record.md`
+使用 ADR 模板：`.claude/docs/templates/architecture-decision-record.md`
 
-**Required sections:** Title, Status, Context, Decision, Consequences,
-ADR Dependencies, Engine Compatibility, GDD Requirements Addressed
+**必需章节：** Title、Status、Context、Decision、Consequences、
+ADR Dependencies、Engine Compatibility、GDD Requirements Addressed
 
-**Status lifecycle:** `Proposed` → `Accepted` → `Superseded`
-- Never skip `Accepted` — stories referencing a `Proposed` ADR are auto-blocked
-- Use `/architecture-decision` to create ADRs through the guided flow
+**状态生命周期：** `Proposed` → `Accepted` → `Superseded`
+- 永远不要跳过 `Accepted` — 引用 `Proposed` ADR 的 Story 会被自动阻止
+- 使用 `/architecture-decision` 通过引导流程创建 ADR
 
-**TR Registry:** `docs/architecture/tr-registry.yaml`
-- Stable requirement IDs (e.g. `TR-MOV-001`) that link GDD requirements to stories
-- Never renumber existing IDs — only append new ones
-- Updated by `/architecture-review` Phase 8
+**TR 注册表：** `docs/architecture/tr-registry.yaml`
+- 稳定的需求 ID（例如 `TR-MOV-001`），将 GDD 需求链接到 Story
+- 永远不要重新编号现有 ID — 只追加新的
+- 由 `/architecture-review` 第 8 阶段更新
 
-**Control Manifest:** `docs/architecture/control-manifest.md`
-- Flat programmer rules sheet: Required / Forbidden / Guardrails per layer
-- Date-stamped `Manifest Version:` in header
-- Stories embed this version; `/story-done` checks for staleness
+**控制清单：** `docs/architecture/control-manifest.md`
+- 扁平化程序员规则表：每层 Required / Forbidden / Guardrails
+- 头部包含日期戳 `Manifest Version:`
+- Story 嵌入此版本；`/story-done` 检查是否过时
 
-**Validation:** Run `/architecture-review` after completing a set of ADRs.
+**验证：** 完成一组 ADR 后运行 `/architecture-review`。
 
-## Engine Reference (`docs/engine-reference/`)
+## 引擎参考（`docs/engine-reference/`）
 
-Version-pinned engine API snapshots. **Always check here before using any
-engine API** — the LLM's training data predates the pinned engine version.
+版本固定的引擎 API 快照。**使用任何引擎 API 前始终检查此处** —
+LLM 的训练数据早于固定的引擎版本。
 
-Current engine: see `docs/engine-reference/godot/VERSION.md`
+当前引擎：见 `docs/engine-reference/godot/VERSION.md`

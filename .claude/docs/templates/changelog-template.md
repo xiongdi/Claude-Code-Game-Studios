@@ -1,62 +1,62 @@
-# What's New in [Version]
+# [版本] 更新内容
 
-**Release Date**: [Date]
-
----
-
-## New Features
-
-- **[Feature Name]**: [Player-friendly description of what they can now do. Focus on the experience, not the implementation. 1-2 sentences.]
-
-- **[Feature Name]**: [Description]
+**发布日期**: [日期]
 
 ---
 
-## Improvements
+## 新功能
 
-- **[Area Improved]**: [How this makes the game better for the player. Be specific.]
+- **[功能名称]**: [玩家友好的描述他们现在可以做什么。专注于体验，而非实现。1-2 句话。]
 
-- **[Area Improved]**: [Description]
-
----
-
-## Balance Changes
-
-- **[What Changed]**: [Old value] -> [New value]. [Brief design reasoning in player terms. Example: "Healing potions now restore 50 HP (up from 30) -- late-game encounters needed more recovery options."]
-
-- **[What Changed]**: [Description]
+- **[功能名称]**: [描述]
 
 ---
 
-## Bug Fixes
+## 改进
 
-- Fixed an issue where [describe the player-visible symptom, not the code fix]
-- Fixed [another player-visible symptom]
-- Fixed [symptom]
+- **[改进的区域]**: [这如何让游戏对玩家更好。要具体。]
 
----
-
-## Known Issues
-
-- [Issue description in player terms]. [Workaround if one exists.] We're working on a fix.
+- **[改进的区域]**: [描述]
 
 ---
 
-## Technical Notes (Internal Only -- Remove Before Publishing)
+## 平衡更改
 
-### Commits Covered
-- Range: `[first-hash]..[last-hash]`
-- Total commits: [N]
+- **[更改的内容]**: [旧值] -> [新值]。[用玩家术语简要说明设计理由。示例："治疗药水现在恢复 50 点生命值（从 30 增加）—— 后期遭遇需要更多恢复选项。"]
 
-### Internal Changes
-- [Refactoring, infrastructure, or tooling changes not visible to players]
-
-### Deferred Items
-- [Features or fixes originally planned for this release but moved to next]
-  - Reason: [why deferred]
-  - New target: [version or sprint]
+- **[更改的内容]**: [描述]
 
 ---
 
-Thank you for playing! Your feedback helps us improve the game.
-Report issues at [support link].
+## Bug 修复
+
+- 修复了[描述玩家可见的症状，而非代码修复]的问题
+- 修复了[另一个玩家可见的症状]
+- 修复了[症状]
+
+---
+
+## 已知问题
+
+- [用玩家术语描述问题]。如果有解决方法的话。[我们正在努力修复。]
+
+---
+
+## 技术说明（内部仅 — 发布前删除）
+
+### 涵盖的提交
+- 范围：`[first-hash]..[last-hash]`
+- 总提交数：[N]
+
+### 内部更改
+- [对玩家不可见的重构、基础设施或工具更改]
+
+### 推迟的项目
+- [最初计划在此版本中但移至下一个的功能或修复]
+  - 原因：[推迟的原因]
+  - 新目标：[版本或 sprint]
+
+---
+
+感谢您的游玩！您的反馈帮助我们改进游戏。
+在 [支持链接] 报告问题。

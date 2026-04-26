@@ -1,27 +1,27 @@
-## Summary
+## 摘要
 
-Brief description of what this PR does.
+此 PR 做什么的简要描述。
 
-## Type of Change
+## 变更类型
 
-- [ ] New agent
-- [ ] New skill
-- [ ] New hook or rule
-- [ ] Bug fix
-- [ ] Documentation improvement
-- [ ] Other:
+- [ ] 新 agent
+- [ ] 新技能
+- [ ] 新 hook 或规则
+- [ ] Bug 修复
+- [ ] 文档改进
+- [ ] 其他：
 
-## Changes
+## 变更内容
 
 -
 -
 -
 
-## Checklist
+## 检查清单
 
-- [ ] I've tested this in a Claude Code session
-- [ ] New agents include the Collaboration Protocol section
-- [ ] New skills use the subdirectory format (`.claude/skills/<name>/SKILL.md`)
-- [ ] Reference docs are updated (agent-roster, skills-reference, hooks-reference, rules-reference)
-- [ ] Hooks use `grep -E` (POSIX) and fail gracefully without jq/python
-- [ ] No hardcoded paths or platform-specific assumptions
+- [ ] 我在 Claude Code 会话中测试过这个
+- [ ] 新 agents 包含协作协议章节
+- [ ] 新技能使用子目录格式（`.claude/skills/<name>/SKILL.md`）
+- [ ] 参考文档已更新（agent-roster、skills-reference、hooks-reference、rules-reference）
+- [ ] Hooks 使用 `grep -E`（POSIX）并在没有 jq/python 时优雅失败
+- [ ] 无硬编码路径或平台特定假设

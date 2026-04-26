@@ -1,219 +1,209 @@
-# [Mechanic/System Name]
+# [机制/系统名称]
 
-> **Status**: Draft | In Review | Approved | Implemented
-> **Author**: [Agent or person]
-> **Last Updated**: [Date]
-> **Last Verified**: [Date — when this doc was last confirmed accurate against current design]
-> **Implements Pillar**: [Which game pillar this supports]
+> **状态**: 草稿 | 审核中 | 已批准 | 已实现
+> **作者**: [Agent 或人员]
+> **最后更新**: [日期]
+> **最后验证**: [日期 — 确认此文档与当前设计一致的日期]
+> **实现支柱**: [此系统支持的游戏支柱]
 
-## Summary
+## 摘要
 
-[2–3 sentences: what this system is, what it does for the player, and why it
-exists in this game. Written for tiered context loading — a skill scanning
-20 GDDs uses this section to decide whether to read further. No jargon.]
+[2-3 句话：此系统是什么，它为玩家做什么，以及为什么存在于这款游戏中。
+为分层上下文加载而写 — 扫描 20 个 GDD 的技能使用此节来决定是否进一步阅读。
+不使用术语。]
 
-> **Quick reference** — Layer: `[Foundation | Core | Feature | Presentation]` · Priority: `[MVP | Vertical Slice | Alpha | Full Vision]` · Key deps: `[System names or "None"]`
+> **快速参考** — 层级：`[基础 | 核心 | 功能 | 表现]` · 优先级：`[MVP | 垂直切片 | Alpha | 完整愿景]` · 关键依赖：`[系统名称或"无"]`
 
-## Overview
+## 概述
 
-[One paragraph that explains this mechanic to someone who knows nothing about
-the project. What is it, what does the player do, and why does it exist?]
+[向不了解此项目的人解释此机制的段落。它是什么，玩家做什么，为什么存在？]
 
-## Player Fantasy
+## 玩家幻想
 
-[What should the player FEEL when engaging with this mechanic? What is the
-emotional or power fantasy being served? This section guides all detail
-decisions below.]
+[玩家与此机制互动时应该感受到什么？服务的情感或力量幻想是什么？
+此章节指导下方所有细节决策。]
 
-## Detailed Design
+## 详细设计
 
-### Core Rules
+### 核心规则
 
-[Precise, unambiguous rules. A programmer should be able to implement this
-section without asking questions. Use numbered rules for sequential processes
-and bullet points for properties.]
+[精确、无歧义的规则。程序员应该能够实现此章节而无需提问。
+对顺序流程使用编号规则，对属性使用项目符号。]
 
-### States and Transitions
+### 状态与转换
 
-[If this system has states (e.g., weapon states, status effects, phases),
-document every state and every valid transition between states.]
+[如果此系统有状态（例如武器状态、状态效果、阶段），记录每个状态
+以及状态之间的每个有效转换。]
 
-| State | Entry Condition | Exit Condition | Behavior |
-|-------|----------------|----------------|----------|
+| 状态 | 进入条件 | 退出条件 | 行为 |
+|------|----------|----------|------|
 
-### Interactions with Other Systems
+### 与其他系统的交互
 
-[How does this system interact with combat? Inventory? Progression? UI?
-For each interaction, specify the interface: what data flows in, what flows
-out, and who is responsible for what.]
+[此系统如何与战斗、库存、进度、UI 交互？
+对每个交互指定接口：什么数据流入，什么流出，谁负责什么。]
 
-## Formulas
+## 公式
 
-[Every mathematical formula used by this system. For each formula:]
+[此系统使用的每个数学公式。对每个公式：]
 
-### [Formula Name]
+### [公式名称]
 
 ```
 result = base_value * (1 + modifier_sum) * scaling_factor
 ```
 
-| Variable | Type | Range | Source | Description |
-|----------|------|-------|--------|-------------|
-| base_value | float | 1-100 | data file | The base amount before modifiers |
-| modifier_sum | float | -0.9 to 5.0 | calculated | Sum of all active modifiers |
-| scaling_factor | float | 0.5-2.0 | data file | Level-based scaling |
+| 变量 | 类型 | 范围 | 来源 | 描述 |
+|------|------|------|------|------|
+| base_value | float | 1-100 | 数据文件 | 修改器之前的基数 |
+| modifier_sum | float | -0.9 到 5.0 | 计算值 | 所有活动修改器的总和 |
+| scaling_factor | float | 0.5-2.0 | 数据文件 | 基于等级的缩放 |
 
-**Expected output range**: [min] to [max]
-**Edge case**: When modifier_sum < -0.9, clamp to -0.9 to prevent negative results.
+**预期输出范围**: [最小值] 到 [最大值]
+**边缘情况**: 当 modifier_sum < -0.9 时，钳制到 -0.9 以防止负结果。
 
-## Edge Cases
+## 边缘情况
 
-[Explicitly document what happens in unusual situations. Each edge case
-should have a clear resolution.]
+[明确记录异常情况下的处理方式。每个边缘情况应有清晰的解决方案。]
 
-| Scenario | Expected Behavior | Rationale |
-|----------|------------------|-----------|
-| [What if X is zero?] | [This happens] | [Because of this reason] |
-| [What if both effects trigger?] | [Priority rule] | [Design reasoning] |
+| 场景 | 预期行为 | 理由 |
+|------|----------|------|
+| [如果 X 为零怎么办？] | [发生此情况] | [由于此原因] |
+| [如果两个效果都触发怎么办？] | [优先级规则] | [设计推理] |
 
-## Dependencies
+## 依赖关系
 
-[List every system this mechanic depends on or that depends on this mechanic.]
+[列出此机制依赖或依赖此机制的所有系统。]
 
-| System | Direction | Nature of Dependency |
-|--------|-----------|---------------------|
-| [Combat] | This depends on Combat | Needs damage calculation results |
-| [Inventory] | Inventory depends on this | Provides item effect data |
+| 系统 | 方向 | 依赖性质 |
+|------|------|----------|
+| [战斗] | 此系统依赖战斗 | 需要伤害计算结果 |
+| [库存] | 库存依赖此系统 | 提供物品效果数据 |
 
-## Tuning Knobs
+## 调优旋钮
 
-[Every value that should be adjustable for balancing. Include the current
-value, the safe range, and what happens at the extremes.]
+[每个应可调整以进行平衡的值。包括当前值、安全范围，以及极端情况下的效果。]
 
-| Parameter | Current Value | Safe Range | Effect of Increase | Effect of Decrease |
-|-----------|--------------|------------|-------------------|-------------------|
+| 参数 | 当前值 | 安全范围 | 增加的效果 | 减少的效果 |
+|------|--------|----------|-----------|-----------|
 
-## Visual/Audio Requirements
+## 视觉/音频需求
 
-[What visual and audio feedback does this mechanic need?]
+[此机制需要什么视觉和音频反馈？]
 
-| Event | Visual Feedback | Audio Feedback | Priority |
-|-------|----------------|---------------|----------|
+| 事件 | 视觉反馈 | 音频反馈 | 优先级 |
+|------|----------|----------|--------|
 
-## Game Feel
+## 游戏手感
 
-> **Why this section exists separately from Visual/Audio Requirements**: Visual/Audio
-> Requirements document WHAT feedback events occur (tables of events mapped to assets).
-> Game Feel documents HOW the mechanic feels to operate — the responsiveness, weight,
-> snap, and kinesthetic quality of the interaction. These are design targets for timing,
-> frame data, and physical sensation of control. Game feel must be specified at design
-> time because it drives animation budgets, input handling architecture, and hitbox
-> timing. Retrofitting feel targets after implementation is expensive and often requires
-> fundamental rework.
+> **为什么此章节独立于视觉/音频需求而存在**：视觉/音频需求记录发生什么反馈事件
+>（事件映射到资产的表格）。游戏手感记录机制操作起来的感觉 — 响应性、重量、
+> 干脆度和动觉质量。这些是时间、帧数据和控制物理感觉的设计目标。
+> 游戏手感必须在设计时指定，因为它驱动动画预算、输入处理架构和判定框时序。
+> 在实现后重新调整手感目标代价高昂，通常需要根本性返工。
 
-### Feel Reference
+### 手感参考
 
-[Name a specific game, mechanic, or moment that captures the target feel. Be precise —
-cite the exact mechanic, not just the game. Explain what quality you are borrowing.
-Optionally include an anti-reference (what this should NOT feel like).]
+[命名一个具体游戏、机制或时刻来捕捉目标手感。要精确 —
+引用具体机制，而不仅仅是游戏。解释你借用了什么质量。
+可选地包含反参考（这不应该像什么）。]
 
-> Example: "Should feel like Dark Souls weapon swings — weighty, committed, and
-> telegraphed, but satisfying on contact. NOT floaty like early Halo melee."
+> 示例："应该感觉像《黑暗之魂》的武器摆动 — 有分量、投入、有预兆，
+> 但接触时令人满足。不像早期《光环》近战那样飘忽。"
 
-### Input Responsiveness
+### 输入响应
 
-[Maximum acceptable latency from player input to visible/audible response, per action.]
+[从玩家输入到可见/可听响应的最大可接受延迟，按动作分。]
 
-| Action | Max Input-to-Response Latency (ms) | Frame Budget (at 60fps) | Notes |
-|--------|-----------------------------------|------------------------|-------|
-| [Primary action] | [e.g., 50ms] | [e.g., 3 frames] | |
-| [Secondary action] | | | |
+| 动作 | 最大输入到响应延迟（毫秒） | 帧预算（60fps） | 备注 |
+|------|-----------------------------|-----------------|------|
+| [主要动作] | [例如 50ms] | [例如 3 帧] | |
+| [次要动作] | | | |
 
-### Animation Feel Targets
+### 动画手感目标
 
-[Frame data targets for each animation in this mechanic. Startup = windup before the
-action has any effect. Active = frames when the action is "happening" (hitbox live,
-ability firing, etc.). Recovery = committed/vulnerable frames after the action resolves.]
+[此机制中每个动画的帧数据目标。启动 = 动作有任何效果之前的蓄力。
+活动 = 动作"发生"的帧（判定框激活、能力发射等）。恢复 = 动作解决后
+投入/脆弱的帧。]
 
-| Animation | Startup Frames | Active Frames | Recovery Frames | Feel Goal | Notes |
-|-----------|---------------|--------------|----------------|-----------|-------|
-| [e.g., Light attack] | | | | [e.g., Snappy, low commitment] | |
-| [e.g., Heavy attack] | | | | [e.g., Weighty, high commitment] | |
+| 动画 | 启动帧 | 活动帧 | 恢复帧 | 手感目标 | 备注 |
+|------|--------|--------|--------|-----------|------|
+| [例如 轻攻击] | | | | [例如 干脆、低投入] | |
+| [例如 重攻击] | | | | [例如 有分量、高投入] | |
 
-### Impact Moments
+### 冲击时刻
 
-[Defines the punctuation of the mechanic — the moments of peak feedback intensity that
-make actions feel consequential. Every high-stakes event should have at least one entry.]
+[定义机制的标点符号 — 使动作感觉有意义的高反馈强度时刻。
+每个高风险事件至少应有一个条目。]
 
-| Impact Type | Duration (ms) | Effect Description | Configurable? |
-|-------------|--------------|-------------------|---------------|
-| Hit-stop (freeze frames) | [e.g., 80ms] | [Freeze both objects on contact] | Yes |
-| Screen shake | [e.g., 150ms] | [Directional, decaying] | Yes |
-| Camera impact | | | |
-| Controller rumble | | | |
-| Time-scale slowdown | | | |
+| 冲击类型 | 持续时间（毫秒） | 效果描述 | 可配置？ |
+|----------|-----------------|----------|----------|
+| 命中停止（冻结帧） | [例如 80ms] | [接触时冻结两个对象] | 是 |
+| 屏幕震动 | [例如 150ms] | [方向性、衰减] | 是 |
+| 相机冲击 | | | |
+| 手柄震动 | | | |
+| 时间尺度 slowdown | | | |
 
-### Weight and Responsiveness Profile
+### 重量与响应性配置
 
-[A short prose description of the overall feel target. Answer the following:]
+[目标手感的简短散文描述。回答以下问题：]
 
-- **Weight**: Does this feel heavy and deliberate, or light and reactive?
-- **Player control**: How much does the player feel in control at every moment?
-  (High control = can course-correct mid-action; Low control = committed, momentum-based)
-- **Snap quality**: Does this feel crisp and binary, or smooth and analog?
-- **Acceleration model**: Does movement/action start instantly (arcade feel) or
-  ramp up from zero (simulation feel)? Same question for deceleration.
-- **Failure texture**: When the player makes an error, does the mechanic feel fair
-  or punishing? What is the read on WHY they failed?
+- **重量**: 这感觉沉重且深思熟虑，还是轻盈且反应灵敏？
+- **玩家控制**: 玩家在每个时刻感觉有多少控制？
+  （高控制 = 可以中途修正动作；低控制 = 投入、动量驱动）
+- **干脆度**: 这感觉干脆且二值，还是平滑且模拟？
+- **加速模型**: 移动/动作是立即开始（街机感）还是从零加速（模拟感）？
+  减速同理。
+- **失败纹理**: 当玩家犯错时，机制感觉公平还是苛刻？
+  对失败原因的理解是什么？
 
-### Feel Acceptance Criteria
+### 手感验收标准
 
-[Specific, testable criteria a playtester can verify without measurement instruments.
-These are subjective targets stated precisely enough to get consistent verdicts.]
+[测试人员无需测量仪器即可验证的特定、可测试的标准。
+这些是足够精确表述的主观目标，以获得一致的判定。]
 
-- [ ] [e.g., "Combat feels impactful — playtesters comment on weight unprompted"]
-- [ ] [e.g., "No reviewer uses the words 'floaty', 'slippery', or 'unresponsive'"]
-- [ ] [e.g., "Input latency is imperceptible at target 60fps framerate"]
-- [ ] [e.g., "Hit-stop reads as satisfying, not as lag or stutter"]
+- [ ] [例如 "战斗感觉有冲击力 — 测试人员未经提示就评论重量"]
+- [ ] [例如 "没有审核者使用'飘忽'、'滑'或'无响应'等词"]
+- [ ] [例如 "在目标 60fps 帧率下输入延迟不可感知"]
+- [ ] [例如 "命中停止读作令人满足，而不是延迟或卡顿"]
 
-## UI Requirements
+## UI 需求
 
-[What information needs to be displayed to the player and when?]
+[需要向玩家显示什么信息，何时显示？]
 
-| Information | Display Location | Update Frequency | Condition |
-|-------------|-----------------|-----------------|-----------|
+| 信息 | 显示位置 | 更新频率 | 条件 |
+|------|----------|----------|------|
 
-## Cross-References
+## 交叉引用
 
-[Declare every explicit dependency on another GDD's specific mechanic, value, or
-rule. This table is machine-checked by `/review-all-gdds` Phase 2c — it replaces
-implicit prose references with verifiable declarations. If you reference another
-system's behaviour anywhere in this document, it must appear here.]
+[声明对另一个 GDD 的特定机制、值或规则的每个显式依赖。
+此表格由 `/review-all-gdds` 第 2c 阶段机器检查 —
+它用可验证的声明替换隐式 prose 引用。
+如果在此文档任何地方引用其他系统的行为，它必须出现在此处。]
 
-| This Document References | Target GDD | Specific Element Referenced | Nature |
-|--------------------------|-----------|----------------------------|--------|
-| [e.g., "combo multiplier feeds score"] | `design/gdd/score.md` | `combo_multiplier` output value | Data dependency |
-| [e.g., "death triggers respawn"] | `design/gdd/respawn.md` | Death state transition | State trigger |
-| [e.g., "stamina gates dodge"] | `design/gdd/stamina.md` | Stamina depletion rule | Rule dependency |
+| 本文档引用 | 目标 GDD | 引用的特定元素 | 性质 |
+|------------|----------|----------------|------|
+| [例如 "连击倍率计入得分"] | `design/gdd/score.md` | `combo_multiplier` 输出值 | 数据依赖 |
+| [例如 "死亡触发重生"] | `design/gdd/respawn.md` | 死亡状态转换 | 状态触发 |
+| [例如 "体力门控闪避"] | `design/gdd/stamina.md` | 体力消耗规则 | 规则依赖 |
 
-> **Note on "Nature"**: use one of — `Data dependency` (we consume their output),
-> `State trigger` (their state change triggers our behaviour), `Rule dependency`
-> (our rule assumes their rule is also true), `Ownership handoff` (we hand off
-> ownership of a value to them).
+> **关于"性质"的说明**：使用以下之一 — `数据依赖`（我们消费他们的输出）、
+> `状态触发`（他们的状态变化触发我们的行为）、`规则依赖`
+>（我们的规则假设他们的规则也为真）、`所有权交接`（我们将一个值的所有权移交给他们）。
 
-## Acceptance Criteria
+## 验收标准
 
-[Testable criteria that confirm this mechanic is working as designed.]
+[确认此机制按设计工作的可测试标准。]
 
-- [ ] [Criterion 1: specific, measurable, testable]
-- [ ] [Criterion 2]
-- [ ] [Criterion 3]
-- [ ] Performance: System update completes within [X]ms
-- [ ] No hardcoded values in implementation
+- [ ] [标准 1：具体、可测量、可测试]
+- [ ] [标准 2]
+- [ ] [标准 3]
+- [ ] 性能：系统更新在 [X] 毫秒内完成
+- [ ] 实现中无硬编码值
 
-## Open Questions
+## 未解决的问题
 
-[Anything not yet decided. Each question should have an owner and deadline.]
+[尚未决定的任何事项。每个问题应有所有者和截止日期。]
 
-| Question | Owner | Deadline | Resolution |
-|----------|-------|----------|-----------|
+| 问题 | 所有者 | 截止日期 | 解决方案 |
+|------|--------|----------|----------|

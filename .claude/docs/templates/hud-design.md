@@ -1,505 +1,478 @@
-# HUD Design: [Game Name]
+# HUD 设计：[游戏名称]
 
-> **Status**: Draft | In Review | Approved | Implemented
-> **Author**: [Name or agent — e.g., ui-designer]
-> **Last Updated**: [Date]
-> **Game**: [Game name — this is a single document per game, not per element]
-> **Platform Targets**: [All platforms this HUD must work on — e.g., PC, PS5, Xbox Series X, Steam Deck]
-> **Related GDDs**: [Every system that exposes information through the HUD — e.g., `design/gdd/combat.md`, `design/gdd/progression.md`, `design/gdd/quests.md`]
-> **Accessibility Tier**: Basic | Standard | Comprehensive | Exemplary
-> **Style Reference**: [Link to art bible HUD section if it exists — e.g., `design/gdd/art-bible.md § HUD Visual Language`]
+> **状态**: 草稿 | 审核中 | 已批准 | 已实现
+> **作者**: [名称或 agent — 例如 ui-designer]
+> **最后更新**: [日期]
+> **游戏**: [游戏名称 — 每个游戏一份文档，而非每个元素一份]
+> **目标平台**: [此 HUD 必须工作的所有平台 — 例如 PC、PS5、Xbox Series X、Steam Deck]
+> **相关 GDD**: [通过 HUD 暴露信息的每个系统 — 例如 `design/gdd/combat.md`、`design/gdd/progression.md`、`design/gdd/quests.md`]
+> **无障碍等级**: 基础 | 标准 | 全面 | 卓越
+> **风格参考**: [如果存在，链接到艺术圣经 HUD 章节 — 例如 `design/gdd/art-bible.md § HUD Visual Language`]
 
-> **Note — Scope boundary**: This document specifies all elements that overlay the
-> game world during active gameplay — health bars, ammo counters, minimaps, quest
-> trackers, subtitles, damage numbers, and notification toasts. For menu screens,
-> pause menus, inventory, and dialogs that the player navigates explicitly, use
-> `ux-spec.md` instead. The test: if it appears while the player is directly
-> controlling their character, it belongs here.
+> **注意 — 范围边界**：此文档指定活跃游戏过程中叠加在游戏世界上方的所有元素
+> — 生命条、弹药计数器、小地图、任务追踪器、字幕、伤害数字和通知 toast。
+> 对于玩家明确导航的菜单屏幕、暂停菜单、库存和对话框，请改用 `ux-spec.md`。
+> 测试：如果它出现在玩家直接控制角色时，它属于此处。
 
 ---
 
-## 1. HUD Philosophy
+## 1. HUD 哲学
 
-> **Why this section exists**: The HUD design philosophy is not decoration — it is a
-> design constraint that every subsequent decision is measured against. Without a
-> philosophy, individual elements get added on request ("the quest tracker wants a
-> bigger icon") without any principled way to push back. With a philosophy, there is
-> a shared, explicit standard. More importantly, the philosophy prevents the HUD from
-> slowly growing to cover the game world while each individual addition seemed
-> reasonable in isolation. Write this before specifying any elements.
+> **为什么存在此章节**：HUD 设计哲学不是装饰 — 它是每个后续决策都要衡量的
+> 设计约束。没有哲学，个别元素会被请求添加（"任务追踪器想要更大的图标"）
+> 而没有任何原则性的方式来反驳。有了哲学，就有了共享的、明确的标准。
+> 更重要的是，哲学防止 HUD 在每个单独添加看起来都合理的情况下慢慢增长到覆盖游戏世界。
+> 在指定任何元素之前先写这个。
 
-**What is this game's relationship with on-screen information?**
+**此游戏与屏幕信息的关系是什么？**
 
-[One paragraph. This is a design statement, not a description of features. Consider
-the game's genre, pacing, and player fantasy. A stealth game's HUD philosophy might
-be: "The world is the interface. If the player has to look away from the environment
-to survive, the HUD has failed." A tactics game might say: "Complete situational
-awareness is the game. The HUD is not an overlay — it is the battlefield."
+[一段话。这是一个设计声明，而非功能描述。考虑游戏的类型、节奏和玩家幻想。
+潜行游戏的 HUD 哲学可能是："世界就是界面。如果玩家必须移开视线才能生存，HUD 就失败了。"
+战术游戏可能说："完整的情境感知就是游戏。HUD 不是叠加层 — 它就是战场。"
 
-Reference comparable games if helpful, but describe your specific stance:
-Example — diegetic-first action RPG: "We treat screen information as a concession,
-not a feature. Every HUD element must earn its pixel space by answering the question:
-would the player make demonstrably worse decisions without this information visible?
-If the answer is 'they'd adapt,' we put it in the environment instead."]
+如果有帮助，参考可比较的游戏，但要描述你的具体立场：
+示例 — 沉浸优先的动作 RPG："我们将屏幕信息视为让步，而非功能。
+每个 HUD 元素必须通过回答这个问题来赚取它的像素空间：如果没有这个可见信息，
+玩家会做出明显更差的决策吗？如果答案是'他们会适应'，我们就把信息放到环境中。"]
 
-**Visibility principle** — when in doubt, show or hide?
+**可见性原则** — 有疑问时，显示还是隐藏？
 
-[State the default resolution for ambiguous cases. Options:
-- Default to HIDE: information is available on demand (e.g., Dark Souls — no quest tracker, no minimap, stats are in a menu)
-- Default to SHOW: players prefer to be informed; cluttered is better than uncertain
-- Default to CONTEXTUAL: information appears when it becomes relevant and fades when it does not
-Most games benefit from contextual defaults. State your game's default clearly so every element decision is consistent.]
+[为模糊情况声明默认解决方案。选项：
+- 默认隐藏：信息按需可用（例如 黑魂 — 无任务追踪器、无小地图，属性在菜单中）
+- 默认显示：玩家更喜欢被告知；混乱比不确定好
+- 默认上下文相关：信息在相关时出现，不相关时消失
+大多数游戏受益于上下文默认值。清楚声明你的游戏默认值，以便每个元素决策一致。]
 
-**The Rule of Necessity for this game**:
+**此游戏的必要性规则**：
 
-[Complete this sentence: "A HUD element earns its place when ______________."
+[完成这个句子："当 ______________ 时，HUD 元素赢得它的位置。"
 
-Example: "...the player would have to stop playing to find the same information
-elsewhere, or would make meaningfully worse decisions without it."
+示例："...玩家必须停止游戏才能在别处找到相同信息，或者没有它会做出有意义地更差的决策。"
 
-Example: "...removing it in playtesting causes measurable frustration or confusion
-in more than 25% of testers within the first hour of play."
+示例："...在测试中，在前一个小时的游戏中移除它导致超过 25% 的测试人员出现可衡量的挫败感或困惑。"
 
-This rule is the veto power over feature requests to add HUD elements. Document it
-so it can be cited in design reviews.]
+此规则是对添加 HUD 元素的功能请求的否决权。记录它以便在设计审查中引用。]
 
 ---
 
-## 2. Information Architecture
+## 2. 信息架构
 
-> **Why this section exists**: Before specifying any HUD element's visual design,
-> position, or behavior, you must answer a more fundamental question: should this
-> information be on the HUD at all? This section is a forcing function — it requires
-> you to categorize EVERY piece of information the game world generates and make an
-> explicit, intentional decision about how each is presented. "We'll figure that out
-> later" is how games end up with 18 elements competing for the player's peripheral
-> vision. This table is the master inventory of game information, not just HUD information.
+> **为什么存在此章节**：在指定任何 HUD 元素的视觉设计、位置或行为之前，
+> 你必须回答一个更基本的问题：此信息应该出现在 HUD 上吗？
+> 此章节是一个强制函数 — 它要求你对游戏世界生成的每一条信息进行分类，
+> 并对每条信息如何呈现做出明确的、有意的决策。"我们稍后再处理"
+> 就是游戏最终出现 18 个元素争夺玩家周边视野的方式。
+> 此表格是游戏信息的总清单，而不仅仅是 HUD 信息。
 
-| Information Type | Always Show | Contextual (show when relevant) | On Demand (menu/button) | Hidden (environmental / diegetic) | Reasoning |
-|-----------------|-------------|--------------------------------|------------------------|----------------------------------|-----------|
-| [Health / Vitality] | [X if action game — player needs constant awareness] | [X if exploration game — show only when injured] | [ ] | [ ] | [Example: always visible because health decisions (retreat, heal) must be instant in combat] |
-| [Primary resource (mana / stamina / ammo)] | [ ] | [X — show when resource is being consumed or is critically low] | [ ] | [ ] | [Example: contextual because stable resource levels are not decision-relevant] |
-| [Secondary resource (currency / materials)] | [ ] | [ ] | [X — check in inventory] | [ ] | [Example: on-demand because resource totals don't affect immediate gameplay decisions] |
-| [Minimap / Compass] | [X] | [ ] | [ ] | [ ] | [Example: always visible because navigation decisions are constant during exploration] |
-| [Quest objective] | [ ] | [X — show when objective changes or player is near it] | [ ] | [ ] | [Example: contextual — player knows their objective; only remind at key moments] |
-| [Enemy health bar] | [ ] | [X — show only during combat encounters] | [ ] | [ ] | [Example: contextual because enemy health is irrelevant outside combat] |
-| [Status effects (buffs/debuffs)] | [ ] | [X — show when active] | [ ] | [ ] | [Example: contextual because status effects only affect decisions when present] |
-| [Dialogue subtitles] | [X when dialogue is playing] | [ ] | [ ] | [ ] | [Example: always show while dialogue is active — accessibility requirement] |
-| [Combo / streak counter] | [ ] | [X — show while combo is active, hide on reset] | [ ] | [ ] | [Example: contextual because it communicates active performance, not baseline state] |
-| [Timer] | [ ] | [X — show only in timed sequences] | [ ] | [ ] | [Example: contextual because timers only exist in specific encounter types] |
-| [Tutorial prompts] | [ ] | [X — show for first-time situations only] | [ ] | [ ] | [Example: contextual and one-time; never repeat to experienced players] |
-| [Score / points] | [ ] | [X — show in score-relevant modes only] | [ ] | [ ] | [Example: contextual by game mode; hidden in modes where score is irrelevant] |
-| [XP / level progress] | [ ] | [ ] | [X — available via character screen] | [ ] | [Example: on-demand because progression does not affect in-moment gameplay decisions] |
-| [Waypoint / objective marker] | [ ] | [X — show when player is navigating to objective] | [ ] | [ ] | [Example: contextual — suppress during cutscenes, cinematic moments, and free exploration] |
+| 信息类型 | 始终显示 | 上下文相关（相关时显示） | 按需（菜单/按钮） | 隐藏（环境/沉浸式） | 推理 |
+|----------|----------|------------------------|------------------|---------------------|------|
+| [生命/活力] | [X 如果动作游戏 — 玩家需要持续意识] | [X 如果探索游戏 — 仅在受伤时显示] | [ ] | [ ] | [示例：始终可见，因为生命决策（撤退、治疗）在战斗中必须是即时的] |
+| [主要资源（魔法/体力/弹药）] | [ ] | [X — 在资源被消耗或严重不足时显示] | [ ] | [ ] | [示例：上下文相关，因为稳定资源水平不是决策相关的] |
+| [次要资源（货币/材料）] | [ ] | [ ] | [X — 在库存中查看] | [ ] | [示例：按需，因为资源总量不影响即时游戏决策] |
+| [小地图/指南针] | [X] | [ ] | [ ] | [ ] | [示例：始终可见，因为探索期间导航决策是持续的] |
+| [任务目标] | [ ] | [X — 目标变化或玩家接近时显示] | [ ] | [ ] | [示例：上下文相关 — 玩家知道他们的目标；只在关键时刻提醒] |
+| [敌人生命条] | [ ] | [X — 仅在战斗遭遇期间显示] | [ ] | [ ] | [示例：上下文相关，因为敌人在战斗外无关] |
+| [状态效果（buff/debuff）] | [ ] | [X — 活动时显示] | [ ] | [ ] | [示例：上下文相关，因为状态效果仅在存在时影响决策] |
+| [对话字幕] | [X 当对话播放时] | [ ] | [ ] | [ ] | [示例：当对话活动时始终显示 — 无障碍要求] |
+| [连击/连续计数] | [ ] | [X — 连续活动时显示，重置时隐藏] | [ ] | [ ] | [示例：上下文相关，因为它传达活动表现，而非基准状态] |
+| [计时器] | [ ] | [X — 仅在限时序列中显示] | [ ] | [ ] | [示例：上下文相关，因为计时器仅在特定遭遇类型中存在] |
+| [教程提示] | [ ] | [X — 仅首次情况显示] | [ ] | [ ] | [示例：上下文且一次性的；永远不要向有经验的玩家重复] |
+| [分数/点数] | [ ] | [X — 仅在得分相关模式中显示] | [ ] | [ ] | [示例：按游戏模式上下文相关；在得分无关的模式中隐藏] |
+| [经验值/等级进度] | [ ] | [ ] | [X — 通过角色屏幕可用] | [ ] | [示例：按需，因为进度不影响即时游戏决策] |
+| [航点/目标标记] | [ ] | [X — 玩家导航到目标时显示] | [ ] | [ ] | [示例：上下文相关 — 在过场动画、电影时刻和自由探索中抑制] |
 
 ---
 
-## 3. Layout Zones
+## 3. 布局区域
 
-> **Why this section exists**: The game world is the primary content — the HUD is a
-> frame around it. Before placing any element, divide the screen into named zones
-> with explicit positions and safe zone margins. This section prevents two failure
-> modes: (1) elements placed ad-hoc until the screen is cluttered, and (2) elements
-> that overlap platform-required safe zones and get rejected in certification.
-> Every element in Section 4 must be assigned to a zone defined here.
+> **为什么存在此章节**：游戏世界是主要内容 — HUD 是它的框架。
+> 在放置任何元素之前，将屏幕划分为具有明确位置和安全区域边距的命名区域。
+> 此章节防止两个失败模式：(1) 元素被临时放置直到屏幕拥挤，
+> 和 (2) 元素与平台要求的安全区域重叠并在认证中被拒绝。
+> 第 4 节中的每个元素必须分配到此处定义的区域。
 
-### 3.1 Zone Diagram
+### 3.1 区域图
 
 ```
-[Draw your HUD layout zones. Customize this to match your game's actual layout.
- Axes represent approximate screen percentage. Adjust zone names and sizes.]
+[绘制你的 HUD 布局区域。根据你游戏的实际布局自定义。
+ 轴表示近似屏幕百分比。调整区域名称和大小。]
 
  0%                                             100%
  ┌──────────────────────────────────────────────────┐  0%
- │  [SAFE MARGIN — 10% from edge on all sides]      │
+ │  [安全边距 — 所有边缘 10%]                       │
  │  ┌────────────────────────────────────────────┐  │
- │  │ [TOP-LEFT]              [TOP-CENTER]  [TOP-RIGHT] │  ~15%
- │  │  Health, resource       Quest name    Ammo, magazine │
+ │  │ [左上]              [顶部居中]  [右上]       │  ~15%
+ │  │  生命、资源           任务名称    弹药、弹匣   │  │
  │  │                                              │  │
  │  │                                              │  │
- │  │               [CENTER-SCREEN]               │  │  ~50%
- │  │                Crosshair / reticle           │  │
- │  │               (minimize HUD here)            │  │
+ │  │               [屏幕中心]                   │  │  ~50%
+ │  │                十字线/准星                    │  │
+ │  │               （此处最小化 HUD）            │  │
  │  │                                              │  │
  │  │                                              │  │
- │  │ [BOTTOM-LEFT]     [BOTTOM-CENTER]   [BOTTOM-RIGHT] │  ~85%
- │  │  Minimap          Subtitles          Notifications │
- │  │  Ability icons    Tutorial prompts             │  │
+ │  │ [左下]          [底部居中]       [右下]       │  ~85%
+ │  │  小地图           字幕             通知        │  │
+ │  │  能力图标        教程提示                     │  │
  │  └────────────────────────────────────────────┘  │
  │                                                  │
  └──────────────────────────────────────────────────┘  100%
 ```
 
-> Rule for zone placement: the center 40% of the screen (both horizontally and
-> vertically) is the player's primary focus area. Keep this zone as clear as
-> possible at all times. HUD elements that appear in the center zone — crosshairs,
-> interaction prompts, hit markers — must be minimal, high-contrast, and brief.
+> 区域放置规则：屏幕中心 40%（水平和垂直）是玩家的主要焦点区域。
+> 始终保持此区域尽可能清晰。出现在中心区域的 HUD 元素 —
+> 十字线、交互提示、命中标记 — 必须最小化、高对比度且短暂。
 
-### 3.2 Zone Specification Table
+### 3.2 区域规格表
 
-| Zone Name | Screen Position | Safe Zone Compliant | Primary Elements | Max Simultaneous Elements | Notes |
-|-----------|----------------|---------------------|-----------------|--------------------------|-------|
-| [Top Left] | [Top-left corner, within safe margin] | [Yes — 10% from top, 10% from left] | [Health bar, stamina bar, shield bar] | [3] | [Vital status — player's own resources. Priority zone for player state.] |
-| [Top Center] | [Top edge, centered horizontally] | [Yes — 10% from top] | [Quest objective, area name (on enter)] | [1 — only one message at a time] | [Use for narrative context, not mechanical information. Keep text minimal.] |
-| [Top Right] | [Top-right corner, within safe margin] | [Yes — 10% from top, 10% from right] | [Ammo count, ability cooldowns] | [2] | [Weapon/ability state. Most relevant during active combat.] |
-| [Center] | [Screen center ±15%] | [N/A — not a margin zone] | [Crosshair, interaction prompt, hit marker] | [1 active at a time] | [CRITICAL: Nothing persistent here. Only momentary indicators.] |
-| [Bottom Left] | [Bottom-left corner, within safe margin] | [Yes — 10% from bottom, 10% from left] | [Minimap, ability icons] | [2] | [Navigation and ability readout. Small, non-intrusive.] |
-| [Bottom Center] | [Bottom edge, centered horizontally] | [Yes — 10% from bottom] | [Subtitles, tutorial prompts] | [2 — subtitle + tutorial may coexist] | [Highest-priority accessibility zone. Never place other elements here.] |
-| [Bottom Right] | [Bottom-right corner, within safe margin] | [Yes — 10% from bottom, 10% from right] | [Notification toasts, pick-up feedback] | [3 stacked] | [Transient notifications. Stack vertically. Oldest disappears first.] |
+| 区域名称 | 屏幕位置 | 安全区域合规 | 主要元素 | 最大同时元素数 | 备注 |
+|----------|----------|-------------|----------|---------------|------|
+| [左上] | [左上角，在安全边距内] | [是 — 距顶部 10%，距左侧 10%] | [生命条、体力条、护盾条] | [3] | [重要状态 — 玩家自己的资源。玩家状态的优先级区域。] |
+| [顶部居中] | [顶部边缘，水平居中] | [是 — 距顶部 10%] | [任务目标，进入区域时区域名称] | [1 — 同时只有一个消息] | [用于叙事上下文，而非机械信息。保持文本最小化。] |
+| [右上] | [右上角，在安全边距内] | [是 — 距顶部 10%，距右侧 10%] | [弹药计数、能力冷却] | [2] | [武器/能力状态。最相关的活跃战斗期间。] |
+| [中心] | [屏幕中心 ±15%] | [N/A — 不是边距区域] | [十字线、交互提示、命中标记] | [1 同时活动] | [关键：此处无持久物。只有短暂指示器。] |
+| [左下] | [左下角，在安全边距内] | [是 — 距底部 10%，距左侧 10%] | [小地图、能力图标] | [2] | [导航和能力读出。小型、非侵入性。] |
+| [底部居中] | [底部边缘，水平居中] | [是 — 距底部 10%] | [字幕、教程提示] | [2 — 字幕 + 教程可以共存] | [最高优先级无障碍区域。此处永远不要放置其他元素。] |
+| [右下] | [右下角，在安全边距内] | [是 — 距底部 10%，距右侧 10%] | [通知 toast、拾取反馈] | [3 堆叠] | [短暂通知。垂直堆叠。最旧的先消失。] |
 
-**Safe zone margins by platform**:
+**各平台安全边距**：
 
-| Platform | Top | Bottom | Left | Right | Notes |
-|----------|-----|--------|------|-------|-------|
-| [PC — windowed] | [0% — no safe zone required] | [0%] | [0%] | [0%] | [But respect minimum resolution — elements must not crowd at 1280x720] |
-| [PC — fullscreen] | [3%] | [3%] | [3%] | [3%] | [Slight margin for 4K TV-connected PCs] |
-| [Console — TV] | [10%] | [10%] | [10%] | [10%] | [Action-safe zone for broadcast-spec TVs. Some TVs overscan beyond this.] |
-| [Steam Deck] | [5%] | [5%] | [5%] | [5%] | [Small screen; safe zone is smaller but crowding risk is higher] |
-| [Mobile — portrait] | [15% top] | [10% bottom] | [5%] | [5%] | [15% top avoids notch/camera cutout on most devices] |
-| [Mobile — landscape] | [5%] | [5%] | [15% left] | [15% right] | [Thumb placement on landscape — side zones are obscured by hands] |
-
----
-
-## 4. HUD Element Specifications
-
-> **Why this section exists**: Each HUD element needs its own specification to be
-> built correctly. Ad-hoc implementation of HUD elements produces inconsistent
-> sizing, mismatched update frequencies, missing urgency states, and accessibility
-> failures. This section is the implementation brief for every element — fill it
-> completely before any element moves into development.
-
-### 4.1 Element Overview Table
-
-> One row per HUD element. This is the master inventory for implementation planning.
-
-| Element Name | Zone | Always Visible | Visibility Trigger | Data Source | Update Frequency | Max Size (% screen W) | Min Readable Size | Overlap Priority | Accessibility Alt |
-|-------------|------|---------------|-------------------|-------------|-----------------|----------------------|------------------|-----------------|------------------|
-| [Health Bar] | [Top Left] | [Yes] | [N/A] | [PlayerStats] | [On value change] | [20%] | [120px wide] | [1 — highest] | [Numerical text label showing current/max: "80/100"] |
-| [Stamina Bar] | [Top Left] | [No — context] | [Show when consuming stamina; hide 3s after full] | [PlayerStats] | [Realtime during use] | [15%] | [80px wide] | [2] | [Numerical label, or hide if full (accessible assumption)] |
-| [Shield Indicator] | [Top Left] | [No — context] | [Show when shield is active or recently hit] | [PlayerStats] | [On value change] | [20%] | [120px wide] | [3] | [Numerical label. Must not use color alone — add shield icon.] |
-| [Ammo Counter] | [Top Right] | [No — context] | [Show when weapon is equipped; hide when unarmed] | [WeaponSystem] | [On fire / on reload] | [10%] | ["88/888" readable at game's min resolution] | [4] | [Text-only fallback: "32 / 120"] |
-| [Minimap] | [Bottom Left] | [Yes] | [N/A — but suppressed in cinematic mode] | [NavigationSystem] | [Realtime] | [18%] | [150x150px] | [5] | [Cardinal direction compass strip as fallback; must be toggleable] |
-| [Quest Objective] | [Top Center] | [No — context] | [Show on objective change; show when near objective location; hide after 5s] | [QuestSystem] | [On event] | [30%] | [Legible at body text size] | [6] | [Read aloud on objective change via screen reader] |
-| [Crosshair] | [Center] | [No — context] | [Show when ranged weapon equipped; hide in melee or unarmed] | [WeaponSystem / AimSystem] | [Realtime] | [3%] | [12px diameter minimum] | [1 — center zone priority] | [Reduce motion: static crosshair only. Option to enlarge.] |
-| [Interaction Prompt] | [Center] | [No — context] | [Show when player is within interaction range of an interactive object] | [InteractionSystem] | [On enter/exit interaction range] | [15%] | [24px icon + readable text] | [2 — center zone] | [Text description of interaction always present, not icon-only] |
-| [Subtitles] | [Bottom Center] | [No — always on when dialogue plays, if setting enabled] | [Show during any voiced line or ambient dialogue] | [DialogueSystem] | [Per dialogue line] | [60%] | [Minimum 24px font] | [1 — highest in zone] | [This IS the accessibility feature — see Section 8 for subtitle spec] |
-| [Damage Numbers] | [World-space / anchored to entity] | [No — context] | [Show on any damage event; duration 800ms] | [CombatSystem] | [On event] | [5% per number] | [18px minimum] | [3] | [Option to disable; numbers can overwhelm for photosensitive players] |
-| [Status Effect Icons] | [Top Left — below health bar] | [No — context] | [Show when any status effect is active on player] | [StatusSystem] | [On effect add/remove] | [3% per icon] | [24px per icon] | [3] | [Icon + text label on hover/focus. Never icon-only.] |
-| [Notification Toast] | [Bottom Right] | [No — event-driven] | [On loot, XP gain, achievement, quest update] | [Multiple — see Section 6] | [On event] | [25%] | [Legible at body text size] | [7 — lowest] | [Queued; never overlapping. Read by screen reader if subtitle mode on.] |
-
-### 4.2 Element Detail Blocks
-
-> For each element in the table above, write a detail block. Copy and complete
-> one block per element.
+| 平台 | 上 | 下 | 左 | 右 | 备注 |
+|------|----|----|----|----|------|
+| [PC — 窗口化] | [0% — 不需要安全区域] | [0%] | [0%] | [0%] | [但尊重最小分辨率 — 元素在 1280x720 时不能拥挤] |
+| [PC — 全屏] | [3%] | [3%] | [3%] | [3%] | [4K 电视连接 PC 的轻微边距] |
+| [主机 — 电视] | [10%] | [10%] | [10%] | [10%] | [广播规格电视的动作安全区。某些电视 overscan 超过此值。] |
+| [Steam Deck] | [5%] | [5%] | [5%] | [5%] | [小屏幕；安全区域更小但拥挤风险更高] |
+| [移动 — 肖像] | [顶部 15%] | [底部 10%] | [5%] | [5%] | [顶部 15% 避免大多数设备的刘海/相机挖孔] |
+| [移动 — 风景] | [5%] | [5%] | [左侧 15%] | [右侧 15%] | [风景方向上的拇指放置 — 侧边区域被手遮挡] |
 
 ---
 
-**Health Bar**
+## 4. HUD 元素规格
 
-- Visual description: [Horizontal fill bar. Left-to-right fill direction. Segmented at 25/50/75% to aid reading at a glance. Background: dark semi-transparent (40% opacity). Fill color: context-dependent — see Urgency States.]
-- Data displayed: [Current HP as fill percentage. Numerical value displayed as text below bar at all times: "80 / 100".]
-- Update behavior: [Bar fill decreases or increases smoothly using a lerp over 150ms per change. Large damage (>25% single hit) triggers a brief flash (1 frame white, then drain).]
-- Urgency states:
-  - Normal (>50% HP): [Green fill, no special behavior]
-  - Caution (25–50% HP): [Yellow fill, low warning pulse every 4 seconds]
-  - Critical (<25% HP): [Red fill, persistent slow pulse (1 Hz), vignette appears at screen edges]
-  - Zero (0% HP): [Bar empties and turns grey; death state begins]
-- Interaction: [Display only. Not interactive. Player cannot click, hover, or focus this element as an action target.]
-- Player customization: [Opacity adjustable (see Section 7 Tuning Knobs). Can be repositioned to any corner by player in accessibility settings.]
+> **为什么存在此章节**：每个 HUD 元素需要自己的规格才能正确构建。
+> 临时实现的 HUD 元素会产生不一致的尺寸、不匹配的更新频率、
+> 缺失的紧急状态和无障碍失败。此章节是每个元素的实现简报 —
+> 在任何元素进入开发之前完整填写。
 
----
+### 4.1 元素概览表
 
-**Minimap**
+> 每个 HUD 元素一行。这是实现规划的主清单。
 
-- Visual description: [Circular mask, radius = 75px at reference resolution 1920x1080. Player icon at center. North always up unless player has unlocked "Rotate minimap" setting. Range = configurable, default 80 world units radius.]
-- Data displayed: [Player position, nearby enemies (if detection perk unlocked), quest markers within range, points of interest icons, traversal obstacles (walls, drops).]
-- Update behavior: [Realtime. Updates every frame. Enemy icons fade in/out as they enter/leave detection range over 300ms.]
-- Urgency states: [None for the map itself. Enemy icons turn red when they are in combat-alert state.]
-- Interaction: [Not interactive in-game. Press dedicated Map button to open the full map screen (separate UX spec).]
-- Player customization: [Size: S/M/L (70/90/110px radius). Opacity: 30–100%. Rotation: locked-north or player-relative. Can be disabled entirely (compass strip shows as fallback).]
+| 元素名称 | 区域 | 始终可见 | 可见性触发 | 数据源 | 更新频率 | 最大尺寸（屏幕宽%） | 最小可读尺寸 | 重叠优先级 | 无障碍替代 |
+|---------|------|---------|-----------|--------|----------|---------------------|-------------|-----------|-----------|
+| [生命条] | [左上] | [是] | [N/A] | [PlayerStats] | [值更改时] | [20%] | [120px 宽] | [1 — 最高] | [显示当前/最大的数字文本标签："80/100"] |
+| [体力条] | [左上] | [否 — 上下文] | [消耗体力时显示；满时 3s 后隐藏] | [PlayerStats] | [使用时实时] | [15%] | [80px 宽] | [2] | [数字标签，或满时隐藏（可访问假设）] |
+| [护盾指示器] | [左上] | [否 — 上下文] | [护盾活动或最近被击中时显示] | [PlayerStats] | [值更改时] | [20%] | [120px 宽] | [3] | [数字标签。不要仅用颜色 — 添加护盾图标。] |
+| [弹药计数器] | [右上] | [否 — 上下文] | [武器装备时显示；未武装时隐藏] | [WeaponSystem] | [开火/重新加载时] | [10%] | ["88/888" 在游戏最小分辨率可读] | [4] | [仅文本回退："32 / 120"] |
+| [小地图] | [左下] | [是] | [N/A — 但在电影模式中抑制] | [NavigationSystem] | [实时] | [18%] | [150x150px] | [5] | [卡迪纳尔方向罗盘条作为回退；必须可切换] |
+| [任务目标] | [顶部居中] | [否 — 上下文] | [目标变化时显示；接近目标位置时显示；5s 后隐藏] | [QuestSystem] | [事件时] | [30%] | [正文大小可读] | [6] | [目标变化时通过屏幕阅读器朗读] |
+| [十字线] | [中心] | [否 — 上下文] | [装备远程武器时显示；近战或未武装时隐藏] | [WeaponSystem / AimSystem] | [实时] | [3%] | [最小 12px 直径] | [1 — 中心区域优先级] | [减少动作：仅静态十字线。可放大选项。] |
+| [交互提示] | [中心] | [否 — 上下文] | [玩家在可交互对象的交互范围内时显示] | [InteractionSystem] | [进入/退出交互范围时] | [15%] | [24px 图标 + 可读文本] | [2 — 中心区域] | [交互描述始终存在，不仅是图标] |
+| [字幕] | [底部居中] | [否 — 对话播放时始终开启（如果设置启用）] | [任何配音台词或环境对话期间显示] | [DialogueSystem] | [每句对话] | [60%] | [最小 24px 字体] | [1 — 区域内最高] | [这就是无障碍功能 — 见第 8 节字幕规格] |
+| [伤害数字] | [世界空间/锚定到实体] | [否 — 上下文] | [任何伤害事件时显示；持续 800ms] | [CombatSystem] | [事件时] | [每个数字 5%] | [最小 18px] | [3] | [可禁用选项；数字可能使光敏玩家不知所措] |
+| [状态效果图标] | [左上 — 生命条下方] | [否 — 上下文] | [玩家有任何状态效果活动时显示] | [StatusSystem] | [效果添加/移除时] | [每个图标 3%] | [每个图标 24px] | [3] | [悬停/焦点时图标 + 文本标签。永远不要仅图标。] |
+| [通知 Toast] | [右下] | [否 — 事件驱动] | [战利品、经验值增加、成就、任务更新时] | [多个 — 见第 6 节] | [事件时] | [25%] | [正文大小可读] | [7 — 最低] | [排队；永远不重叠。如果字幕模式开启，由屏幕阅读器读取。] |
 
----
+### 4.2 元素详情块
 
-**[Repeat this block for every element in Section 4.1]**
-
----
-
-## 5. HUD States by Gameplay Context
-
-> **Why this section exists**: The HUD is not a static overlay — it is a dynamic
-> system that must adapt to what the player is doing. A HUD designed only for
-> standard gameplay will look wrong in cutscenes, feel cluttered in exploration,
-> and occlude critical information in boss fights. This section defines the
-> transformations the HUD undergoes in each gameplay context. It is also the spec
-> for the system that manages HUD visibility — the HUD state machine.
-
-| Context | Elements Shown | Elements Hidden | Elements Modified | Transition Into This State |
-|---------|---------------|-----------------|------------------|---------------------------|
-| [Exploration — no threats] | [Minimap, Quest Objective (faded, 60%), Subtitles (if active)] | [Ammo Counter, Crosshair, Damage Numbers, Status Effects (if none active)] | [Health Bar fades to 40% opacity — visible but not dominant] | [Fade transition, 500ms, when no enemies detected for 10s] |
-| [Combat — active threat] | [Health Bar (full opacity), Stamina Bar (when used), Ammo Counter, Crosshair, Damage Numbers, Status Effects, Enemy Health Bars] | [Quest Objective (temporarily hidden), Notification Toasts (paused queue)] | [Minimap scales down 15% and raises opacity to 100%] | [Immediate snap in on first enemy detection — no fade. Combat readiness requires instant info.] |
-| [Dialogue / Cutscene] | [Subtitles, Dialogue speaker name] | [All gameplay HUD elements: health, ammo, minimap, crosshair, damage numbers] | [N/A] | [All gameplay elements fade out over 300ms when cutscene flag is set] |
-| [Cinematic (scripted camera sequence)] | [Subtitles only] | [Everything else including speaker name] | [Letterbox bars appear (if applicable to this game's style)] | [Immediate on cinematic flag; letterbox slides in from top/bottom over 400ms] |
-| [Inventory / Menu open] | [None — inventory renders full-screen or as overlay] | [All HUD elements] | [Game world visible but paused behind inventory screen] | [All HUD elements hide over 150ms as menu opens] |
-| [Death / Respawn pending] | [Death screen overlay — separate spec] | [All gameplay HUD elements] | [Screen desaturates and darkens over 800ms] | [Death state begins when HP reaches 0 — HUD elements fade over 600ms] |
-| [Loading / Transition] | [Loading indicator, tip text] | [All gameplay HUD elements] | [N/A] | [Instant on level transition trigger] |
-| [Tutorial — new mechanic] | [Standard context HUD + Tutorial Prompt overlay] | [Nothing additional hidden] | [Tutorial prompt dims background subtly to draw attention to prompt] | [Tutorial system fires ShowTutorial event; prompt fades in over 200ms] |
-| [Boss Encounter] | [Boss health bar appears (large, bottom of screen or top center), all combat elements] | [Quest Objective] | [Boss bar renders in a distinct visual style — must not be confused with player health] | [Boss health bar slides in on boss encounter trigger over 400ms] |
+> 对于上表中每个元素，编写一个详情块。复制并完成每个元素的块。
 
 ---
 
-## 6. Information Hierarchy
+**生命条**
 
-> **Why this section exists**: Not all HUD information is equally important. When
-> screen space is limited, when the player is under high stress, or when elements
-> compete for the same zone, there must be a principled priority order that governs
-> which elements survive and which get suppressed. This section formalizes that
-> hierarchy so it can be enforced systematically and not just "feels obvious" decisions
-> made at implementation time.
-
-| Element | Priority Tier | Reasoning | What Replaces It If Hidden |
-|---------|--------------|-----------|---------------------------|
-| [Subtitles] | [MUST KEEP — never hide during dialogue] | [Accessibility requirement. Legal requirement in some markets. Story clarity.] | [N/A — nothing replaces subtitles] |
-| [Health Bar] | [MUST KEEP — during any state where the player can be damaged] | [Without health visibility, survival decisions become impossible] | [Auditory cues (heartbeat, breathing) supplement but do not replace] |
-| [Crosshair] | [MUST KEEP — while aiming with a ranged weapon] | [Targeting without a crosshair is a precision failure, not a difficulty feature] | [Alternative: dot-only mode for minimalists; never fully hidden while aiming] |
-| [Interaction Prompt] | [MUST KEEP — when player is in interaction range] | [Without it, interactive objects are invisible to the player] | [Environmental visual cues can supplement but interaction affordance must be explicit] |
-| [Ammo Counter] | [SHOULD KEEP] | [Low ammo decisions (switch weapon, reload) require awareness; can be contextual] | [Auditory "click" on empty chamber is acceptable fallback for experienced players] |
-| [Minimap] | [SHOULD KEEP] | [Navigation requires spatial awareness; loss forces repeated map opens] | [Compass strip (simplified directional indicator) is acceptable fallback] |
-| [Status Effects] | [SHOULD KEEP — while active] | [Active debuffs change what actions are viable; invisible debuffs feel unfair] | [Character animation states can partially communicate status effects (limping, sparks)] |
-| [Quest Objective] | [CAN HIDE] | [Player can hold objective in memory for extended periods; contextual is correct default] | [Player remembers objective from context] |
-| [Damage Numbers] | [CAN HIDE] | [Feedback element, not decision-critical. Many players turn these off.] | [Hit sounds and enemy reactions communicate hit registration] |
-| [Notification Toasts] | [CAN HIDE in high-intensity moments] | [Mid-combat "You gained 50 XP" is noise, not signal. Queue and show after combat.] | [Queue held and released when combat ends] |
-| [Combo Counter] | [ALWAYS HIDE when combo resets or player is not attacking] | [Stale combo information is actively misleading] | [N/A — simply hidden] |
+- 视觉描述：[水平填充条。从左到右填充方向。在 25/50/75% 处分段以帮助一目了然。背景：深色半透明（40% 透明度）。填充颜色：上下文相关 — 见紧急状态。]
+- 显示的数据：[作为填充百分比的当前生命值。始终在条下方显示数字值："80 / 100"。]
+- 更新行为：[条填充使用 150ms 每变化 lerp 平滑减少或增加。大额伤害（>25% 单次命中）触发短暂闪烁（1 帧白色，然后流失）。]
+- 紧急状态：
+  - 正常（>50% 生命值）：[绿色填充，无特殊行为]
+  - 注意（25–50% 生命值）：[黄色填充，每 4 秒低警告脉冲]
+  - 危险（<25% 生命值）：[红色填充，持续慢速脉冲（1 Hz），屏幕边缘出现晕影]
+  - 零（0% 生命值）：[条清空并变灰；死亡状态开始]
+- 交互：[仅显示。不可交互。玩家不能点击、悬停或聚焦此元素作为操作目标。]
+- 玩家自定义：[不透明度可调（见第 7 节调优旋钮）。可在无障碍设置中重新定位到任何角落。]
 
 ---
 
-## 7. Visual Budget
+**小地图**
 
-> **Why this section exists**: Without explicit budget constraints, HUD elements
-> accumulate until the game world is nearly invisible. These numbers are hard limits,
-> not guidelines. Every element addition that would breach a limit requires explicit
-> approval and must displace or reduce an existing element.
-
-| Budget Constraint | Limit | Measurement Method | Current Estimate | Status |
-|------------------|-------|--------------------|-----------------|--------|
-| Maximum simultaneous active HUD elements | [8] | [Count all visible, non-faded elements at any one frame] | [TBD — verify at implementation] | [To verify] |
-| Maximum % of screen occupied by HUD (exploration mode) | [12%] | [Pixel area of all HUD elements / total screen pixels] | [TBD] | [To verify] |
-| Maximum % of screen occupied by HUD (combat mode) | [22%] | [Same method — combat adds ammo, crosshair, enemy bars] | [TBD] | [To verify] |
-| Maximum % of center screen zone (40% of screen W/H) occupied | [5%] | [Only crosshair and interaction prompt allowed here] | [TBD] | [To verify] |
-| Minimum contrast ratio — HUD text on any background | [4.5:1 (WCAG AA)] | [Measured against the darkest and lightest game world areas the element will appear over] | [TBD] | [To verify] |
-| Maximum opacity for HUD background panels | [65%] | [Opacity of any panel behind HUD text — must preserve world visibility through panel] | [TBD] | [To verify] |
-| Minimum HUD element size at minimum supported resolution | [40px for icons, 18px for text] | [Measure at lowest target resolution] | [TBD] | [To verify] |
-
-> **How to apply these budgets**: For every new HUD element proposed during
-> production, require the proposer to state (1) which budget line it affects,
-> (2) what the new total will be, and (3) what existing element will be reduced or
-> made contextual to stay within budget. "It's a small icon" is not an analysis.
+- 视觉描述：[圆形遮罩，半径 = 参考分辨率 1920x1080 下 75px。玩家图标居中。北始终向上，除非玩家解锁了"旋转小地图"设置。范围 = 可配置，默认 80 世界单位半径。]
+- 显示的数据：[玩家位置、附近敌人（如果解锁了探测 perk）、范围内的任务标记、兴趣点图标、穿越障碍物（墙壁、掉落）。]
+- 更新行为：[实时。每帧更新。敌人在进入/离开探测范围时在 300ms 内淡入/淡出。]
+- 紧急状态：[地图本身没有紧急状态。敌人在进入战斗警戒状态时图标变红。]
+- 交互：[游戏中不可交互。按专用地图按钮打开完整地图屏幕（单独的 UX 规格）。]
+- 玩家自定义：[尺寸：S/M/L（70/90/110px 半径）。不透明度：30–100%。旋转：锁定北或玩家相对。可完全禁用（罗盘条作为回退）。]
 
 ---
 
-## 8. Feedback & Notification Systems
-
-> **Why this section exists**: Notifications are the most frequently-added and
-> worst-controlled part of most HUDs. Every system wants to tell the player
-> something. Without explicit rules about notification priority, stacking limits,
-> and queue behavior, the notification zone becomes a firehose of overlapping
-> toasts that players learn to ignore entirely. This section establishes the
-> notification contract for all systems.
-
-| Notification Type | Trigger System | Screen Position | Duration (ms) | Animation In / Out | Max Simultaneous | Priority | Queue Behavior | Dismissible? |
-|------------------|---------------|-----------------|--------------|-------------------|-----------------|----------|---------------|-------------|
-| [Item Pickup] | [InventorySystem] | [Bottom Right — toast] | [2000] | [Slide in from right 200ms / fade out 300ms] | [3 stacked] | [Low] | [FIFO queue; older toasts pushed up as new ones enter] | [No — auto-dismiss] |
-| [XP Gain] | [ProgressionSystem] | [Bottom Right — toast, below item toasts] | [1500] | [Fade in 150ms / fade out 300ms] | [1 — XP messages merge: "XP +150"] | [Very Low — suppress during combat, queue for post-combat] | [Combat-aware queue] | [No] |
-| [Level Up] | [ProgressionSystem] | [Center screen — persistent until dismissed] | [Persistent — requires input to dismiss] | [Scale up from 80% + fade in 400ms] | [1] | [High — interrupts normal toasts] | [Pauses all other notifications until dismissed] | [Yes — any input] |
-| [Quest Update] | [QuestSystem] | [Top Center] | [4000] | [Slide down from top 250ms / fade out 400ms] | [1 — top center is single-message zone] | [Medium] | [If quest update arrives while previous is visible, extend duration by 2000ms; do not stack] | [No] |
-| [Objective Complete] | [QuestSystem] | [Top Center] | [3000] | [Same as Quest Update but with additional completion sound] | [1] | [Medium-High — preempts Quest Update] | [Preempts any queued top-center message] | [No] |
-| [Critical Warning (low health, hazard)] | [CombatSystem / EnvironmentSystem] | [Screen edge vignette + text at center-bottom] | [Persistent while condition active] | [Fade in 200ms; fades out 500ms when condition clears] | [1 per warning type] | [Critical — never suppressed] | [Renders immediately, bypasses all queues] | [No] |
-| [Achievement Unlocked] | [AchievementSystem] | [Bottom Right — distinct from item toasts] | [4000] | [Slide in from right with icon expansion 300ms / fade out 400ms] | [1] | [Low] | [Queues behind item toasts; never more than one achievement toast at a time] | [No] |
-| [Hint / Tutorial] | [TutorialSystem] | [Bottom Center] | [Persistent — until player performs the action or dismisses] | [Fade in 300ms] | [1] | [Medium] | [Only one tutorial hint at a time; queue others] | [Yes — B button / Esc] |
-
-**Notification queue rules**:
-1. Combat-aware queue: notifications tagged as Low priority are queued, not displayed, when the player is in combat state. The queue is flushed in a batch when the player exits combat, with a max of 3 items displayed in sequence.
-2. Merge rule: identical notification types that fire within 500ms of each other are merged into a single notification with a combined value (e.g., "Item Pickup x3" rather than three separate toasts).
-3. Critical notifications (health warning, environmental hazard) are never queued, never merged, and always displayed immediately regardless of combat state or existing notifications.
+**[为此表中每个元素重复此块]**
 
 ---
 
-## 9. Platform Adaptation
+## 5. 游戏上下文的 HUD 状态
 
-> **Why this section exists**: A HUD designed at 1920x1080 on a monitor may be
-> illegible on a 55-inch TV at 4K, broken at 1280x720 on Steam Deck, or hidden
-> behind a notch on mobile. Platform adaptation is not optional post-ship work —
-> it is a design requirement that must be specified before implementation so the
-> architecture can support it from the start. Every platform listed here requires
-> explicit layout testing before certification.
+> **为什么存在此章节**：HUD 不是静态叠加层 — 它是一个动态系统，
+> 必须适应玩家正在做什么。仅为主流游戏设计的 HUD 在过场动画中看起来不对，
+> 在探索中感觉拥挤，在Boss战斗中遮挡关键信息。
+> 此章节定义 HUD 在每个游戏上下文中进行的转换。它也是管理 HUD 可见性的系统规格
+> — HUD 状态机。
 
-| Platform | Safe Zone | Resolution Range | Input Method | HUD-Specific Notes |
-|----------|-----------|-----------------|-------------|-------------------|
-| [PC — Windows, 1920x1080 reference] | [3% margin] | [1280x720 min to 3840x2160 max] | [Mouse + keyboard, controller optional] | [HUD must scale correctly at all resolutions. Test at 1280x720 — minimum before cert. Consider ultrawide (21:9) — minimap must not stretch.] |
-| [PC — Steam Deck, 1280x800] | [5% margin] | [Fixed 1280x800] | [Controller + touchscreen] | [Smaller screen means minimum text sizes are critical. Test ALL elements at this resolution. Touch targets irrelevant (controller-only by default).] |
-| [PlayStation 5 / Xbox Series X] | [10% margin] | [1080p to 4K] | [Controller] | [Console certification requires TV safe zone compliance. Action-safe is 90% of screen area. Test on a real TV, not a monitor — overscan behavior differs.] |
-| [Mobile — iOS / Android] | [15% top, 10% other sides] | [360x640 min to 414x896 common] | [Touch] | [Notch/camera cutout avoidance at top. Bottom home indicator zone avoidance. Portrait and landscape layouts may differ significantly — specify both.] |
-
-**HUD repositionability requirement**: Players must be able to reposition at minimum the following elements using an in-game HUD layout editor (required for accessibility compliance on console):
-- Health bar
-- Minimap
-- Ability bar (if present)
-
-Repositioning saves to player profile, not to a single slot. Applies across play sessions.
+| 上下文 | 显示的元素 | 隐藏的元素 | 修改的元素 | 进入此状态的转换 |
+|---------|-----------|-----------|-----------|-----------------|
+| [探索 — 无威胁] | [小地图、任务目标（淡出，60%）、字幕（如果活动）] | [弹药计数器、十字线、伤害数字、状态效果（如果没有活动）] | [生命条淡出到 40% 透明度 — 可见但不占主导] | [无敌人检测后 10s 时淡入转换，500ms] |
+| [战斗 — 活跃威胁] | [生命条（全透明度）、体力条（使用时）、弹药计数器、十字线、伤害数字、状态效果、敌人生命条] | [任务目标（暂时隐藏）、通知 Toast（暂停队列）] | [小地图缩小 15% 并将透明度提高到 100%] | [首次敌人检测时立即 snap in — 无淡入。战斗准备需要即时信息。] |
+| [对话/过场动画] | [字幕、对话扬声器名称] | [所有游戏 HUD 元素：生命、弹药、小地图、十字线、伤害数字] | [N/A] | [过场动画标志设置时所有游戏元素在 300ms 内淡出] |
+| [电影（脚本化相机序列）] | [仅字幕] | [其他一切包括扬声器名称] | [（如果适用于此游戏风格）Letterbox 条出现] | [电影标志立即；letterbox 从上/下滑入超过 400ms] |
+| [库存/菜单打开] | [无 — 库存渲染全屏或作为叠加层] | [所有 HUD 元素] | [游戏世界可见但暂停在库存屏幕后面] | [菜单打开时所有 HUD 元素在 150ms 内隐藏] |
+| [死亡/等待重生] | [死亡屏幕叠加层 — 单独规格] | [所有游戏 HUD 元素] | [屏幕在 800ms 内去饱和和变暗] | [生命值达到 0 时死亡状态开始 — HUD 元素在 600ms 内淡出] |
+| [加载/转换] | [加载指示器、提示文本] | [所有游戏 HUD 元素] | [N/A] | [关卡转换触发时立即] |
+| [教程 — 新机制] | [标准上下文 HUD + 教程提示叠加层] | [无额外隐藏] | [教程提示微妙地使背景变暗以吸引对提示的注意] | [教程系统触发 ShowTutorial 事件；提示在 200ms 内淡入] |
+| [Boss 遭遇] | [Boss 生命条出现（大，屏幕底部或顶部居中）、所有战斗元素] | [任务目标] | [Boss 条渲染为独特的视觉风格 — 不能与玩家生命混淆] | [Boss 遭遇触发时 Boss 生命条在 400ms 内滑入] |
 
 ---
 
-## 10. Accessibility — HUD Specific
+## 6. 信息层次结构
 
-> **Why this section exists**: HUD accessibility failures are the most visible
-> accessibility failures in games — players encounter the HUD in every session,
-> in every gameplay moment. Color-blind failures, illegible text at minimum scale,
-> and inability to disable distracting animations are among the top accessibility
-> complaints in game reviews. This section defines HUD-specific requirements; refer
-> to the project's `docs/accessibility-requirements.md` for the full project standard.
+> **为什么存在此章节**：并非所有 HUD 信息都同等重要。当屏幕空间有限、
+> 玩家处于高压力下，或元素争夺同一区域时，必须有原则性的优先级顺序
+> 来管理哪些元素存活哪些被抑制。此章节正式化该层次结构，
+> 以便可以系统地强制执行，而不仅仅是"感觉明显"的决策在实现时做出。
 
-### 10.1 Colorblind Modes
-
-| Element | Color-Only Information Risk | Colorblind Mode Fix |
-|---------|----------------------------|---------------------|
-| [Health bar fill] | [Red = low health uses red/green distinction] | [Add icon pulse + vignette as non-color indicators. Red fill is supplemental, not sole indicator.] |
-| [Damage numbers] | [Red = taken, green = healed] | [Add minus (-) prefix for damage, plus (+) for healing. Symbols, not color.] |
-| [Enemy health bars] | [If colored by faction or threat level] | [Add text label or icon badge for faction/threat level. Never color-only.] |
-| [Status effect icons] | [If icon tint communicates status type] | [All status icons must have distinct shapes, not just distinct colors. Shape encodes meaning; color is secondary.] |
-| [Minimap icons] | [If player vs. enemy vs. objective distinguished by color] | [Distinct icon shapes: circle = player, triangle = enemy, star = objective. Color supplements shape.] |
-
-### 10.2 Text Scaling
-
-[Describe what happens when the player sets the UI text scale to 150% (the maximum required for your Accessibility Tier). Which elements reflow? Which elements clip? Which elements are architecturally blocked from scaling (e.g., fixed-size canvases)?
-
-Example: "Health bar numerical label grows with text scale — bar expands slightly to accommodate. Quest objective text wraps at 150% scale — verify Top Center zone can accommodate two-line objectives. Damage numbers do not scale (they are world-space, not screen-space) — this is an accepted limitation documented here."]
-
-**Text scaling test matrix**:
-
-| Element | 100% (baseline) | 125% | 150% | Overflow behavior |
-|---------|----------------|------|------|-------------------|
-| [Health bar label] | [Pass] | [Pass] | [TBD] | [Bar expands; does not overlap stamina bar] |
-| [Quest objective text] | [Pass] | [TBD] | [TBD] | [Wraps to second line; zone height expands] |
-| [Notification toast text] | [Pass] | [TBD] | [TBD] | [Toast width expands to max 35% screen width, then wraps] |
-| [Subtitle text] | [Pass] | [TBD] | [TBD] | [Dedicated subtitle zone — must accommodate scale] |
-
-### 10.3 Motion Sensitivity
-
-| Animation / Motion Element | Severity | Disabled by Reduced Motion Setting? | Replacement Behavior |
-|---------------------------|----------|-------------------------------------|---------------------|
-| [Health bar low-HP pulse] | [Mild] | [Yes] | [Solid fill, no pulse. Vignette remains as it is less likely to trigger sensitivity.] |
-| [Screen edge vignette] | [Moderate] | [Optional — separate toggle] | [Replace with static darkened corners at 30% opacity] |
-| [Damage numbers float upward] | [Mild] | [Yes] | [Instant appear/disappear in place, no float] |
-| [Notification toast slide-in] | [Mild] | [Yes] | [Instant appear at final position] |
-| [Level up center animation] | [High] | [Yes — required] | [Static level up card, no scale animation, no particle effects] |
-| [Combo counter scale pulse] | [Mild] | [Yes] | [Number increments without scale animation] |
-
-### 10.4 Subtitles Specification
-
-> Subtitles are the highest-impact accessibility feature in the HUD. Specify them
-> with the same rigor as the rest of the HUD. Do not leave subtitle behavior to
-> implementation discretion.
-
-- **Default setting**: [ON or OFF — document your game's default and the rationale. Industry standard is ON by default.]
-- **Position**: Bottom Center zone, centered horizontally, above the bottom safe zone margin
-- **Max characters per line**: [42 characters — the readable limit for subtitle lines at minimum text size on TV viewing distance]
-- **Max simultaneous lines**: [2 lines before scrolling — do not display more than 2 lines at once]
-- **Speaker identification**: [Speaker name displayed in color or above subtitle text — never rely on color alone; add colon prefix: "ARIA: The door is locked."]
-- **Background**: [Semi-transparent black panel, 70% opacity, behind all subtitle text — ensures contrast against any game world background]
-- **Font size minimum**: [24px at 1080p reference — scales with text scale setting]
-- **Line break behavior**: [Break at natural language pause points — before conjunctions, after commas, never mid-word]
-- **Subtitle persistence**: [Each subtitle line holds for the duration of the spoken line plus 300ms after it ends — never disappear while audio is still playing]
-- **Non-dialogue captions**: [Document whether ambient sounds, music descriptions, and sound effects are captioned — e.g., "[tense music]", "[explosion in the distance]" — and where these appear if different from dialogue subtitles]
-
-### 10.5 HUD Opacity and Visibility Controls
-
-The following player-adjustable settings must be available from the Accessibility menu:
-
-| Setting | Range | Default | Effect |
-|---------|-------|---------|--------|
-| [HUD Opacity — Global] | [0% (HUD hidden) to 100%] | [100%] | [Scales all HUD element opacities simultaneously] |
-| [HUD Text Scale] | [75% to 150%] | [100%] | [Scales all HUD text elements; layout adapts] |
-| [Damage Number Visibility] | [On / Off] | [On] | [Enables or disables all floating damage numbers] |
-| [Minimap Visibility] | [On / Off / Compass Only] | [On] | [Compass strip shown as fallback when minimap off] |
-| [Notification Verbosity] | [All / Important Only / Off] | [All] | [All = all toasts; Important Only = quest + level up; Off = no toasts] |
-| [Motion Reduction] | [On / Off] | [Off] | [When On, replaces all animated HUD transitions with instant state changes] |
-| [High Contrast Mode] | [On / Off] | [Off] | [Applies high contrast visual theme to all HUD elements — see art bible for HC variants] |
+| 元素 | 优先级层级 | 推理 | 如果隐藏什么替换它 |
+|------|----------|------|-------------------|
+| [字幕] | [必须保留 — 对话期间永不隐藏] | [无障碍要求。某些市场法律要求。故事清晰度。] | [N/A — 没有东西替换字幕] |
+| [生命条] | [必须保留 — 玩家可能受到伤害的任何状态下] | [没有生命可见性，生存决策变得不可能] | [听觉提示（心跳、呼吸）补充但不替换] |
+| [十字线] | [必须保留 — 瞄准远程武器时] | [没有十字线的瞄准是精度失败，不是难度功能] | [替代方案：仅点模式为极简主义者；瞄准时永远不完全隐藏] |
+| [交互提示] | [必须保留 — 玩家在交互范围内时] | [没有它，可交互对象对玩家不可见] | [环境视觉提示可以补充但交互启示必须明确] |
+| [弹药计数器] | [应该保留] | [低弹药决策（切换武器、重新加载）需要意识；可以是上下文相关的] | [空膛时的听觉"咔嗒"声是有经验玩家的可接受回退] |
+| [小地图] | [应该保留] | [导航需要空间意识；丢失会强制重复打开地图] | [罗盘条（简化的方向指示器）是可接受的回退] |
+| [状态效果] | [应该保留 — 活动时] | [活动 debuff 改变哪些动作可行；不可见的 debuff 感觉不公平] | [角色动画状态可以部分传达状态效果（跛行、火花）] |
+| [任务目标] | [可以隐藏] | [玩家可以在较长时间内记住目标；上下文是正确的默认值] | [玩家从上下文记住目标] |
+| [伤害数字] | [可以隐藏] | [反馈元素，非决策关键。许多玩家关闭这些。] | [命中声音和敌人反应传达命中注册] |
+| [通知 Toast] | [高强度时刻可以隐藏] | [战斗中 "你获得了 50 经验值" 是噪音不是信号。排队并在战斗后显示。] | [队列保留并在战斗结束时释放] |
+| [连击计数器] | [连击重置或玩家不攻击时始终隐藏] | [过时的连击信息是积极误导的] | [N/A — 简单隐藏] |
 
 ---
 
-## 11. Tuning Knobs
+## 7. 视觉预算
 
-> **Why this section exists**: HUD behavior should be data-driven to the same degree
-> as gameplay systems. Values that are hardcoded are values that require an engineer
-> to change. Values that are in config can be tuned by a designer or adjusted for
-> player preferences. Document all tunable parameters before implementation so the
-> programmer knows which values to externalize.
+> **为什么存在此章节**：没有明确的预算约束，HUD 元素累积直到游戏世界几乎不可见。
+> 这些数字是硬限制，不是指导方针。每个会突破限制的新元素添加
+> 需要明确的批准，并且必须置换或减少现有元素。"它是个小图标" 不是分析。]
 
-| Parameter | Current Value | Range | Effect of Increase | Effect of Decrease | Player Adjustable? | Notes |
-|-----------|-------------|-------|-------------------|-------------------|-------------------|-------|
-| [Notification display duration (default)] | [2000ms] | [500ms – 5000ms] | [Toasts persist longer — less likely to be missed, more screen clutter] | [Toasts disappear faster — cleaner, higher miss risk] | [No — but player can adjust verbosity level] | [Per-type overrides in Section 8 take precedence] |
-| [Notification queue max size] | [8] | [3 – 15] | [More messages preserved but queue takes longer to clear] | [Older messages dropped earlier] | [No] | [Expand if playtesting reveals important messages being lost] |
-| [Health bar low-HP pulse frequency] | [1 Hz] | [0.5 – 2 Hz] | [More urgent feeling — can become fatiguing] | [Calmer — may fail to communicate urgency] | [No — but Reduced Motion disables it] | [Linked to accessibility setting] |
-| [Combat HUD reveal duration] | [0ms (instant)] | [0 – 300ms] | [Softer reveal — feels less jarring] | [Instant — highest responsiveness] | [No] | [Keep at 0ms — combat information must be instant] |
-| [Exploration HUD fade-out delay] | [10000ms (10s after last threat)] | [3000 – 30000ms] | [HUD fades sooner — cleaner exploration] | [HUD stays longer — more reassurance] | [No] | [Tune based on playtest; 10s is a starting estimate] |
-| [Minimap range (world units visible)] | [80] | [40 – 200] | [More map context visible] | [Tighter local view] | [Yes — Small/Medium/Large preset] | [Exposed as S/M/L, not raw unit value] |
-| [Minimap size (px radius at 1080p)] | [75] | [50 – 120] | [Larger map, more screen space consumed] | [Smaller, less intrusive] | [Yes — S/M/L preset] | [Three sizes exposed to player] |
-| [Damage number duration (ms)] | [800] | [400 – 1500] | [Numbers linger longer — easier to read, more cluttered] | [Numbers clear faster — cleaner, harder to parse] | [No] | [Tune based on visual noise in dense combat] |
-| [Global HUD opacity] | [100%] | [0 – 100%] | [Fully visible] | [Fully hidden] | [Yes — opacity slider in Accessibility settings] | [0% = full HUD off; some players prefer this] |
+| 预算约束 | 限制 | 测量方法 | 当前估计 | 状态 |
+|----------|------|----------|----------|------|
+| 最大同时活动 HUD 元素 | [8] | [任意一帧计数所有可见、非淡出的元素] | [待定 — 在实现时验证] | [待验证] |
+| HUD 占用的最大屏幕百分比（探索模式） | [12%] | [所有 HUD 元素像素面积 / 总屏幕像素] | [待定] | [待验证] |
+| HUD 占用的最大屏幕百分比（战斗模式） | [22%] | [相同方法 — 战斗添加弹药、十字线、敌人条] | [待定] | [待验证] |
+| 中心屏幕区域（屏幕宽度的 40%）占用的最大百分比 | [5%] | [仅十字线和交互提示允许在此处] | [待定] | [待验证] |
+| 任何背景上 HUD 文本的最小对比度比率 | [4.5:1（WCAG AA）] | [针对元素将出现的最暗和最亮游戏世界区域测量] | [待定] | [待验证] |
+| HUD 背景面板的最大透明度 | [65%] | [任何 HUD 文本后面面板的透明度 — 必须保留通过面板的世界可见性] | [待定] | [待验证] |
+| 最小支持分辨率下的最小 HUD 元素尺寸 | [图标 40px，文本 18px] | [在最低目标分辨率测量] | [待定] | [待验证] |
 
----
-
-## 12. Acceptance Criteria
-
-> **Why this section exists**: These criteria are the certification checklist for the
-> HUD. Every item must pass before the HUD can be marked Approved. QA must be able
-> to verify each item independently.
-
-**Layout & Visibility**
-- [ ] All HUD elements are within platform safe zone margins on all target platforms
-- [ ] No two HUD elements overlap in any documented gameplay context
-- [ ] HUD occupies less than [12]% of screen area in exploration context (measure at reference resolution)
-- [ ] HUD occupies less than [22]% of screen area in combat context
-- [ ] No HUD element occupies the center [40]% of screen during exploration (crosshair excepted during combat)
-- [ ] All HUD elements are visible and legible at minimum supported resolution on all platforms
-
-**Per-Context Correctness**
-- [ ] HUD correctly shows only specified elements in every context defined in Section 5
-- [ ] Context transitions (combat enter/exit, dialogue, cinematic) show correct elements within transition timing spec
-- [ ] Boss health bar appears correctly on boss encounter trigger and disappears after boss defeat
-- [ ] Death state correctly hides all gameplay HUD elements
-
-**Accessibility**
-- [ ] All HUD text elements meet 4.5:1 contrast ratio against all backgrounds they appear over (test light AND dark scenes)
-- [ ] No HUD element uses color as the ONLY differentiator (verify: remove color from each element and confirm information is still communicated)
-- [ ] Subtitles appear for all voiced lines and ambient dialogue when subtitle setting is enabled
-- [ ] Subtitle text never disappears while audio is still playing
-- [ ] Reduced Motion setting disables all HUD animations listed in Section 10.3
-- [ ] Text Scale 150% does not cause any HUD text to overflow its container or overlap another element
-- [ ] All player-adjustable HUD settings in Section 10.5 are functional and persist between sessions
-
-**Notifications**
-- [ ] Notifications of the same type that fire within 500ms merge into a single notification
-- [ ] Low-priority notifications are queued (not displayed) during combat and released post-combat
-- [ ] Critical warnings (low health, hazard) appear immediately regardless of queue state or combat state
-- [ ] No more than [3] notification toasts are visible simultaneously
-- [ ] Notification queue is cleared correctly on level transition (no stale notifications from previous area)
-
-**Platform**
-- [ ] All elements respect 10% safe zone margins on console (test on physical TV — not monitor)
-- [ ] HUD displays correctly at 1280x720 (Steam Deck) with no element clipping or overlap
-- [ ] HUD elements are repositionable (Health, Minimap, Ability Bar) and reposition settings persist
-- [ ] Controller disconnection during play does not cause HUD state corruption
+> **如何应用这些预算**：对于生产期间提议的每个新 HUD 元素，
+> 要求提议者声明 (1) 它影响哪条预算线，(2) 新的总数是多少，
+> 以及 (3) 将减少或变为上下文相关的现有元素是什么以保持在预算内。
+> "它是个小图标" 不是分析。
 
 ---
 
-## 13. Open Questions
+## 8. 反馈与通知系统
 
-> Track unresolved design questions here. All questions must be resolved before
-> the HUD design document can be marked Approved.
+> **为什么存在此章节**：通知是大多数 HUD 中最频繁添加和控制最差的部分。
+> 每个系统都想告诉玩家一些事情。没有关于通知优先级、堆叠限制
+> 和队列行为的明确规则，通知区域成为玩家学会完全忽略的重叠 toast 的消防水管。
+> 此章节为所有系统建立通知契约。
 
-| Question | Owner | Deadline | Resolution |
-|----------|-------|----------|-----------|
-| [e.g., Should the minimap show enemy positions by default, or only after a detection skill is unlocked?] | [systems-designer + ui-designer] | [Sprint 5, Day 2] | [Pending — depends on progression GDD decision] |
-| [e.g., Does the game have a boss health bar, or do bosses use the standard enemy health bar? Bosses need a visually distinct treatment if they are significantly more important than normal enemies.] | [game-designer] | [Sprint 5, Day 1] | [Pending] |
-| [e.g., Damage numbers: diegetic (floating in world space, occluded by geometry) or screen space (always readable, overlaid on HUD layer)?] | [ui-designer + lead-programmer] | [Sprint 4, Day 5] | [Pending — architecture decision affects rendering layer choice] |
-| [e.g., Mobile portrait vs. landscape: does the game support both orientations? If yes, each requires its own zone layout.] | [producer] | [Sprint 3, Day 3] | [Pending — platform scope decision required first] |
+| 通知类型 | 触发系统 | 屏幕位置 | 持续时间（毫秒） | 动画进入/退出 | 最大同时 | 优先级 | 队列行为 | 可关闭？ |
+|----------|----------|----------|----------------|--------------|---------|--------|----------|---------|
+| [物品拾取] | [InventorySystem] | [右下 — toast] | [2000] | [从右侧滑入 200ms / 淡出 300ms] | [3 堆叠] | [低] | [FIFO 队列；较旧的 toast 被新进入的向上推] | [否 — 自动关闭] |
+| [经验值获得] | [ProgressionSystem] | [右下 — toast，在物品 toast 下方] | [1500] | [淡入 150ms / 淡出 300ms] | [1 — 经验值消息合并："经验值 +150"] | [非常低 — 战斗中抑制，战斗后排队] | [战斗感知队列] | [否] |
+| [升级] | [ProgressionSystem] | [屏幕中心 — 持久直到关闭] | [持久 — 需要输入关闭] | [从 80% 缩放 + 淡入 400ms] | [1] | [高 — 中断正常 toast] | [关闭前暂停所有其他通知] | [是 — 任意输入] |
+| [任务更新] | [QuestSystem] | [顶部居中] | [4000] | [从顶部向下滑入 250ms / 淡出 400ms] | [1 — 顶部居中是单消息区域] | [中] | [如果任务更新到达时前一个仍然可见，将持续时间延长 2000ms；不堆叠] | [否] |
+| [目标完成] | [QuestSystem] | [顶部居中] | [3000] | [与任务更新相同但带有额外的完成音效] | [1] | [中高 — 优先于任务更新] | [优先于任何排队的顶部居中消息] | [否] |
+| [关键警告（生命值低、危险）] | [CombatSystem / EnvironmentSystem] | [屏幕边缘晕影 + 底部中央文本] | [条件活动时持久] | [淡入 200ms；条件清除时 500ms 淡出] | [每个警告类型 1] | [关键 — 永不抑制] | [立即渲染，绕过所有队列] | [否] |
+| [成就解锁] | [AchievementSystem] | [右下 — 与物品 toast 不同] | [4000] | [从右侧滑入，带图标扩展 300ms / 淡出 400ms] | [1] | [低] | [在物品 toast 后面排队；永远不同时显示多个成就 toast] | [否] |
+| [提示/教程] | [TutorialSystem] | [底部居中] | [持久 — 直到玩家执行操作或关闭] | [淡入 300ms] | [1] | [中] | [一次只有一个教程提示；排队其他] | [是 — B 按钮 / Esc] |
+
+**通知队列规则**：
+1. 战斗感知队列：标记为低优先级的通知在玩家处于战斗状态时排队，不显示。队列在玩家退出战斗时批量刷新，最多显示 3 个项目顺序显示。
+2. 合并规则：在 500ms 内触发的相同通知类型合并为带有组合值的单个通知（例如，"物品拾取 x3" 而非三个单独的 toast）。
+3. 关键通知（生命值警告、环境危险）永不排队、永不合并、无论战斗状态或现有通知如何始终立即显示。
+
+---
+
+## 9. 平台适配
+
+> **为什么存在此章节**：在显示器上的 1920x1080 设计的 HUD
+> 在 55 英寸电视上可能难以辨认，在 Steam Deck 的 1280x720 上可能破碎，
+> 在移动设备上可能被刘海遮挡。平台适配不是可选的发布后工作 —
+> 它是从一开始就必须指定的设计要求，以便架构能够支持它。
+> 此处列出的每个平台都需要在认证前进行明确的布局测试。
+
+| 平台 | 安全区域 | 分辨率范围 | 输入方法 | HUD 特定备注 |
+|------|----------|-----------|---------|-------------|
+| [PC — Windows，1920x1080 参考] | [3% 边距] | [1280x720 最小到 3840x2160 最大] | [鼠标 + 键盘，控制器可选] | [HUD 必须在所有分辨率正确缩放。在 1280x720 测试 — 认证前的最小值。考虑超宽屏（21:9）— 小地图不能拉伸。] |
+| [PC — Steam Deck，1280x800] | [5% 边距] | [固定 1280x800] | [控制器 + 触摸屏] | [较小的屏幕意味着最小文本尺寸至关重要。在所有元素上测试此分辨率。触摸目标无关（默认仅控制器）。] |
+| [PlayStation 5 / Xbox Series X] | [10% 边距] | [1080p 到 4K] | [控制器] | [主机认证要求 TV 安全区域合规。动作安全区是屏幕区域的 90%。在真实电视上测试，不是在显示器上 — overscan 行为不同。] |
+| [移动 — iOS / Android] | [顶部 15%，其他边缘 10%] | [360x640 最小到 414x896 常见] | [触摸] | [顶部避免刘海/相机挖孔。底部主页指示器区域避免。肖像和风景布局可能显著不同 — 两者都指定。] |
+
+**HUD 可重新定位要求**：玩家必须能够使用游戏内 HUD 布局编辑器重新定位至少以下元素（主机无障碍合规性要求）：
+- 生命条
+- 小地图
+- 能力栏（如果存在）
+
+重新定位保存到玩家配置文件，而非单个槽位。跨游戏会话应用。
+
+---
+
+## 10. 无障碍 — HUD 特定
+
+> **为什么存在此章节**：HUD 无障碍失败是最明显的无障碍失败 —
+> 玩家在每个会话、每个游戏时刻遇到 HUD。色盲失败、
+> 最小比例下难以辨认的文本以及无法禁用分散注意力的动画
+> 是游戏评论中最常见的无障碍投诉。此章节定义 HUD 特定需求；
+> 请参阅项目的 `docs/accessibility-requirements.md` 了解完整项目标准。
+
+### 10.1 色盲模式
+
+| 元素 | 仅颜色信息风险 | 色盲模式修复 |
+|------|--------------|-------------|
+| [生命条填充] | [红色 = 低生命值使用红/绿区分] | [添加图标脉冲 + 晕影作为非颜色指示器。红色填充是补充的，不是唯一指示器。] |
+| [伤害数字] | [红色 = 受到，绿色 = 治疗] | [伤害添加减号 (-) 前缀，治疗添加加号 (+)。符号，不是颜色。] |
+| [敌人生命条] | [如果按派系或威胁级别着色] | [为派系/威胁级别添加文本标签或图标徽章。永远不要仅用颜色。] |
+| [状态效果图标] | [如果图标色调传达状态类型] | [所有状态图标必须有 distinct 形状，而不仅仅是 distinct 颜色。形状编码含义；颜色是次要的。] |
+| [小地图图标] | [如果玩家 vs. 敌人 vs. 目标仅通过颜色区分] | [Distinct 图标形状：圆形 = 玩家，三角形 = 敌人，星形 = 目标。颜色补充形状。] |
+
+### 10.2 文本缩放
+
+[描述当玩家将 UI 文本比例设置为 150%（所需最大值）时会发生什么。
+哪些元素重新流动？哪些元素裁剪？哪些元素在架构上被阻止缩放（例如，固定大小画布）？
+
+示例："生命条数字标签随文本比例增长 — 条略微扩展以容纳。在 150% 比例下任务目标文本换行 — 验证顶部居中区域可以容纳两行目标。小地图不缩放（它们是世界空间而非屏幕空间）— 这是一个记录在此的公认限制。"]
+
+**文本缩放测试矩阵**：
+
+| 元素 | 100%（基线） | 125% | 150% | 溢出行为 |
+|------|------------|------|------|----------|
+| [生命条标签] | [通过] | [待定] | [待定] | [条扩展；不与体力条重叠] |
+| [任务目标文本] | [通过] | [待定] | [待定] | [换行到第二行；区域高度扩展] |
+| [通知 toast 文本] | [通过] | [待定] | [待定] | [Toast 宽度扩展到最大 35% 屏幕宽度，然后换行] |
+| [字幕文本] | [通过] | [待定] | [待定] | [专用字幕区域 — 必须容纳比例] |
+
+### 10.3 运动敏感度
+
+| 动画/运动元素 | 严重程度 | 可通过减少动作设置禁用？ | 替代行为 |
+|--------------|---------|--------------------------|----------|
+| [生命条低生命值脉冲] | [轻度] | [是] | [实心填充，无脉冲。晕影保留因为它不太可能触发敏感。] |
+| [屏幕边缘晕影] | [中度] | [可选 — 独立切换] | [用 30% 透明度的静态深色角落替换] |
+| [伤害数字向上飘动] | [轻度] | [是] | [就地即时出现/消失，无飘动] |
+| [通知 toast 滑入] | [轻度] | [是] | [在最终位置即时出现] |
+| [升级中心动画] | [高度] | [是 — 必需] | [静态升级卡，无缩放动画，无粒子效果] |
+| [连击计数器缩放脉冲] | [轻度] | [是] | [数字增加无缩放动画] |
+
+### 10.4 字幕规格
+
+> 字幕是 HUD 中最高影响力的无障碍功能。用与 HUD 其余部分相同的严谨性指定它们。
+> 不要将字幕行为留给实现决定。
+
+- **默认设置**: [开启或关闭 — 记录你游戏的默认和理由。行业标准是默认开启。]
+- **位置**: 底部居中区域，水平居中，位于底部安全区域边距上方
+- **每行最大字符数**: [42 字符 — 在 TV 观看距离最小文本大小下可读的行限制]
+- **最大同时行数**: [2 行之前滚动 — 一次不要显示超过 2 行]
+- **扬声器识别**: [扬声器名称以颜色显示或在字幕文本上方 — 永远不要仅依赖颜色；添加冒号前缀："ARIA：门锁着。"]]
+- **背景**: [所有字幕文本后面的半透明黑色面板，70% 透明度 — 确保与任何游戏世界背景的对比度
+- **最小字体大小**: [1080p 参考 24px — 随文本比例设置缩放]
+- **换行行为**: [在自然语言停顿点中断 — 在连词前、逗号后，永远不拆单词]
+- **字幕持续时间**: [每句字幕在说完后保持 300ms — 音频仍在播放时永远不要消失]
+- **非对话字幕**: [记录是否对环境声音、音乐描述和音效进行字幕 — 例如 "[紧张音乐]"、"[远处爆炸]" — 以及如果与对话字幕不同它们出现的位置
+
+### 10.5 HUD 不透明度和可见性控制
+
+必须可从无障碍菜单调整以下设置：
+
+| 设置 | 范围 | 默认 | 效果 |
+|------|------|------|------|
+| [全局 HUD 不透明度] | [0%（HUD 隐藏）到 100%] | [100%] | [同时缩放所有 HUD 元素不透明度] |
+| [HUD 文本比例] | [75% 到 150%] | [100%] | [缩放所有 HUD 文本元素；布局适配] |
+| [伤害数字可见性] | [开启/关闭] | [开启] | [启用或禁用所有浮动伤害数字] |
+| [小地图可见性] | [开启/关闭/仅罗盘] | [开启] | [关闭时显示罗盘条作为回退] |
+| [通知详细程度] | [全部/仅重要/关闭] | [全部] | [全部 = 所有 toast；仅重要 = 任务 + 升级；关闭 = 无 toast] |
+| [减少动作] | [开启/关闭] | [关闭] | [开启时，将所有动画 HUD 转换替换为即时状态更改] |
+| [高对比度模式] | [开启/关闭] | [关闭] | [将所有 HUD 元素应用高对比度视觉主题 — 参见艺术圣经的 HC 变体] |
+
+---
+
+## 11. 调优旋钮
+
+> **为什么存在此章节**：HUD 行为应该与游戏系统达到相同的程度数据驱动。
+> 硬编码的值是工程师需要更改的值。配置中的值可以由设计师调整
+> 或根据玩家偏好调整。在实现之前记录所有可调参数，以便程序员知道要外部化哪些值。
+
+| 参数 | 当前值 | 范围 | 增加的效果 | 减少的效果 | 玩家可调？ | 备注 |
+|------|--------|------|-----------|-----------|-----------|------|
+| [通知显示持续时间（默认）] | [2000ms] | [500ms – 5000ms] | [Toast 持续更长时间 — 更不易被错过，更屏幕杂乱] | [Toast 消失更快 — 更干净，错过风险更高] | [否 — 但玩家可以调整详细程度级别] | [类型特定覆盖在第 8 节优先] |
+| [通知队列最大大小] | [8] | [3 – 15] | [更多消息保留但队列需要更长时间清除] | [较早的消息更早丢弃] | [否] | [如果 playtesting 发现重要消息丢失则扩展] |
+| [生命条低生命值脉冲频率] | [1 Hz] | [0.5 – 2 Hz] | [更紧急感觉 — 可能变得疲劳] | [更平静 — 可能无法传达紧急性] | [否 — 但减少动作禁用它] | [链接到无障碍设置] |
+| [战斗 HUD 揭示持续时间] | [0ms（即时）] | [0 – 300ms] | [更柔和的揭示 — 感觉不那么突兀] | [即时 — 最高响应度] | [否] | [保持 0ms — 战斗信息必须是即时的] |
+| [探索 HUD 淡出延迟] | [10000ms（最后一次威胁后 10s）] | [3000 – 30000ms] | [HUD 更早淡出 — 更干净的探索] | [HUD 保持更长时间 — 更多的安心] | [否] | [基于 playtesting 调优；10s 是起始估计] |
+| [小地图范围（可见的世界单位）] | [80] | [40 – 200] | [更多地图上下文可见] | [更紧密的本地视图] | [是 — S/M/L 预设] | [向玩家暴露为 S/M/L，不是原始单位值] |
+| [小地图大小（1080p px 半径）] | [75] | [50 – 120] | [更大的地图，消耗更多屏幕空间] | [更小，侵入性更小] | [是 — S/M/L 预设] | [向玩家暴露三种尺寸] |
+| [伤害数字持续时间（毫秒）] | [800] | [400 – 1500] | [数字停留更长时间 — 更易读，更杂乱] | [数字更快清除 — 更干净，更难解析] | [否] | [基于密集战斗中的视觉噪音调优] |
+| [全局 HUD 不透明度] | [100%] | [0 – 100%] | [完全可见] | [完全隐藏] | [是 — 无障碍设置中的不透明度滑块] | [0% = 全 HUD 关闭；一些玩家更喜欢这个] |
+
+---
+
+## 12. 验收标准
+
+> **为什么存在此章节**：这些标准是 HUD 的认证检查清单。
+> 每个项目必须在 HUD 被标记为已批准之前通过。QA 必须能够独立验证每个项目。
+
+**布局与可见性**
+- [ ] 所有 HUD 元素在所有目标平台上都在平台安全区域边距内
+- [ ] 在任何记录的 game 上下文中没有两个 HUD 元素重叠
+- [ ] HUD 在探索上下文中占据小于 [12]% 的屏幕区域（参考分辨率测量）
+- [ ] HUD 在战斗上下文中占据小于 [22]% 的屏幕区域
+- [ ] 没有 HUD 元素在探索期间占据屏幕中心 [40]%（战斗时十字线除外）
+- [ ] 所有 HUD 元素在所有平台上最小支持分辨率都可见且清晰
+
+**每上下文正确性**
+- [ ] HUD 正确地仅在第 5 节定义的每个上下文中显示指定元素
+- [ ] 上下文转换（战斗进入/退出、对话、电影）在转换时序规格内显示正确的元素
+- [ ] Boss 生命条在 Boss 遭遇触发时正确出现，Boss 击败后消失
+- [ ] 死亡状态正确隐藏所有游戏 HUD 元素
+
+**无障碍**
+- [ ] 所有 HUD 文本元素在与它们出现的所有背景（测试浅色和深色场景）的对比度达到 4.5:1
+- [ ] 没有 HUD 元素使用颜色作为唯一的区分符（验证：从每个元素中移除颜色并确认信息仍然传达）
+- [ ] 当字幕设置启用时，为所有配音台词和环境对话显示字幕
+- [ ] 字幕文本在音频仍在播放时永远不会消失
+- [ ] 减少动作设置禁用第 10.3 节列出的所有 HUD 动画
+- [ ] 文本比例 150% 不会导致任何 HUD 文本溢出其容器或与另一元素重叠
+- [ ] 第 10.5 节中所有玩家可调的 HUD 设置都可用且在会话之间持久化
+
+**通知**
+- [ ] 在 500ms 内触发的相同类型的通知合并为单个通知
+- [ ] 低优先级通知在战斗期间排队（不显示）并在战斗后释放
+- [ ] 关键警告（生命值低、危险）无论队列状态或战斗状态如何都立即出现
+- [ ] 最多 [3] 个通知 toast 同时可见
+- [ ] 关卡转换时正确清除通知队列（无来自先前区域的过时通知）
+
+**平台**
+- [ ] 所有元素在主机上尊重 10% 安全区域边距（在物理电视上测试 — 不是显示器）
+- [ ] HUD 在 1280x720（Steam Deck）正确显示，无元素裁剪或重叠
+- [ ] HUD 元素可重新定位（生命、小地图、能力栏）并且重新定位设置持久化
+- [ ] 游戏过程中控制器断开连接不会导致 HUD 状态损坏
+
+---
+
+## 13. 未解决的问题
+
+> 在此处追踪未解决的设计问题。在 HUD 设计文档被标记为已批准之前，所有问题都必须解决。
+
+| 问题 | Owner | 截止日期 | 解决方案 |
+|------|-------|----------|----------|
+| [例如，小地图默认显示敌人位置，还是仅在解锁探测技能后才显示？] | [systems-designer + ui-designer] | [Sprint 5，第 2 天] | [待定 — 取决于进度 GDD 决策] |
+| [例如，游戏有 Boss 生命条，还是 Boss 使用标准敌人生命条？如果它们比普通敌人重要得多，Boss 需要视觉上独特的处理。] | [game-designer] | [Sprint 5，第 1 天] | [待定] |
+| [例如，伤害数字：沉浸式（在世界空间中浮动，被几何遮挡）还是屏幕空间（始终可读，叠加在 HUD 层上）？] | [ui-designer + lead-programmer] | [Sprint 4，第 5 天] | [待定 — 架构决策影响渲染层选择] |
+| [例如，移动肖像 vs. 风景：游戏支持两种方向吗？如果是，每个都需要自己的区域布局。] | [producer] | [Sprint 3，第 3 天] | [待定 — 首先需要平台范围决策] |

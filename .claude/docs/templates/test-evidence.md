@@ -1,86 +1,79 @@
-# Test Evidence: [Story Title]
+# 测试证据：[故事标题]
 
-> **Story**: `[path to story file]`
-> **Story Type**: [Visual/Feel | UI]
-> **Date**: [date]
-> **Tester**: [who performed the test]
-> **Build / Commit**: [version or git hash]
-
----
-
-## What Was Tested
-
-[One paragraph describing the feature or behaviour that was validated. Include
-the acceptance criteria numbers from the story that this evidence covers.]
-
-**Acceptance criteria covered**: [AC-1, AC-2, AC-3]
+> **故事**: `[path to story file]`
+> **故事类型**: [Visual/Feel | UI]
+> **日期**: [date]
+> **测试者**: [执行测试的人]
+> **构建/提交**: [版本或git哈希]
 
 ---
 
-## Acceptance Criteria Results
+## 测试了什么
 
-| # | Criterion (from story) | Result | Notes |
-|---|----------------------|--------|-------|
-| AC-1 | [exact criterion text] | PASS / FAIL | [any observations] |
-| AC-2 | [exact criterion text] | PASS / FAIL | |
-| AC-3 | [exact criterion text] | PASS / FAIL | |
+[描述已验证的功能或行为的段落。包括此证据覆盖的故事中的验收标准编号。]
+
+**覆盖的验收标准**: [AC-1, AC-2, AC-3]
 
 ---
 
-## Screenshots / Video
+## 验收标准结果
 
-List all captured evidence below. Store files in the same directory as this
-document or in `production/qa/evidence/[story-slug]/`.
+| # | 标准（来自故事） | 结果 | 备注 |
+|---|----------------------|--------|------|
+| AC-1 | [确切的标准文本] | PASS / FAIL | [任何观察] |
+| AC-2 | [确切的标准文本] | PASS / FAIL | |
+| AC-3 | [确切的标准文本] | PASS / FAIL | |
 
-| # | Filename | What It Shows | Acceptance Criterion |
+---
+
+## 截图/视频
+
+在下方列出所有捕获的证据。将文件存储在此文档的同一目录中或 `production/qa/evidence/[story-slug]/`。
+
+| # | 文件名 | 显示什么 | 验收标准 |
 |---|----------|--------------|----------------------|
-| 1 | `[filename.png]` | [brief description of what is visible] | AC-1 |
+| 1 | `[filename.png]` | [可见内容的简要描述] | AC-1 |
 | 2 | `[filename.png]` | | AC-2 |
 
-*If video: note the timestamp and what it demonstrates.*
+*如果是视频：注意时间戳和它展示的内容。*
 
 ---
 
-## Test Conditions
+## 测试条件
 
-- **Game state at start**: [e.g., "fresh save, player at level 1, no items"]
-- **Platform / hardware**: [e.g., "Windows 11, GTX 1080, 1080p"]
-- **Framerate during test**: [e.g., "stable 60fps" or "~45fps — within budget"]
-- **Any special setup required**: [e.g., "dev menu used to trigger specific state"]
-
----
-
-## Observations
-
-[Anything noteworthy that didn't cause a FAIL but should be recorded. Examples:
-minor visual jitter, frame dip under load, behaviour that technically passes
-but felt slightly off. These become candidates for polish work.]
-
-- [Observation 1]
-- [Observation 2]
-
-If nothing notable: *No significant observations.*
+- **开始时的游戏状态**: [例如"新存档，玩家1级，无物品"]
+- **平台/硬件**: [例如"Windows 11, GTX 1080, 1080p"]
+- **测试期间的帧率**: [例如"稳定60fps"或"~45fps — 在预算内"]
+- **任何特殊设置要求**: [例如"使用dev菜单触发特定状态"]
 
 ---
 
-## Sign-Off
+## 观察
 
-All three sign-offs are required before the story can be marked COMPLETE via
-`/story-done`. Visual/Feel stories require the designer or art-lead sign-off.
-UI stories require the UX lead or designer sign-off.
+[任何值得注意但未导致FAIL但应记录的内容。示例：
+轻微的视觉抖动、负载下帧率下降、技术上通过但感觉略微不对的行为。这些成为抛光工作的候选。]
 
-| Role | Name | Date | Signature |
+- [观察1]
+- [观察2]
+
+如果没有值得注意的内容：*无重大观察。*
+
+---
+
+## 签字
+
+在通过 `/story-done` 标记故事为COMPLETE之前，需要所有三个签字。Visual/Feel故事需要设计师或美术负责人签字。UI故事需要UX负责人或设计师签字。
+
+| 角色 | 姓名 | 日期 | 签字 |
 |------|------|------|-----------|
-| Developer (implemented) | | | [ ] Approved |
-| Designer / Art Lead / UX Lead | | | [ ] Approved |
-| QA Lead | | | [ ] Approved |
+| 开发者（实施者） | | | [ ] 批准 |
+| 设计师/美术负责人/UX负责人 | | | [ ] 批准 |
+| QA负责人 | | | [ ] 批准 |
 
-**Any sign-off can be marked "Deferred — [reason]"** if the person is
-unavailable. Deferred sign-offs must be resolved before the story advances
-past the sprint review.
+**任何签字可以标记为"推迟 — [原因]"** 如果该人不可用。推迟的签字必须在故事进入sprint评审之前解决。
 
 ---
 
-*Template: `.claude/docs/templates/test-evidence.md`*
-*Used for: Visual/Feel and UI story type evidence records*
-*Location: `production/qa/evidence/[story-slug]-evidence.md`*
+*模板: `.claude/docs/templates/test-evidence.md`*
+*用于: Visual/Feel和UI故事类型证据记录*
+*位置: `production/qa/evidence/[story-slug]-evidence.md`*

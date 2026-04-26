@@ -1,88 +1,87 @@
-# Agent Roster
+# Agent 名册
 
-The following agents are available. Each has a dedicated definition file in
-`.claude/agents/`. Use the agent best suited to the task at hand. When a task
-spans multiple domains, the coordinating agent (usually `producer` or the
-domain lead) should delegate to specialists.
+以下 Agent 可用。每个在 `.claude/agents/` 中都有专属定义文件。
+使用最适合当前任务的 Agent。当任务跨越多个领域时，
+协调 Agent（通常是 `producer` 或领域主管）应委托给专家。
 
-## Tier 1 -- Leadership Agents (Opus)
-| Agent | Domain | When to Use |
+## 第一层 — 领导 Agent（Opus）
+| Agent | 领域 | 使用场景 |
 |-------|--------|-------------|
-| `creative-director` | High-level vision | Major creative decisions, pillar conflicts, tone/direction |
-| `technical-director` | Technical vision | Architecture decisions, tech stack choices, performance strategy |
-| `producer` | Production management | Sprint planning, milestone tracking, risk management, coordination |
+| `creative-director` | 高级愿景 | 主要创意决策、支柱冲突、基调/方向 |
+| `technical-director` | 技术愿景 | 架构决策、技术栈选择、性能策略 |
+| `producer` | 制作管理 | Sprint 规划、里程碑追踪、风险管理、协调 |
 
-## Tier 2 -- Department Lead Agents (Sonnet)
-| Agent | Domain | When to Use |
+## 第二层 — 部门主管 Agent（Sonnet）
+| Agent | 领域 | 使用场景 |
 |-------|--------|-------------|
-| `game-designer` | Game design | Mechanics, systems, progression, economy, balancing |
-| `lead-programmer` | Code architecture | System design, code review, API design, refactoring |
-| `art-director` | Visual direction | Style guides, art bible, asset standards, UI/UX direction |
-| `audio-director` | Audio direction | Music direction, sound palette, audio implementation strategy |
-| `narrative-director` | Story and writing | Story arcs, world-building, character design, dialogue strategy |
-| `qa-lead` | Quality assurance | Test strategy, bug triage, release readiness, regression planning |
-| `release-manager` | Release pipeline | Build management, versioning, changelogs, deployment, rollbacks |
-| `localization-lead` | Internationalization | String externalization, translation pipeline, locale testing |
+| `game-designer` | 游戏设计 | 机制、系统、进度、经济、平衡 |
+| `lead-programmer` | 代码架构 | 系统设计、代码审查、API 设计、重构 |
+| `art-director` | 视觉方向 | 风格指南、美术圣经、资源标准、UI/UX 方向 |
+| `audio-director` | 音频方向 | 音乐方向、音效调色板、音频实现策略 |
+| `narrative-director` | 故事与写作 | 故事弧线、世界构建、角色设计、对话策略 |
+| `qa-lead` | 质量保证 | 测试策略、Bug 分类、发布就绪、回归规划 |
+| `release-manager` | 发布管线 | 构建管理、版本控制、变更日志、部署、回滚 |
+| `localization-lead` | 国际化 | 字符串外部化、翻译管线、区域测试 |
 
-## Tier 3 -- Specialist Agents (Sonnet or Haiku)
-| Agent | Domain | Model | When to Use |
+## 第三层 — 专家 Agent（Sonnet 或 Haiku）
+| Agent | 领域 | 模型 | 使用场景 |
 |-------|--------|-------|-------------|
-| `systems-designer` | Systems design | Sonnet | Specific mechanic implementation, formula design, loops |
-| `level-designer` | Level design | Sonnet | Level layouts, pacing, encounter design, flow |
-| `economy-designer` | Economy/balance | Sonnet | Resource economies, loot tables, progression curves |
-| `gameplay-programmer` | Gameplay code | Sonnet | Feature implementation, gameplay systems code |
-| `engine-programmer` | Engine systems | Sonnet | Core engine, rendering, physics, memory management |
-| `ai-programmer` | AI systems | Sonnet | Behavior trees, pathfinding, NPC logic, state machines |
-| `network-programmer` | Networking | Sonnet | Netcode, replication, lag compensation, matchmaking |
-| `tools-programmer` | Dev tools | Sonnet | Editor extensions, pipeline tools, debug utilities |
-| `ui-programmer` | UI implementation | Sonnet | UI framework, screens, widgets, data binding |
-| `technical-artist` | Tech art | Sonnet | Shaders, VFX, optimization, art pipeline tools |
-| `sound-designer` | Sound design | Haiku | SFX design docs, audio event lists, mixing notes |
-| `writer` | Dialogue/lore | Sonnet | Dialogue writing, lore entries, item descriptions |
-| `world-builder` | World/lore design | Sonnet | World rules, faction design, history, geography |
-| `qa-tester` | Test execution | Haiku | Writing test cases, bug reports, test checklists |
-| `performance-analyst` | Performance | Sonnet | Profiling, optimization recs, memory analysis |
-| `devops-engineer` | Build/deploy | Haiku | CI/CD, build scripts, version control workflow |
-| `analytics-engineer` | Telemetry | Sonnet | Event tracking, dashboards, A/B test design |
-| `ux-designer` | UX flows | Sonnet | User flows, wireframes, accessibility, input handling |
-| `prototyper` | Rapid prototyping | Sonnet | Throwaway prototypes, mechanic testing, feasibility validation |
-| `security-engineer` | Security | Sonnet | Anti-cheat, exploit prevention, save encryption, network security |
-| `accessibility-specialist` | Accessibility | Haiku | WCAG compliance, colorblind modes, remapping, text scaling |
-| `live-ops-designer` | Live operations | Sonnet | Seasons, events, battle passes, retention, live economy |
-| `community-manager` | Community | Haiku | Patch notes, player feedback, crisis comms, community health |
+| `systems-designer` | 系统设计 | Sonnet | 特定机制实现、公式设计、循环 |
+| `level-designer` | 关卡设计 | Sonnet | 关卡布局、节奏、遭遇设计、流程 |
+| `economy-designer` | 经济/平衡 | Sonnet | 资源经济、战利品表、进度曲线 |
+| `gameplay-programmer` | 游戏玩法代码 | Sonnet | 功能实现、游戏系统代码 |
+| `engine-programmer` | 引擎系统 | Sonnet | 核心引擎、渲染、物理、内存管理 |
+| `ai-programmer` | AI 系统 | Sonnet | 行为树、寻路、NPC 逻辑、状态机 |
+| `network-programmer` | 网络 | Sonnet | 网络代码、复制、延迟补偿、匹配 |
+| `tools-programmer` | 开发工具 | Sonnet | 编辑器扩展、管线工具、调试实用程序 |
+| `ui-programmer` | UI 实现 | Sonnet | UI 框架、屏幕、小部件、数据绑定 |
+| `technical-artist` | 技术美术 | Sonnet | Shader、VFX、优化、美术管线工具 |
+| `sound-designer` | 音效设计 | Haiku | SFX 设计文档、音频事件列表、混音备注 |
+| `writer` | 对话/传说 | Sonnet | 对话写作、传说条目、物品描述 |
+| `world-builder` | 世界/传说设计 | Sonnet | 世界规则、派系设计、历史、地理 |
+| `qa-tester` | 测试执行 | Haiku | 编写测试用例、Bug 报告、测试检查清单 |
+| `performance-analyst` | 性能 | Sonnet | 分析、性能建议、内存分析 |
+| `devops-engineer` | 构建/部署 | Haiku | CI/CD、构建脚本、版本控制工作流 |
+| `analytics-engineer` | 遥测 | Sonnet | 事件追踪、仪表板、A/B 测试设计 |
+| `ux-designer` | UX 流程 | Sonnet | 用户流程、线框图、无障碍、输入处理 |
+| `prototyper` | 快速原型 | Sonnet | 一次性原型、机制测试、可行性验证 |
+| `security-engineer` | 安全 | Sonnet | 反作弊、漏洞预防、存档加密、网络安全 |
+| `accessibility-specialist` | 无障碍 | Haiku | WCAG 合规、色盲模式、键位重映射、文本缩放 |
+| `live-ops-designer` | 实时运营 | Sonnet | 赛季、活动、战斗通行证、留存、实时经济 |
+| `community-manager` | 社区 | Haiku | 补丁说明、玩家反馈、危机沟通、社区健康 |
 
-## Engine-Specific Agents (use the set matching your engine)
+## 引擎特定 Agent（使用与你的引擎匹配的集合）
 
-### Engine Leads
+### 引擎主管
 
-| Agent | Engine | Model | When to Use |
+| Agent | 引擎 | 模型 | 使用场景 |
 | ---- | ---- | ---- | ---- |
-| `unreal-specialist` | Unreal Engine 5 | Sonnet | Blueprint vs C++, GAS overview, UE subsystems, Unreal optimization |
-| `unity-specialist` | Unity | Sonnet | MonoBehaviour vs DOTS, Addressables, URP/HDRP, Unity optimization |
-| `godot-specialist` | Godot 4 | Sonnet | GDScript patterns, node/scene architecture, signals, Godot optimization |
+| `unreal-specialist` | Unreal Engine 5 | Sonnet | Blueprint vs C++、GAS 概览、UE 子系统、Unreal 优化 |
+| `unity-specialist` | Unity | Sonnet | MonoBehaviour vs DOTS、Addressables、URP/HDRP、Unity 优化 |
+| `godot-specialist` | Godot 4 | Sonnet | GDScript 模式、node/scene 架构、signals、Godot 优化 |
 
-### Unreal Engine Sub-Specialists
+### Unreal Engine 子专家
 
-| Agent | Subsystem | Model | When to Use |
+| Agent | 子系统 | 模型 | 使用场景 |
 | ---- | ---- | ---- | ---- |
-| `ue-gas-specialist` | Gameplay Ability System | Sonnet | Abilities, gameplay effects, attribute sets, tags, prediction |
-| `ue-blueprint-specialist` | Blueprint Architecture | Sonnet | BP/C++ boundary, graph standards, naming, BP optimization |
-| `ue-replication-specialist` | Networking/Replication | Sonnet | Property replication, RPCs, prediction, relevancy, bandwidth |
-| `ue-umg-specialist` | UMG/CommonUI | Sonnet | Widget hierarchy, data binding, CommonUI input, UI performance |
+| `ue-gas-specialist` | Gameplay Ability System | Sonnet | Abilities、gameplay effects、attribute sets、tags、prediction |
+| `ue-blueprint-specialist` | Blueprint 架构 | Sonnet | BP/C++ 边界、graph 标准、命名、BP 优化 |
+| `ue-replication-specialist` | 网络/复制 | Sonnet | Property replication、RPCs、prediction、relevancy、bandwidth |
+| `ue-umg-specialist` | UMG/CommonUI | Sonnet | Widget 层级、数据绑定、CommonUI 输入、UI 性能 |
 
-### Unity Sub-Specialists
+### Unity 子专家
 
-| Agent | Subsystem | Model | When to Use |
+| Agent | 子系统 | 模型 | 使用场景 |
 | ---- | ---- | ---- | ---- |
-| `unity-dots-specialist` | DOTS/ECS | Sonnet | Entity Component System, Jobs, Burst compiler, hybrid renderer |
-| `unity-shader-specialist` | Shaders/VFX | Sonnet | Shader Graph, VFX Graph, URP/HDRP customization, post-processing |
-| `unity-addressables-specialist` | Asset Management | Sonnet | Addressable groups, async loading, memory, content delivery |
-| `unity-ui-specialist` | UI Toolkit/UGUI | Sonnet | UI Toolkit, UXML/USS, UGUI Canvas, data binding, cross-platform input |
+| `unity-dots-specialist` | DOTS/ECS | Sonnet | Entity Component System、Jobs、Burst compiler、hybrid renderer |
+| `unity-shader-specialist` | Shaders/VFX | Sonnet | Shader Graph、VFX Graph、URP/HDRP 定制、后处理 |
+| `unity-addressables-specialist` | 资源管理 | Sonnet | Addressable groups、async loading、memory、content delivery |
+| `unity-ui-specialist` | UI Toolkit/UGUI | Sonnet | UI Toolkit、UXML/USS、UGUI Canvas、数据绑定、跨平台输入 |
 
-### Godot Sub-Specialists
+### Godot 子专家
 
-| Agent | Subsystem | Model | When to Use |
+| Agent | 子系统 | 模型 | 使用场景 |
 | ---- | ---- | ---- | ---- |
-| `godot-gdscript-specialist` | GDScript | Sonnet | Static typing, design patterns, signals, coroutines, GDScript performance |
-| `godot-shader-specialist` | Shaders/Rendering | Sonnet | Godot shading language, visual shaders, particles, post-processing |
-| `godot-gdextension-specialist` | GDExtension | Sonnet | C++/Rust bindings, native performance, custom nodes, build systems |
+| `godot-gdscript-specialist` | GDScript | Sonnet | 静态类型、设计模式、signals、协程、GDScript 性能 |
+| `godot-shader-specialist` | Shaders/渲染 | Sonnet | Godot shading language、visual shaders、particles、后处理 |
+| `godot-gdextension-specialist` | GDExtension | Sonnet | C++/Rust 绑定、原生性能、custom nodes、构建系统 |

@@ -1,19 +1,18 @@
-# Upgrading Claude Code Game Studios
+# 升级 Claude Code Game Studios
 
-This guide covers upgrading your existing game project repo from one version
-of the template to the next.
+本指南涵盖将现有游戏项目仓库从模板的一个版本升级到下一个版本。
 
-**Find your current version** in your git log:
+**在你的 git log 中找到当前版本：**
 ```bash
 git log --oneline | grep -i "release\|setup"
 ```
-Or check `README.md` for the version badge.
+或检查 `README.md` 中的版本徽章。
 
 ---
 
-## Table of Contents
+## 目录
 
-- [Upgrade Strategies](#upgrade-strategies)
+- [升级策略](#升级策略)
 - [v0.4.x → v1.0](#v04x--v10)
 - [v0.4.0 → v0.4.1](#v040--v041)
 - [v0.3.0 → v0.4.0](#v030--v040)
@@ -22,93 +21,86 @@ Or check `README.md` for the version badge.
 
 ---
 
-## Upgrade Strategies
+## 升级策略
 
-There are three ways to pull in template updates. Choose based on how your
-repo is set up.
+有三种方式拉取模板更新。根据你的仓库设置方式选择。
 
-### Strategy A — Git Remote Merge (recommended)
+### 策略 A — Git Remote Merge（推荐）
 
-Best when: you cloned the template and have your own commits on top of it.
+最适合：你克隆了模板并在之上有自己的 commits。
 
 ```bash
-# Add the template as a remote (one-time setup)
+# 将模板添加为 remote（一次性设置）
 git remote add template https://github.com/Donchitos/Claude-Code-Game-Studios.git
 
-# Fetch the new version
+# 获取新版本
 git fetch template main
 
-# Merge into your branch
+# 合并到你的分支
 git merge template/main --allow-unrelated-histories
 ```
 
-Git will flag conflicts only in files that both the template *and* you have
-changed. Resolve each one — your game content goes in, structural improvements
-come along for the ride. Then commit the merge.
+Git 仅在模板*和你*都更改过的文件中标记冲突。解决每一个 — 你的游戏内容保留，结构性改进随之而来。然后提交合并。
 
-**Tip:** The files most likely to conflict are `CLAUDE.md` and
-`.claude/docs/technical-preferences.md`, because you've filled them in with
-your engine and project settings. Keep your content; accept the structural changes.
+**提示：** 最可能冲突的文件是 `CLAUDE.md` 和 `.claude/docs/technical-preferences.md`，因为你已经在其中填入了引擎和项目设置。保留你的内容；接受结构性更改。
 
 ---
 
-### Strategy B — Cherry-pick specific commits
+### 策略 B — Cherry-pick 特定 commits
 
-Best when: you only want one specific feature (e.g., just the new skill, not
-the full update).
+最适合：你只需要一个特定功能（如仅新技能，而不是完整更新）。
 
 ```bash
 git remote add template https://github.com/Donchitos/Claude-Code-Game-Studios.git
 git fetch template main
 
-# Cherry-pick the specific commit(s) you want
+# Cherry-pick 你想要的具体 commit(s)
 git cherry-pick <commit-sha>
 ```
 
-Commit SHAs for each version are listed in the version sections below.
+每个版本的 commit SHA 列在下面的版本部分中。
 
 ---
 
-### Strategy C — Manual file copy
+### 策略 C — 手动文件复制
 
-Best when: you didn't use git to set up the template (just downloaded a zip).
+最适合：你没有用 git 设置模板（只是下载了 zip）。
 
-1. Download or clone the new version alongside your repo.
-2. Copy the files listed under **"Safe to overwrite"** directly.
-3. For files under **"Merge carefully"**, open both versions side-by-side
-   and manually merge the structural changes while keeping your content.
+1. 下载或克隆新版本到你的仓库旁边。
+2. 直接复制**"可安全覆盖"**下列出的文件。
+3. 对于**"仔细合并"**下的文件，两边打开两个版本并手动合并结构性更改，同时保留你的内容。
 
 ---
 
 ## v0.4.1
 
-**Released:** 2026-04-02
-**Key themes:** Art direction integration, asset specification pipeline
+**发布日期：** 2026-04-02
+**关键主题：** 美术方向集成、资产规格管道
 
-### What Changed
+### 变更内容
 
-| Category | Changes |
+| 类别 | 变更 |
 |----------|---------|
-| **New skill** | `/art-bible` — guided section-by-section visual identity authoring (9 sections). Mandatory art-director Task spawn per section. AD-ART-BIBLE sign-off gate. Required at Technical Setup phase. |
-| **New skill** | `/asset-spec` — per-asset visual spec and AI generation prompt generator. Reads art bible + GDD/level/character docs. Writes `design/assets/specs/` files and `design/assets/asset-manifest.md`. Full/lean/solo modes. |
-| **New director gates (3)** | `AD-CONCEPT-VISUAL` (brainstorm Phase 4), `AD-ART-BIBLE` (art bible sign-off), `AD-PHASE-GATE` (gate-check panel) |
-| **`/brainstorm` update** | Added `Task` to allowed-tools (was missing — blocked all director spawning). Art-director now spawns in parallel with creative-director after pillars lock. Visual Identity Anchor written to game-concept.md. |
-| **`/gate-check` update** | Art-director added as 4th parallel director (AD-PHASE-GATE). Visual artifact checks: Visual Identity Anchor (Concept gate), art bible (Technical Setup gate), AD-ART-BIBLE sign-off + character visual profiles (Pre-Production gate). |
-| **`/team-level` update** | Art-director added to Step 1 parallel spawn (visual direction before layout). Level-designer now receives art-director targets as explicit constraints. Step 4 art-director role corrected to production-concepts only. |
-| **`/team-narrative` update** | Art-director added to Phase 2 parallel spawn (character visual design, environmental storytelling, cinematic tone). |
-| **`/design-system` update** | Routing table expanded with art-director + technical-artist for Combat, UI, Dialogue, Animation/VFX, Character categories. Visual/Audio section now mandatory (with art-director Task spawn) for 7 system categories. |
-| **`workflow-catalog.yaml`** | `/art-bible` added to Technical Setup (required). `/asset-spec` added to Pre-Production (optional, repeatable). |
+| **新技能** | `/art-bible` — 引导式逐节视觉身份创作（9个章节）。每章节强制 art-director Task 派生。AD-ART-BIBLE sign-off gate。技术设置阶段必需。 |
+| **新技能** | `/asset-spec` — 每资产视觉规格和 AI 生成提示生成器。读取 art bible + GDD/level/character 文档。写入 `design/assets/specs/` 文件和 `design/assets/asset-manifest.md`。Full/lean/solo 模式。 |
+| **新 director gates（3个）** | `AD-CONCEPT-VISUAL`（brainstorm 阶段4）、`AD-ART-BIBLE`（art bible sign-off）、`AD-PHASE-GATE`（gate-check 面板） |
+| **`/brainstorm` 更新** | 在 allowed-tools 中添加 `Task`（之前缺失 — 阻止所有 director 派生）。Pillars 锁定后 art-director 与 creative-director 并行派生。视觉身份锚点写入 game-concept.md。 |
+| **`/gate-check` 更新** | Art-director 添加为第4个并行 director（AD-PHASE-GATE）。视觉产物检查：视觉身份锚点（Concept gate）、art bible（Technical Setup gate）、AD-ART-BIBLE sign-off + 角色视觉档案（Pre-Production gate）。 |
+| **`/team-level` 更新** | Art-director 添加到步骤1并行派生（视觉方向在布局之前）。Level-designer 现在接收 art-director 目标作为明确约束。步骤4 art-director 角色更正为仅 production-concepts。 |
+| **`/team-narrative` 更新** | Art-director 添加到阶段2并行派生（角色视觉设计、环境叙事、电影色调）。 |
+| **`/design-system` 更新** | 路由表扩展了 art-director + technical-artist 用于战斗、UI、对话、动画/VFX、角色类别。视觉/音频章节现在对7个系统类别强制（带 art-director Task 派生）。 |
+| **`workflow-catalog.yaml`** | `/art-bible` 添加到 Technical Setup（必需）。`/asset-spec` 添加到 Pre-Production（可选，可重复）。 |
 
-### Files: Safe to Overwrite
+### 文件：可安全覆盖
 
-**New files to add:**
+**新增文件：**
 ```
 .claude/skills/art-bible/SKILL.md
 .claude/skills/asset-spec/SKILL.md
 .claude/docs/director-gates.md
 ```
 
-**Existing files to overwrite (no user content):**
+**现有文件覆盖（无用户内容）：**
 ```
 .claude/skills/brainstorm/SKILL.md
 .claude/skills/gate-check/SKILL.md
@@ -120,41 +112,41 @@ README.md
 UPGRADING.md
 ```
 
-### Files: Merge Carefully
+### 文件：仔细合并
 
-None — all changes are to infrastructure files with no user content.
+无 — 所有变更都是基础设施文件，无用户内容。
 
 ---
 
 ## v0.4.x → v1.0
 
-**Released:** 2026-03-29
-**Commit range:** `6c041ac..HEAD`
-**Key themes:** Director gates system, gate intensity modes, Godot C# specialist
+**发布日期：** 2026-03-29
+**Commit 范围：** `6c041ac..HEAD`
+**关键主题：** Director gates 系统、gate 强度模式、Godot C# 专家
 
-### What Changed
+### 变更内容
 
-| Category | Changes |
+| 类别 | 变更 |
 |----------|---------|
-| **New system** | Director gates — named review checkpoints shared across all workflow skills. Defined in `.claude/docs/director-gates.md` |
-| **New feature** | Gate intensity modes: `full` (all director gates), `lean` (phase gates only), `solo` (no directors). Set globally via `production/review-mode.txt` during `/start`, or override per-run with `--review [mode]` on any gate-using skill |
-| **New agent** | `godot-csharp-specialist` — C# code quality in Godot 4 projects |
-| **Skill updates (13)** | All gate-using skills now parse `--review [full\|lean\|solo]` and include it in their argument-hint: `brainstorm`, `map-systems`, `design-system`, `architecture-decision`, `create-architecture`, `create-epics`, `create-stories`, `sprint-plan`, `milestone-review`, `playtest-report`, `prototype`, `story-done`, `gate-check` |
-| **`/start` update** | Added Phase 3b — sets review mode during onboarding, writes `production/review-mode.txt` |
-| **`/setup-engine` update** | Language selection step for Godot (GDScript vs C#) |
-| **Docs** | `director-gates.md` — full gate catalog; `WORKFLOW-GUIDE.md` — Director Review Modes section; `README.md` — review intensity customization |
+| **新系统** | Director gates — 跨所有工作流技能共享的命名审查检查点。定义在 `.claude/docs/director-gates.md` |
+| **新功能** | Gate 强度模式：`full`（所有 director gates）、`lean`（仅阶段 gates）、`solo`（无 directors）。通过 `/start` 期间全局设置（写入 `production/review-mode.txt`），或在任何 gate 使用技能上用 `--review [mode]` 覆盖每次运行 |
+| **新 agent** | `godot-csharp-specialist` — Godot 4 项目中的 C# 代码质量 |
+| **技能更新（13个）** | 所有 gate 使用技能现在解析 `--review [full|lean|solo]` 并将其包含在 argument-hint 中：`brainstorm`、`map-systems`、`design-system`、`architecture-decision`、`create-architecture`、`create-epics`、`create-stories`、`sprint-plan`、`milestone-review`、`playtest-report`、`prototype`、`story-done`、`gate-check` |
+| **`/start` 更新** | 添加阶段3b — 在 onboarding 期间设置审查模式，写入 `production/review-mode.txt` |
+| **`/setup-engine` 更新** | Godot 的语言选择步骤（GDScript vs C#） |
+| **文档** | `director-gates.md` — 完整 gate 目录；`WORKFLOW-GUIDE.md` — Director 审查模式章节；`README.md` — 审查强度自定义 |
 
 ---
 
-### Files: Safe to Overwrite
+### 文件：可安全覆盖
 
-**New files to add:**
+**新增文件：**
 ```
 .claude/agents/godot-csharp-specialist.md
 .claude/docs/director-gates.md
 ```
 
-**Existing files to overwrite (no user content):**
+**现有文件覆盖（无用户内容）：**
 ```
 .claude/skills/brainstorm/SKILL.md
 .claude/skills/map-systems/SKILL.md
@@ -179,36 +171,29 @@ UPGRADING.md
 
 ---
 
-### Files: Merge Carefully
+### 文件：仔细合并
 
-No files require manual merging in this release. All changes are to infrastructure files with no user content.
+此版本中无文件需要手动合并。所有变更都是基础设施文件，无用户内容。
 
 ---
 
-### New Features
+### 新功能
 
-#### Director Gates System
+#### Director Gates 系统
 
-All major workflow skills now reference named gate checkpoints defined in
-`.claude/docs/director-gates.md`. Gates are identified by domain prefix and name
-(e.g., `CD-CONCEPT`, `TD-ARCHITECTURE`, `LP-CODE-REVIEW`). Each gate defines
-which director to spawn, what inputs to pass, what verdicts mean, and how
-lean/solo modes affect it.
+所有主要工作流技能现在引用定义在 `.claude/docs/director-gates.md` 中的命名 gate 检查点。Gates 通过领域前缀和名称识别（如 `CD-CONCEPT`、`TD-ARCHITECTURE`、`LP-CODE-REVIEW`）。每个 gate 定义派生哪个 director、传递什么输入、裁决意味着什么，以及 lean/solo 模式如何影响它。
 
-Skills spawn gates using `Task` with the gate ID and documented inputs, rather
-than embedding director prompts inline. This keeps skill bodies clean and makes
-gate behavior consistent across all workflow phases.
+技能使用 `Task` 派生 gates，带 gate ID 和文档化输入，而不是内联嵌入 director 提示。这保持技能体干净并使 gate 行为在所有工作流阶段中一致。
 
-#### Gate Intensity Modes
+#### Gate 强度模式
 
-Three modes let you control how much director review you get:
+三种模式让你控制你获得多少 director 审查：
 
-- **`full`** (default) — all director gates run at every review checkpoint
-- **`lean`** — per-skill director reviews are skipped; phase gates at `/gate-check` still run
-- **`solo`** — no director gates anywhere; `/gate-check` checks artifact existence only
+- **`full`**（默认）— 每个审查检查点运行所有 director gates
+- **`lean`** — 跳过每个技能的 director 审查；`/gate-check` 的阶段 gates 仍然运行
+- **`solo`** — 任何地方都没有 director gates；`/gate-check` 仅检查产物存在
 
-Set globally during `/start` (writes `production/review-mode.txt`). Override any
-individual run with `--review [mode]` on any gate-using skill:
+在 `/start` 期间全局设置（写入 `production/review-mode.txt`）。在任何 gate 使用技能上用 `--review [mode]` 覆盖任何单独运行：
 
 ```
 /design-system combat --review lean
@@ -218,105 +203,105 @@ individual run with `--review [mode]` on any gate-using skill:
 
 ---
 
-### After Upgrading
+### 升级后
 
-1. Run `/start` once to set your preferred review mode — or create `production/review-mode.txt` manually with `full`, `lean`, or `solo`.
-2. If you're mid-project, review `.claude/docs/director-gates.md` to understand which gates apply to your current phase.
-3. Run `/skill-test static all` to verify all skills pass structural checks.
+1. 运行 `/start` 一次以设置你首选的审查模式 — 或者手动创建 `production/review-mode.txt`，内容为 `full`、`lean` 或 `solo`。
+2. 如果你在项目中期，审查 `.claude/docs/director-gates.md` 以了解哪些 gates 适用于你当前阶段。
+3. 运行 `/skill-test static all` 验证所有技能通过结构性检查。
 
 ---
 
 ## v0.4.0 → v0.4.1
 
-**Released:** 2026-03-26
-**Commit range:** `04ed5d5..HEAD`
-**Key themes:** Genre-agnostic agents, new skills, skill fixes
+**发布日期：** 2026-03-26
+**Commit 范围：** `04ed5d5..HEAD`
+**关键主题：** 领域无关 agents、新技能、技能修复
 
-### What Changed
+### 变更内容
 
-| Category | Changes |
+| 类别 | 变更 |
 |----------|---------|
-| **New skills (1)** | `/consistency-check` — cross-GDD entity consistency scanner |
-| **Skill fixes (all team-*)** | Added no-argument guards, formal `Verdict: COMPLETE / BLOCKED` keywords, per-step AskUserQuestion gates, adjacent area dependency checks (team-level), ethics enforcement (team-live-ops), NO-GO path with Phase skip (team-release) |
-| **Agent fixes (4)** | Genre-agnostic language in game-designer, systems-designer, economy-designer, live-ops-designer — removed RPG-specific terms |
+| **新技能（1个）** | `/consistency-check` — 跨 GDD 实体一致性扫描器 |
+| **技能修复（所有 team-*）** | 添加无参数守卫、正式 `Verdict: COMPLETE / BLOCKED` 关键词、每步骤 AskUserQuestion gates、相邻区域依赖检查（team-level）、伦理 enforcement（team-live-ops）、NO-GO 路径带阶段跳过（team-release） |
+| **Agent 修复（4个）** | game-designer、systems-designer、economy-designer、live-ops-designer 中的领域无关语言 — 移除 RPG 特定术语 |
 
 ---
 
-### Files: Safe to Overwrite
+### 文件：可安全覆盖
 
-**New files to add:**
+**新增文件：**
 ```
 .claude/skills/consistency-check/SKILL.md
 ```
 
-**Existing files to overwrite (no user content):**
+**现有文件覆盖（无用户内容）：**
 ```
-.claude/skills/team-combat/SKILL.md      ← no-arg guard, verdict keywords, gate improvements
-.claude/skills/team-narrative/SKILL.md   ← no-arg guard, verdict keywords, gate improvements
-.claude/skills/team-ui/SKILL.md          ← no-arg guard, verdict keywords, gate improvements
-.claude/skills/team-release/SKILL.md     ← no-arg guard, verdict keywords, NO-GO path
-.claude/skills/team-polish/SKILL.md      ← no-arg guard, verdict keywords, gate improvements
-.claude/skills/team-audio/SKILL.md       ← no-arg guard, verdict keywords, gate improvements
-.claude/skills/team-level/SKILL.md       ← no-arg guard, verdict keywords, adjacent area checks
-.claude/skills/team-live-ops/SKILL.md    ← no-arg guard, verdict keywords, ethics enforcement
-.claude/skills/team-qa/SKILL.md          ← no-arg guard, verdict keywords, gate improvements
-.claude/skills/map-systems/SKILL.md      ← verdict keywords
-.claude/skills/create-epics/SKILL.md     ← "May I write" protocol fix, verdict keywords
-.claude/skills/create-stories/SKILL.md   ← verdict keywords
-.claude/agents/game-designer.md          ← genre-agnostic language
-.claude/agents/systems-designer.md       ← genre-agnostic language
-.claude/agents/economy-designer.md       ← genre-agnostic language
-.claude/agents/live-ops-designer.md      ← genre-agnostic language
+.claude/skills/team-combat/SKILL.md      ← 无参数守卫、verdict 关键词、gate 改进
+.claude/skills/team-narrative/SKILL.md   ← 无参数守卫、verdict 关键词、gate 改进
+.claude/skills/team-ui/SKILL.md          ← 无参数守卫、verdict 关键词、gate 改进
+.claude/skills/team-release/SKILL.md     ← 无参数守卫、verdict 关键词、NO-GO 路径
+.claude/skills/team-polish/SKILL.md      ← 无参数守卫、verdict 关键词、gate 改进
+.claude/skills/team-audio/SKILL.md       ← 无参数守卫、verdict 关键词、gate 改进
+.claude/skills/team-level/SKILL.md       ← 无参数守卫、verdict 关键词、相邻区域检查
+.claude/skills/team-live-ops/SKILL.md    ← 无参数守卫、verdict 关键词、伦理 enforcement
+.claude/skills/team-qa/SKILL.md          ← 无参数守卫、verdict 关键词、gate 改进
+.claude/skills/map-systems/SKILL.md      ← verdict 关键词
+.claude/skills/create-epics/SKILL.md     ← "May I write" 协议修复、verdict 关键词
+.claude/skills/create-stories/SKILL.md   ← verdict 关键词
+.claude/agents/game-designer.md          ← 领域无关语言
+.claude/agents/systems-designer.md       ← 领域无关语言
+.claude/agents/economy-designer.md       ← 领域无关语言
+.claude/agents/live-ops-designer.md      ← 领域无关语言
 ```
 
 ---
 
-### Files: Merge Carefully
+### 文件：仔细合并
 
-No files require manual merging in this release. All changes are to infrastructure files with no user content.
+此版本中无文件需要手动合并。所有变更都是基础设施文件，无用户内容。
 
 ---
 
-### After Upgrading
+### 升级后
 
-1. Run `/skill-test catalog` to verify all skills are indexed.
-2. Run `/skill-test lint [skill-name]` after any skill edits to check structural compliance.
-3. If you've customized any team-* skills, review the updated versions — no-argument guard and `Verdict:` keywords are now required for all team-* skills.
+1. 运行 `/skill-test catalog` 验证所有技能已索引。
+2. 任何技能编辑后运行 `/skill-test lint [skill-name]` 检查结构性合规性。
+3. 如果你自定义了任何 team-* 技能，审查更新后的版本 — 无参数守卫和 `Verdict:` 关键词现在是所有 team-* 技能必需的。
 
 ---
 
 ## v0.3.0 → v0.4.0
 
-**Released:** 2026-03-21
-**Commit range:** `b1cad29..HEAD`
-**Key themes:** Full UX/UI pipeline, complete story lifecycle, brownfield adoption, comprehensive QA/testing framework, pipeline integrity, 29 new skills
+**发布日期：** 2026-03-21
+**Commit 范围：** `b1cad29..HEAD`
+**关键主题：** 完整 UX/UI 管线、完整 story 生命周期、brownfield 采用、综合 QA/测试框架、管道完整性、29个新技能
 
-### What Changed
+### 变更内容
 
-| Category | Changes |
+| 类别 | 变更 |
 |----------|---------|
-| **New skills (17)** | `/ux-design`, `/ux-review`, `/help`, `/quick-design`, `/review-all-gdds`, `/story-readiness`, `/story-done`, `/sprint-status`, `/adopt`, `/create-architecture`, `/create-control-manifest`, `/create-epics`, `/create-stories`, `/dev-story`, `/propagate-design-change`, `/content-audit`, `/architecture-review` |
-| **New skills QA (12)** | `/qa-plan`, `/smoke-check`, `/soak-test`, `/regression-suite`, `/test-setup`, `/test-helpers`, `/test-evidence-review`, `/test-flakiness`, `/skill-test`, `/bug-triage`, `/team-live-ops`, `/team-qa` |
-| **New hooks (4)** | `log-agent-stop.sh` — agent audit trail stop; `notify.sh` — Windows toast notifications; `post-compact.sh` — session recovery reminder after compaction; `validate-skill-change.sh` — advises `/skill-test` after skill edits |
-| **New templates (8)** | `ux-spec.md`, `hud-design.md`, `accessibility-requirements.md`, `interaction-pattern-library.md`, `player-journey.md`, `difficulty-curve.md`, and 2 adoption plan templates |
-| **New infrastructure** | `workflow-catalog.yaml` (7-phase pipeline, read by `/help`), `docs/architecture/tr-registry.yaml` (stable TR-IDs), `production/sprint-status.yaml` schema |
-| **Skill updates** | `/gate-check` — 3 gates now require UX artifacts; Pre-Production gate requires vertical slice (HARD gate) |
-| **Skill updates** | `/sprint-plan` — writes `sprint-status.yaml`; `/sprint-status` reads it |
-| **Skill updates** | `/story-done` — 8-phase completion review, updates story file, surfaces next ready story |
-| **Skill updates** | `/design-review` — removed architecture gap check (wrong stage) |
-| **Skill updates** | `/team-ui` — full UX pipeline (ux-design → ux-review → team phases) |
-| **Agent updates** | 14 specialist agents — `memory: project` added |
-| **Agent updates** | `prototyper` — `isolation: worktree` (throwaway work in isolated git branch) |
-| **Model routing** | Haiku/Sonnet/Opus tier assignments documented in coordination rules; skills declare their tier in frontmatter |
-| **Directory CLAUDE.md** | Scaffolded `design/CLAUDE.md`, `src/CLAUDE.md`, `docs/CLAUDE.md` — path-scoped instructions for each directory |
-| **Pipeline integrity** | TR-ID stability, manifest versioning, ADR status gates, TR-ID reference not quote |
-| **GDD template** | `## Game Feel` section added (input responsiveness, animation targets, impact moments) |
+| **新技能（17个）** | `/ux-design`、`/ux-review`、`/help`、`/quick-design`、`/review-all-gdds`、`/story-readiness`、`/story-done`、`/sprint-status`、`/adopt`、`/create-architecture`、`/create-control-manifest`、`/create-epics`、`/create-stories`、`/dev-story`、`/propagate-design-change`、`/content-audit`、`/architecture-review` |
+| **新 QA 技能（12个）** | `/qa-plan`、`/smoke-check`、`/soak-test`、`/regression-suite`、`/test-setup`、`/test-helpers`、`/test-evidence-review`、`/test-flakiness`、`/skill-test`、`/bug-triage`、`/team-live-ops`、`/team-qa` |
+| **新 hooks（4个）** | `log-agent-stop.sh` — agent 审计追踪停止；`notify.sh` — Windows toast 通知；`post-compact.sh` — 压缩后会话恢复提醒；`validate-skill-change.sh` — 技能编辑后 advise `/skill-test` |
+| **新模板（8个）** | `ux-spec.md`、`hud-design.md`、`accessibility-requirements.md`、`interaction-pattern-library.md`、`player-journey.md`、`difficulty-curve.md`，以及2个 adoption 计划模板 |
+| **新基础设施** | `workflow-catalog.yaml`（7阶段管道，被 `/help` 读取）、`docs/architecture/tr-registry.yaml`（稳定 TR-ID）、`production/sprint-status.yaml` schema |
+| **技能更新** | `/gate-check` — 3个 gates 现在需要 UX 产物；Pre-Production gate 需要垂直切片（HARD gate） |
+| **技能更新** | `/sprint-plan` — 写入 `sprint-status.yaml`；`/sprint-status` 读取它 |
+| **技能更新** | `/story-done` — 8阶段完成审查，更新 story 文件，surfaces 下一个就绪 story |
+| **技能更新** | `/design-review` — 移除架构差距检查（错误的阶段） |
+| **技能更新** | `/team-ui` — 完整 UX 管道（ux-design → ux-review → team 阶段） |
+| **Agent 更新** | 14个专家 agents — 添加 `memory: project` |
+| **Agent 更新** | `prototyper` — `isolation: worktree`（在隔离的 git 分支中丢弃工作） |
+| **模型路由** | Haiku/Sonnet/Opus 层级分配在协调规则中记录；技能在 frontmatter 中声明其层级 |
+| **目录 CLAUDE.md** | 搭建 `design/CLAUDE.md`、`src/CLAUDE.md`、`docs/CLAUDE.md` — 每个目录的路径作用域指令 |
+| **管道完整性** | TR-ID 稳定性、manifest 版本控制、ADR 状态 gates、TR-ID 引用而非引用 |
+| **GDD 模板** | 添加 `## Game Feel` 章节（输入响应性、动画目标、冲击时刻） |
 
 ---
 
-### Files: Safe to Overwrite
+### 文件：可安全覆盖
 
-**New files to add:**
+**新增文件：**
 ```
 .claude/skills/ux-design/SKILL.md
 .claude/skills/ux-review/SKILL.md
@@ -363,7 +348,7 @@ src/CLAUDE.md
 docs/CLAUDE.md
 ```
 
-**Existing files to overwrite (no user content):**
+**现有文件覆盖（无用户内容）：**
 ```
 .claude/skills/gate-check/SKILL.md
 .claude/skills/sprint-plan/SKILL.md
@@ -372,184 +357,182 @@ docs/CLAUDE.md
 .claude/skills/team-ui/SKILL.md
 .claude/skills/story-readiness/SKILL.md
 .claude/skills/story-done/SKILL.md
-.claude/docs/templates/game-design-document.md    ← adds Game Feel section
+.claude/docs/templates/game-design-document.md    ← 添加 Game Feel 章节
 README.md
 docs/WORKFLOW-GUIDE.md
 UPGRADING.md
 ```
 
-**Agent files to overwrite** (if you haven't written custom prompts into them):
+**Agent 文件覆盖**（如果你没有写入自定义提示）：
 ```
-.claude/agents/prototyper.md         ← adds isolation: worktree
-.claude/agents/art-director.md       ← adds memory: project
-.claude/agents/audio-director.md     ← adds memory: project
-.claude/agents/economy-designer.md   ← adds memory: project
-.claude/agents/game-designer.md      ← adds memory: project
-.claude/agents/gameplay-programmer.md ← adds memory: project
-.claude/agents/lead-programmer.md    ← adds memory: project
-.claude/agents/level-designer.md     ← adds memory: project
-.claude/agents/narrative-director.md ← adds memory: project
-.claude/agents/systems-designer.md   ← adds memory: project
-.claude/agents/technical-artist.md   ← adds memory: project
-.claude/agents/ui-programmer.md      ← adds memory: project
-.claude/agents/ux-designer.md        ← adds memory: project
-.claude/agents/world-builder.md      ← adds memory: project
+.claude/agents/prototyper.md         ← 添加 isolation: worktree
+.claude/agents/art-director.md       ← 添加 memory: project
+.claude/agents/audio-director.md     ← 添加 memory: project
+.claude/agents/economy-designer.md   ← 添加 memory: project
+.claude/agents/game-designer.md      ← 添加 memory: project
+.claude/agents/gameplay-programmer.md ← 添加 memory: project
+.claude/agents/lead-programmer.md    ← 添加 memory: project
+.claude/agents/level-designer.md     ← 添加 memory: project
+.claude/agents/narrative-director.md ← 添加 memory: project
+.claude/agents/systems-designer.md   ← 添加 memory: project
+.claude/agents/technical-artist.md   ← 添加 memory: project
+.claude/agents/ui-programmer.md      ← 添加 memory: project
+.claude/agents/ux-designer.md        ← 添加 memory: project
+.claude/agents/world-builder.md      ← 添加 memory: project
 ```
 
 ---
 
-### Files: Merge Carefully
+### 文件：仔细合并
 
 #### `.claude/settings.json`
 
-Four new hooks are registered in this version. If you haven't customized `settings.json`, overwriting is safe. Otherwise, add the following hook entries manually:
+此版本注册了四个新 hooks。如果你没有自定义 `settings.json`，覆盖是安全的。否则，手动添加以下 hook 条目：
 
-- `log-agent-stop.sh` — `SubagentStop` event (agent audit trail stop)
-- `notify.sh` — `Notification` event (Windows toast notification)
-- `post-compact.sh` — `PostCompact` event (session recovery reminder)
-- `validate-skill-change.sh` — `PostToolUse` event filtered to `.claude/skills/` writes
+- `log-agent-stop.sh` — `SubagentStop` 事件（agent 审计追踪停止）
+- `notify.sh` — `Notification` 事件（Windows toast 通知）
+- `post-compact.sh` — `PostCompact` 事件（会话恢复提醒）
+- `validate-skill-change.sh` — `PostToolUse` 事件过滤到 `.claude/skills/` 写入
 
-#### Customized agent files
+#### 自定义 agent 文件
 
-If you've added project-specific knowledge to agent `.md` files, do a diff and manually add the `memory: project` line to the YAML frontmatter where appropriate. Creative and technical director agents intentionally keep `memory: user` — only specialist agents get `memory: project`.
-
----
-
-### New Features
-
-#### Complete Story Lifecycle
-
-Stories now have a formal lifecycle enforced by two skills:
-
-- **`/story-readiness`** — validates a story is implementation-ready before a developer picks it up. Checks Design (GDD req linked), Architecture (ADR accepted), Scope (criteria testable), and DoD (manifest version current). Verdict: READY / NEEDS WORK / BLOCKED.
-- **`/story-done`** — 8-phase completion review after implementation. Verifies each acceptance criterion, checks for GDD/ADR deviations, prompts code review, updates the story file to `Status: Complete`, and surfaces the next ready story.
-
-Flow: `/story-readiness` → implement → `/story-done` → next story
-
-#### Full UX/UI Pipeline
-
-- **`/ux-design`** — guided section-by-section UX spec authoring. Three modes: screen/flow, HUD, or interaction pattern library. Reads GDD UI requirements and player journey. Output to `design/ux/`.
-- **`/ux-review`** — validates UX specs against GDD alignment, accessibility tier, and pattern library. Verdict: APPROVED / NEEDS REVISION / MAJOR REVISION.
-- **`/team-ui`** updated: Phase 1 now runs `/ux-design` + `/ux-review` as a hard gate before visual design begins.
-
-#### Brownfield Adoption
-
-**`/adopt`** onboards existing projects to the template format. Audits internal structure of GDDs, ADRs, stories, systems-index, and infra. Classifies gaps (BLOCKING/HIGH/MEDIUM/LOW). Builds an ordered migration plan. Never regenerates existing artifacts — only fills gaps.
-
-Argument modes: `full | gdds | adrs | stories | infra`
-
-Also: `/design-system retrofit [path]` and `/architecture-decision retrofit [path]` detect existing files and add only missing sections.
-
-#### Sprint Tracking YAML
-
-`production/sprint-status.yaml` is now the authoritative story tracking format:
-- Written by `/sprint-plan` (initializes all stories) and `/story-done` (sets status to `done`)
-- Read by `/sprint-status` (fast snapshot) and `/help` (per-story status in production phase)
-- Status values: `backlog | ready-for-dev | in-progress | review | done | blocked`
-- Falls back gracefully to markdown scanning if file doesn't exist
-
-#### `/help` — Context-Aware Next Step
-
-`/help` reads your current stage and in-progress work, checks which artifacts are complete, and tells you exactly what to do next — one primary required step, plus optional opportunities. Distinct from `/start` (first-time only) and `/project-stage-detect` (full audit).
-
-#### Comprehensive QA and Testing Framework
-
-Nine new QA/testing skills covering the full testing lifecycle:
-
-- **`/test-setup`** — scaffolds the test framework and CI/CD pipeline for your engine
-- **`/test-helpers`** — generates engine-specific test helper libraries (GDUnit4, NUnit, etc.)
-- **`/qa-plan`** — generates a QA test plan for a sprint or feature, classifying stories by test type
-- **`/smoke-check`** — runs the critical path smoke test gate before QA hand-off
-- **`/soak-test`** — generates a soak test protocol for extended play sessions (stability, memory leaks)
-- **`/regression-suite`** — maps test coverage to GDD critical paths, identifies fixed bugs lacking regression tests
-- **`/test-evidence-review`** — quality review of test files and manual evidence documents
-- **`/test-flakiness`** — detects non-deterministic tests by reading CI run logs
-- **`/skill-test`** — validates skill files for structural compliance and behavioral correctness (three modes: lint, spec, catalog)
-
-Also new: **`/bug-triage`** re-evaluates all open bugs for priority, severity, and ownership.
-
-#### Skill Validator (`/skill-test`)
-
-`/skill-test` is a meta-skill for validating the harness itself. Run it after editing any skill file. Three modes:
-- `lint` — validates YAML frontmatter and required fields
-- `spec [skill-name]` — runs behavioral spec tests against a specific skill
-- `catalog` — checks that all skills in `.claude/skills/` are indexed in the catalog
-
-The new `validate-skill-change.sh` hook reminds you to run `/skill-test` automatically when a skill file is modified.
-
-#### Team Live-Ops and Team QA Orchestration
-
-- **`/team-live-ops`** — coordinates live-ops-designer + economy-designer + community-manager + analytics-engineer for post-launch content planning (seasonal events, battle pass, retention)
-- **`/team-qa`** — orchestrates qa-lead + qa-tester + gameplay-programmer + producer through a full QA cycle: strategy, execution, coverage, and sign-off
-
-#### Model Tier Routing
-
-Skills are now explicitly assigned to Haiku, Sonnet, or Opus tiers based on task complexity. Read-only status checks use Haiku; complex multi-document synthesis uses Opus; everything else defaults to Sonnet. Tier assignments are documented in `.claude/docs/coordination-rules.md`.
-
-#### Directory CLAUDE.md Files
-
-Three new directory-scoped CLAUDE.md files (`design/`, `src/`, `docs/`) provide path-specific instructions to agents working in those directories. These load automatically when Claude Code reads files in that directory.
+如果你向 agent `.md` 文件添加了项目特定知识，做 diff 并手动将 `memory: project` 行添加到适当的 YAML frontmatter。Creative 和 technical director agents 故意保留 `memory: user` — 只有专家 agents 获取 `memory: project`。
 
 ---
 
-### After Upgrading
+### 新功能
 
-1. **Verify new hooks** are registered in `.claude/settings.json` — check for all four: `log-agent-stop.sh`, `notify.sh`, `post-compact.sh`, `validate-skill-change.sh`.
+#### 完整 Story 生命周期
 
-2. **Test the audit trail** by spawning any subagent — both start and stop events should appear in `production/session-logs/`.
+Stories 现在有由两个技能强制执行的正式生命周期：
 
-3. **Generate sprint-status.yaml** if you're in active production:
+- **`/story-readiness`** — 在开发者领取之前验证 story 是否可实施。检查 Design（GDD req 链接）、Architecture（ADR 已接受）、Scope（标准可测试）和 DoD（manifest 版本当前）。裁决：READY / NEEDS WORK / BLOCKED。
+- **`/story-done`** — 实施后的8阶段完成审查。验证每个验收标准，检查 GDD/ADR 偏差，提示代码审查，将 story 文件更新为 `Status: Complete`，并 surfaces 下一个就绪 story。
+
+流程：`/story-readiness` → 实施 → `/story-done` → 下一个 story
+
+#### 完整 UX/UI 管道
+
+- **`/ux-design`** — 引导式逐节 UX 规格创作。三种模式：screen/flow、HUD 或交互模式库。读取 GDD UI 需求和玩家旅程。输出到 `design/ux/`。
+- **`/ux-review`** — 根据 GDD 对齐、无障碍层级和模式库验证 UX 规格。裁决：APPROVED / NEEDS REVISION / MAJOR REVISION。
+- **`/team-ui` 更新：** 阶段1现在运行 `/ux-design` + `/ux-review` 作为硬 gate，在视觉设计开始之前。
+
+#### Brownfield 采用
+
+**`/adopt`** 使现有项目适应模板格式。审计 GDD、ADR、stories、systems-index 和 infra 的内部结构。分类差距（BLOCKING/HIGH/MEDIUM/LOW）。构建有序迁移计划。永不重新生成现有产物 — 仅填补差距。
+
+参数模式：`full | gdds | adrs | stories | infra`
+
+还有：`/design-system retrofit [path]` 和 `/architecture-decision retrofit [path]` 检测现有文件并仅添加缺失的章节。
+
+#### Sprint 追踪 YAML
+
+`production/sprint-status.yaml` 现在是权威的 story 追踪格式：
+- 由 `/sprint-plan`（初始化所有 stories）和 `/story-done`（设置状态为 `done`）写入
+- 由 `/sprint-status`（快速快照）和 `/help`（生产阶段每个 story 状态）读取
+- 状态值：`backlog | ready-for-dev | in-progress | review | done | blocked`
+- 如果文件不存在，优雅降级到 markdown 扫描
+
+#### `/help` — 上下文感知下一步
+
+`/help` 读取你当前阶段和进行中的工作，检查哪些产物已完成，并准确告诉你下一步做什么 — 一个主要必需步骤，加上可选机会。区别于 `/start`（仅首次）和 `/project-stage-detect`（完整审计）。
+
+#### 综合 QA 和测试框架
+
+涵盖完整测试生命周期的9个新 QA/测试技能：
+
+- **`/test-setup`** — 为你的引擎搭建测试框架和 CI/CD 管道
+- **`/test-helpers`** — 生成引擎特定测试辅助库（GDUnit4、NUnit 等）
+- **`/qa-plan`** — 为 sprint 或 feature 生成 QA 测试计划，按测试类型分类 stories
+- **`/smoke-check`** — 在 QA hand-off 之前运行关键路径冒烟测试 gate
+- **`/soak-test`** — 生成扩展游戏会话的浸泡测试协议（稳定性、内存泄漏）
+- **`/regression-suite`** — 将测试覆盖率映射到 GDD 关键路径，识别缺少回归测试的已修复 bugs
+- **`/test-evidence-review`** — 测试文件和手动证据文档的质量审查
+- **`/test-flakiness`** — 通过读取 CI 运行日志检测非确定性测试
+- **`/skill-test`** — 验证技能文件的结构性合规性和行为正确性（三种模式：lint、spec、catalog）
+
+还有新功能：**`/bug-triage`** 重新评估所有开放 bugs 的优先级、严重性和所有权。
+
+#### 技能验证器（`/skill-test`）
+
+`/skill-test` 是一个用于验证工具本身的 meta-skill。在编辑任何技能文件后运行它。三种模式：
+- `lint` — 验证 YAML frontmatter 和必需字段
+- `spec [skill-name]` — 针对特定技能运行行为规格测试
+- `catalog` — 检查 `.claude/skills/` 中的所有技能是否在目录中索引
+
+新 `validate-skill-change.sh` hook 在技能文件被修改时自动提醒你运行 `/skill-test`。
+
+#### Team Live-Ops 和 Team QA 编排
+
+- **`/team-live-ops`** — 协调 live-ops-designer + economy-designer + community-manager + analytics-engineer 进行发布后内容规划（季节性活动、战斗通行证、留存）
+- **`/team-qa`** — 编排 qa-lead + qa-tester + gameplay-programmer + producer 完成完整 QA 循环：策略、执行、覆盖率和 sign-off
+
+#### 模型层级路由
+
+技能现在根据任务复杂度明确分配到 Haiku、Sonnet 或 Opus 层级。只读状态检查使用 Haiku；复杂多文档综合使用 Opus；其他所有内容默认为 Sonnet。层级分配记录在 `.claude/docs/coordination-rules.md` 中。
+
+#### 目录 CLAUDE.md 文件
+
+三个新的目录作用域 CLAUDE.md 文件（`design/`、`src/`、`docs/`）为在这些目录工作的 agents 提供路径特定指令。这些在 Claude Code 读取该目录中的文件时自动加载。
+
+---
+
+### 升级后
+
+1. **验证新 hooks** 已在 `.claude/settings.json` 中注册 — 检查所有四个：`log-agent-stop.sh`、`notify.sh`、`post-compact.sh`、`validate-skill-change.sh`。
+
+2. **测试审计追踪** 通过派生任何 subagent — 开始和停止事件都应出现在 `production/session-logs/` 中。
+
+3. **如果你在积极生产中，生成 sprint-status.yaml：**
    ```
    /sprint-plan status
    ```
 
-4. **Run `/adopt`** if you have existing GDDs or ADRs that predate this template version — it will identify which sections need to be added without overwriting your content.
+4. **如果你有早于本模板版本且存在的 GDD 或 ADR，运行 `/adopt`** — 它将识别需要添加哪些章节而不覆盖你的内容。
 
-5. **Validate your skills** after any skill edits with `/skill-test` — the new `validate-skill-change.sh` hook will automatically remind you to do this.
+5. **任何技能编辑后用 `/skill-test` 验证你的技能** — 新 `validate-skill-change.sh` hook 将自动提醒你这样做。
 
 ---
 
 ## v0.2.0 → v0.3.0
 
-**Released:** 2026-03-09
-**Commit range:** `e289ce9..HEAD`
-**Key themes:** `/design-system` GDD authoring, `/map-systems` rename, custom status line
+**发布日期：** 2026-03-09
+**Commit 范围：** `e289ce9..HEAD`
+**关键主题：** `/design-system` GDD 创作、`/map-systems` 重命名、自定义状态行
 
-### Breaking Changes
+### 破坏性变更
 
-#### `/design-systems` renamed to `/map-systems`
+#### `/design-systems` 重命名为 `/map-systems`
 
-The `/design-systems` skill was renamed to `/map-systems` for clarity
-(decomposing = *mapping*, not *designing*).
+`/design-systems` 技能被重命名为 `/map-systems` 以提高清晰度（分解 = *mapping*，不是 *designing*）。
 
-**Action required:** Update any documentation, notes, or scripts that invoke
-`/design-systems`. The new invocation is `/map-systems`.
+**需要操作：** 更新任何调用 `/design-systems` 的文档、笔记或脚本。新的调用是 `/map-systems`。
 
-### What Changed
+### 变更内容
 
-| Category | Changes |
+| 类别 | 变更 |
 |----------|---------|
-| **New skills** | `/design-system` (guided GDD authoring, section-by-section) |
-| **Renamed skills** | `/design-systems` → `/map-systems` (breaking rename) |
-| **New files** | `.claude/statusline.sh`, `.claude/settings.json` statusline config |
-| **Skill updates** | `/gate-check` — writes `production/stage.txt` on PASS, new phase definitions |
-| **Skill updates** | `brainstorm`, `start`, `design-review`, `project-stage-detect`, `setup-engine` — cross-reference fixes |
-| **Bug fixes** | `log-agent.sh`, `validate-commit.sh` — hook execution fixed |
-| **Docs** | `UPGRADING.md` added, `README.md` updated, `WORKFLOW-GUIDE.md` updated |
+| **新技能** | `/design-system`（引导式 GDD 创作，逐节） |
+| **重命名的技能** | `/design-systems` → `/map-systems`（破坏性重命名） |
+| **新文件** | `.claude/statusline.sh`、`.claude/settings.json` statusline 配置 |
+| **技能更新** | `/gate-check` — 在 PASS 时写入 `production/stage.txt`，新阶段定义 |
+| **技能更新** | `brainstorm`、`start`、`design-review`、`project-stage-detect`、`setup-engine` — 交叉引用修复 |
+| **Bug 修复** | `log-agent.sh`、`validate-commit.sh` — hook 执行修复 |
+| **文档** | 添加 `UPGRADING.md`、`README.md` 更新、`WORKFLOW-GUIDE.md` 更新 |
 
 ---
 
-### Files: Safe to Overwrite
+### 文件：可安全覆盖
 
-**New files to add:**
+**新增文件：**
 ```
 .claude/skills/design-system/SKILL.md
 .claude/statusline.sh
 ```
 
-**Existing files to overwrite (no user content):**
+**现有文件覆盖（无用户内容）：**
 ```
-.claude/skills/map-systems/SKILL.md      ← was design-systems/SKILL.md
+.claude/skills/map-systems/SKILL.md      ← 原 design-systems/SKILL.md
 .claude/skills/gate-check/SKILL.md
 .claude/skills/brainstorm/SKILL.md
 .claude/skills/start/SKILL.md
@@ -563,20 +546,18 @@ docs/WORKFLOW-GUIDE.md
 UPGRADING.md
 ```
 
-**Delete (replaced by rename):**
+**删除（被重命名替换）：**
 ```
-.claude/skills/design-systems/   ← entire directory; replaced by map-systems/
+.claude/skills/design-systems/   ← 整个目录；被 map-systems/ 替换
 ```
 
 ---
 
-### Files: Merge Carefully
+### 文件：仔细合并
 
 #### `.claude/settings.json`
 
-The new version adds a `statusLine` configuration block pointing to
-`.claude/statusline.sh`. If you haven't customized `settings.json`, overwriting
-is safe. Otherwise, add this block manually:
+新版本添加了指向 `.claude/statusline.sh` 的 `statusLine` 配置块。如果你没有自定义 `settings.json`，覆盖是安全的。否则，手动添加此块：
 
 ```json
 "statusLine": {
@@ -586,46 +567,40 @@ is safe. Otherwise, add this block manually:
 
 ---
 
-### New Features
+### 新功能
 
-#### Custom Status Line
+#### 自定义状态行
 
-`.claude/statusline.sh` displays a 7-stage production pipeline breadcrumb in
-the terminal status line:
+`.claude/statusline.sh` 在终端状态行显示7阶段生产管道面包屑：
 
 ```
 ctx: 42% | claude-sonnet-4-6 | Systems Design
 ```
 
-In Production/Polish/Release stages, it also shows the active Epic/Feature/Task
-from `production/session-state/active.md` if a `<!-- STATUS -->` block is present:
+在 Production/Polish/Release 阶段，如果 `<!-- STATUS -->` 块存在，它还显示来自 `production/session-state/active.md` 的活动 Epic/Feature/Task：
 
 ```
-ctx: 42% | claude-sonnet-4-6 | Production | Combat System > Melee Combat > Hitboxes
+ctx: 42% | claaude-sonnet-4-6 | Production | Combat System > Melee Combat > Hitboxes
 ```
 
-The current stage is auto-detected from project artifacts, or can be pinned by
-writing a stage name to `production/stage.txt`.
+当前阶段从项目产物自动检测，或者可以通过将阶段名称写入 `production/stage.txt` 来固定。
 
-#### `/gate-check` Stage Advancement
+#### `/gate-check` 阶段推进
 
-When a gate PASS verdict is confirmed, `/gate-check` now writes the new stage
-name to `production/stage.txt`. This immediately updates the status line for all
-future sessions without requiring manual file edits.
+当 gate PASS 裁决被确认时，`/gate-check` 现在将新阶段名称写入 `production/stage.txt`。这立即为所有未来会话更新状态行，无需手动文件编辑。
 
 ---
 
-### After Upgrading
+### 升级后
 
-1. **Delete the old skill directory:**
+1. **删除旧的技能目录：**
    ```bash
    rm -rf .claude/skills/design-systems/
    ```
 
-2. **Test the status line** by starting a Claude Code session — you should see
-   the stage breadcrumb in the terminal footer.
+2. **测试状态行** 通过启动 Claude Code 会话 — 你应在终端 footer 中看到阶段面包屑。
 
-3. **Verify hook execution** still works:
+3. **验证 hook 执行仍然有效：**
    ```bash
    bash .claude/hooks/log-agent.sh '{}' '{}'
    bash .claude/hooks/validate-commit.sh '{}' '{}'
@@ -635,32 +610,31 @@ future sessions without requiring manual file edits.
 
 ## v0.1.0 → v0.2.0
 
-**Released:** 2026-02-21
-**Commit range:** `ad540fe..e289ce9`
-**Key themes:** Context Resilience, AskUserQuestion integration, `/map-systems` skill
+**发布日期：** 2026-02-21
+**Commit 范围：** `ad540fe..e289ce9`
+**关键主题：** 上下文弹性、AskUserQuestion 集成、`/map-systems` 技能
 
-### What Changed
+### 变更内容
 
-| Category | Changes |
+| 类别 | 变更 |
 |----------|---------|
-| **New skills** | `/start` (onboarding), `/map-systems` (systems decomposition), `/design-system` (guided GDD authoring) |
-| **New hooks** | `session-start.sh` (recovery), `detect-gaps.sh` (gap detection) |
-| **New templates** | `systems-index.md`, 3 collaborative-protocol templates |
-| **Context management** | Major rewrite — file-backed state strategy added |
-| **Agent updates** | 14 design/creative agents — AskUserQuestion integration |
-| **Skill updates** | All 7 `team-*` skills + `brainstorm` — AskUserQuestion at phase transitions |
-| **CLAUDE.md** | Slimmed from ~159 to ~60 lines; 5 doc imports instead of 10 |
-| **Hook updates** | All 8 hooks — Windows compatibility fixes, new features |
-| **Docs removed** | `docs/IMPROVEMENTS-PROPOSAL.md`, `docs/MULTI-STAGE-DOCUMENT-WORKFLOW.md` |
+| **新技能** | `/start`（onboarding）、`/map-systems`（系统分解）、`/design-system`（引导式 GDD 创作） |
+| **新 hooks** | `session-start.sh`（恢复）、`detect-gaps.sh`（差距检测） |
+| **新模板** | `systems-index.md`、3个协作协议模板 |
+| **上下文管理** | 主要重写 — 添加文件支持的状态策略 |
+| **Agent 更新** | 14个设计/创意 agents — AskUserQuestion 集成 |
+| **技能更新** | 所有7个 `team-*` 技能 + `brainstorm` — 阶段转换时的 AskUserQuestion |
+| **CLAUDE.md** | 从约159行精简到约60行；5个文档导入而不是10个 |
+| **Hook 更新** | 所有8个 hooks — Windows 兼容性修复、新功能 |
+| **文档移除** | `docs/IMPROVEMENTS-PROPOSAL.md`、`docs/MULTI-STAGE-DOCUMENT-WORKFLOW.md` |
 
 ---
 
-### Files: Safe to Overwrite
+### 文件：可安全覆盖
 
-These are pure infrastructure — you have not customized them. Copy the new
-versions directly with no risk to your project content.
+这些是纯基础设施 — 你没有自定义它们。直接复制新版本，不会有项目内容风险。
 
-**New files to add:**
+**新增文件：**
 ```
 .claude/skills/start/SKILL.md
 .claude/skills/map-systems/SKILL.md
@@ -678,7 +652,7 @@ docs/examples/README.md
 .github/PULL_REQUEST_TEMPLATE.md
 ```
 
-**Existing files to overwrite (no user content):**
+**现有文件覆盖（无用户内容）：**
 ```
 .claude/skills/brainstorm/SKILL.md
 .claude/skills/design-review/SKILL.md
@@ -709,7 +683,7 @@ docs/WORKFLOW-GUIDE.md
 README.md
 ```
 
-**Agent files to overwrite** (if you haven't written custom prompts into them):
+**Agent 文件覆盖**（如果你没有写入自定义提示）：
 ```
 .claude/agents/art-director.md
 .claude/agents/audio-director.md
@@ -727,85 +701,69 @@ README.md
 .claude/agents/writer.md
 ```
 
-If you *have* customized agent prompts, see "Merge carefully" below.
+如果你*已*自定义 agent 提示，见下面的"仔细合并"。
 
 ---
 
-### Files: Merge Carefully
+### 文件：仔细合并
 
-These files contain both template structure and your project-specific content.
-Do **not** overwrite them — merge the changes manually.
+这些文件同时包含模板结构和你的项目特定内容。
+**不要**覆盖它们 — 手动合并更改。
 
 #### `CLAUDE.md`
 
-The template version was slimmed from ~159 lines to ~60 lines. The key
-structural change: 5 doc imports were removed because they're auto-loaded
-by Claude Code anyway (agent-roster, skills-reference, hooks-reference,
-rules-reference, review-workflow).
+模板版本从约159行精简到约60行。关键结构性变更：移除了5个文档导入，因为它们被 Claude Code 自动加载（agent-roster、skills-reference、hooks-reference、rules-reference、review-workflow）。
 
-**What to keep from your version:**
-- The `## Technology Stack` section (your engine/language choices)
-- Any project-specific additions you made
+**从你的版本保留：**
+- `## Technology Stack` 章节（你的引擎/语言选择）
+- 你做的任何项目特定添加
 
-**What to adopt from the new version:**
-- Slimmer imports list (drop the 5 redundant `@` imports if present)
-- Updated collaboration protocol wording
+**从新版本采用：**
+- 更精简的导入列表（如果存在，删除5个冗余的 `@` 导入）
+- 更新的协作协议措辞
 
 #### `.claude/docs/technical-preferences.md`
 
-If you ran `/setup-engine`, this file has your engine config, naming
-conventions, and performance budgets. Keep all of it. The template version
-is just the empty placeholder.
+如果你运行了 `/setup-engine`，此文件有你的引擎配置、命名约定和性能预算。保留所有内容。模板版本只是空占位符。
 
 #### `.claude/docs/templates/game-concept.md`
 
-Minor structural update — a `## Next Steps` section was added pointing to
-`/map-systems`. Add that section to your copy if you want the updated
-guidance, but it's not required.
+微小结构性更新 — 添加了指向 `/map-systems` 的 `## Next Steps` 章节。如果你想获得更新后的指导，将该章节添加到你自己的副本，但不是必需的。
 
 #### `.claude/settings.json`
 
-Check whether the new version adds any permission rules you want. The change
-was minor (schema update). If you haven't customized your `settings.json`,
-overwriting is safe.
+检查新版本是否添加了你想要的任何权限规则。变更很小（schema 更新）。如果你没有自定义你的 `settings.json`，覆盖是安全的。
 
-#### Customized agent files
+#### 自定义 agent 文件
 
-If you've added project-specific knowledge or custom behavior to any agent
-`.md` file, do a diff and manually add the new AskUserQuestion integration
-sections rather than overwriting. The change in each agent is a standardized
-collaborative protocol block at the end of the system prompt.
+如果你向任何 agent `.md` 文件添加了项目特定知识或自定义行为，做 diff 并手动添加新的 AskUserQuestion 集成章节，而不是覆盖。每个 agent 中的变更是系统提示末尾标准化的协作协议块。
 
 ---
 
-### Files: Delete
+### 文件：删除
 
-These files were removed in v0.2.0. If present in your repo, you can safely
-delete them — they're replaced by better-organized alternatives.
+这些文件在 v0.2.0 中被移除。如果存在于你的仓库中，你可以安全删除它们 — 它们被更好的组织替代方案替换。
 
 ```
-docs/IMPROVEMENTS-PROPOSAL.md      → superseded by WORKFLOW-GUIDE.md
-docs/MULTI-STAGE-DOCUMENT-WORKFLOW.md → content merged into context-management.md
+docs/IMPROVEMENTS-PROPOSAL.md      → 被 WORKFLOW-GUIDE.md 取代
+docs/MULTI-STAGE-DOCUMENT-WORKFLOW.md → 内容合并到 context-management.md
 ```
 
 ---
 
-### After Upgrading
+### 升级后
 
-1. **Run `/project-stage-detect`** to verify the system reads your project
-   correctly with the new detection logic.
+1. **运行 `/project-stage-detect`** 验证系统用新的检测逻辑正确读取你的项目。
 
-2. **Run `/start`** once if you haven't used it — it now correctly identifies
-   your stage and skips onboarding steps you've already done.
+2. **如果你没有使用过，运行 `/start` 一次** — 它现在正确识别你的阶段并跳过你已完成的上线步骤。
 
-3. **Check `production/session-state/`** exists and is gitignored:
+3. **检查 `production/session-state/` 存在且被 gitignored：**
    ```bash
    ls production/session-state/
    cat .gitignore | grep session-state
    ```
 
-4. **Test hook execution** — if you're on Windows, verify the new hooks run
-   without errors in Git Bash:
+4. **测试 hook 执行** — 如果你在 Windows 上，验证新 hooks 在 Git Bash 中运行无错误：
    ```bash
    bash .claude/hooks/detect-gaps.sh '{}' '{}'
    bash .claude/hooks/session-start.sh '{}' '{}'
@@ -813,4 +771,4 @@ docs/MULTI-STAGE-DOCUMENT-WORKFLOW.md → content merged into context-management
 
 ---
 
-*Each future version will have its own section in this file.*
+*每个未来版本将在本文件中拥有自己的章节。*

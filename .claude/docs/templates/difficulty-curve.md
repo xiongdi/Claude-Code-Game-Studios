@@ -1,330 +1,289 @@
-# Difficulty Curve: [Game Title]
+# 难度曲线：[游戏标题]
 
-> **Status**: Draft | In Review | Approved
-> **Author**: [game-designer / systems-designer]
-> **Last Updated**: [Date]
-> **Links To**: `design/gdd/game-concept.md`
-> **Relevant GDDs**: [e.g., `design/gdd/combat.md`, `design/gdd/progression.md`]
-
----
-
-## Difficulty Philosophy
-
-[One paragraph establishing this game's relationship with difficulty. This is
-not a mechanical description — it is a design value statement that all tuning
-decisions must serve.
-
-The four common difficulty philosophies are:
-
-1. **Masochistic challenge as the core fantasy**: Difficulty is the product.
-   Overcoming it is the emotional reward. Reducing difficulty removes the
-   point. (Dark Souls, Celeste at max assist off)
-2. **Accessible entry, optional depth**: The base experience is completable by
-   most players; depth and challenge are opt-in for those who want them.
-   (Hades, Hollow Knight with accessibility modes)
-3. **Difficulty serves narrative pacing**: Challenge rises and falls to match
-   story beats. The player must feel capable during story resolution and
-   threatened during story crisis. (The Last of Us, God of War)
-4. **Relaxed engagement**: Challenge is present but never the focus. Failure
-   is gentle and infrequent. The experience prioritizes comfort and expression
-   over obstacle. (Stardew Valley, Animal Crossing)
-
-State the philosophy explicitly, then add one sentence on what the player is
-permitted to feel: are they allowed to feel frustrated? For how long before the
-design must intervene? What is the acceptable cost of failure?]
+> **状态**: 草稿 | 审核中 | 已批准
+> **作者**: [game-designer / systems-designer]
+> **最后更新**: [日期]
+> **链接到**: `design/gdd/game-concept.md`
+> **相关 GDD**: [例如 `design/gdd/combat.md`、`design/gdd/progression.md`]
 
 ---
 
-## Difficulty Axes
+## 难度哲学
 
-> **Guidance**: Most games have multiple independent dimensions of challenge.
-> Identifying them explicitly prevents the mistake of tuning only one axis
-> (usually execution difficulty) while leaving others unexamined. A game can
-> feel "easy" on execution but overwhelming on decision complexity — players
-> experience this as confusing, not engaging.
->
-> For each axis, answer: can the player control or reduce this axis through
-> choices, builds, or settings? If not, it is a forced challenge dimension —
-> be very intentional about how it is used.
+[一段话建立这款游戏与难度的关系。这不是机械描述 — 这是一个设计价值声明，
+所有调优决策都必须服务。
 
-| Axis | Description | Primary Systems | Player Control? |
-|------|-------------|----------------|-----------------|
-| **Execution difficulty** | [The precision and timing demands of core actions. e.g., "Dodging enemy attacks requires correct timing within a 200ms window."] | [e.g., Combat, movement] | [Yes — practice reduces this / No — fixed mechanical threshold] |
-| **Knowledge difficulty** | [The cost of not knowing information. e.g., "Enemy weaknesses are not telegraphed; players who have not discovered them take significantly more damage."] | [e.g., Enemy design, UI, lore] | [Yes — through in-game discovery / No — requires external knowledge] |
-| **Resource pressure** | [How scarce are the resources needed to progress? e.g., "Health consumables are limited; efficient play is required to sustain long dungeon runs."] | [e.g., Economy, loot, crafting] | [Yes — through build optimization / Partially] |
-| **Time pressure** | [Does the player have time to think, or does the game demand rapid decisions? e.g., "Enemy spawn timers and attack windows require real-time response."] | [e.g., Combat pacing, timers] | [Yes — through difficulty settings / No — core to genre] |
-| **Decision complexity** | [How many meaningful choices must the player evaluate simultaneously? e.g., "Build decisions interact across 4 systems; suboptimal combinations create compounding disadvantage."] | [e.g., Progression, inventory, skills] | [Yes — through UI and tutorialization / No — inherent to strategy depth] |
-| **[Add axis]** | [Description] | [Systems] | [Player control] |
+四种常见的难度哲学：
+
+1. **以受苦作为核心幻想的自我毁灭性挑战**：难度就是产品。克服它就是情感奖励。
+   降低难度会删除要点。（黑魂、最高辅助关闭的 Celeste）
+2. **可访问的入口、可选深度**：基础体验可由大多数玩家完成；深度和挑战是那些想要它们的人的可选内容。（Hades、有无障碍模式的空洞骑士）
+3. **难度服务叙事节奏**：挑战起伏匹配故事节拍。玩家必须在故事解决时感到有能力，
+   在故事危机时感到受到威胁。（最后生还者、战神）
+4. **轻松参与**：挑战存在但从不是焦点。失败是温和的且不频繁。
+   体验优先考虑舒适和表达而非障碍。（星露谷物语、动物森友会）
+
+明确声明哲学，然后加一句话说明玩家被允许感受什么：他们被允许感到沮丧吗？
+在设计必须干预之前多久？失败的可接受成本是什么？]
 
 ---
 
-## Difficulty Curve Overview
+## 难度轴
 
-> **Guidance**: This table describes the intended challenge arc across the whole
-> game. Difficulty levels use a 1-10 scale where 1 = no meaningful challenge,
-> 10 = maximum challenge the game can produce. The scale is relative to THIS game's
-> design intent — a 6/10 in a soulslike is not the same as a 6/10 in a cozy sim.
+> **指导**：大多数游戏有多个独立的挑战维度。明确识别它们防止只调优一个轴
+> （通常是执行难度）而让其他未检查的错误。游戏在执行上可能感觉"简单"
+> 但在决策复杂性上令人难以承受 — 玩家体验这是困惑，不是参与。
 >
-> "Primary challenge type" refers to the difficulty axis (from the table above)
-> that is doing the most work in this phase. New systems introduced should list
-> only systems introduced for the FIRST TIME — the cognitive load of learning
-> a new system is itself a form of difficulty.
->
-> "Target player state" is the emotional state the designer intends. If the actual
-> playtested state diverges from the intended state, this column is what needs
-> to be achieved.
+> 对于每个轴，回答：玩家可以通过选择、构建或设置来控制或减少这个轴吗？
+> 如果不能，它是强制挑战维度 — 对其使用方式非常有意。
 
-| Phase | Duration | Difficulty Level (1-10) | Primary Challenge Type | New Systems Introduced | Target Player State |
-|-------|----------|------------------------|----------------------|----------------------|---------------------|
-| [Prologue / Tutorial] | [e.g., 0-15 min] | [2/10] | [Knowledge] | [Core movement, basic interaction] | [Safe, curious, building confidence] |
-| [Early game] | [e.g., 15 min - 2 hrs] | [3-5/10] | [Execution] | [Combat, inventory, first upgrade path] | [Learning, occasional failure, clear cause-effect] |
-| [Mid game - opening] | [e.g., 2-6 hrs] | [5-7/10] | [Decision complexity] | [Build choices, advanced enemies, crafting] | [Engaged, strategizing, feeling growth] |
-| [Mid game - depth] | [e.g., 6-15 hrs] | [6-8/10] | [Resource pressure] | [Elite enemies, optional hard content, endgame previews] | [Challenged, invested, approaching mastery] |
-| [Late game] | [e.g., 15-25 hrs] | [7-9/10] | [Execution + knowledge] | [Endgame systems, NG+ or equivalent] | [Mastery, confident in build identity, seeking peak challenge] |
-| [Optional / Endgame] | [e.g., 25+ hrs] | [8-10/10] | [All axes combined] | [Mastery challenges, achievement targets] | [Expert play, self-imposed goals, community comparison] |
+| 轴 | 描述 | 主要系统 | 玩家可控？ |
+| -- | ---- | -------- | ---------- |
+| **执行难度** | [核心动作的精度和时间要求。例如，"躲避敌人攻击需要在 200ms 窗口内正确时机。"] | [例如 战斗、移动] | [是 — 通过练习减少 / 否 — 固定机械阈值] |
+| **知识难度** | [不知道信息的代价。例如，"敌人弱点没有 telegraph；未发现它们的玩家会受到显著更多的伤害。"] | [例如 敌人设计、UI、lore] | [是 — 通过游戏内发现 / 否 — 需要外部知识] |
+| **资源压力** | [进度所需资源有多稀缺？例如，"健康消耗品有限；高效游戏是维持长地下城奔跑所必需的。"] | [例如 经济、战利品、制作] | [是 — 通过构建优化 / 部分] |
+| **时间压力** | [玩家有时间思考，还是游戏要求快速决策？例如，"敌人生成计时器和攻击窗口需要实时响应。"] | [例如 战斗节奏、计时器] | [是 — 通过难度设置 / 否 — 类型核心] |
+| **决策复杂性** | [玩家必须同时评估多少有意义的选择？例如，"构建决策跨 4 个系统交互；次优组合产生复合劣势。"] | [例如 进度、库存、技能] | [是 — 通过 UI 和教程化 / 否 — 固有的策略深度] |
+| **[添加轴]** | [描述] | [系统] | [玩家控制] |
 
 ---
 
-## Onboarding Ramp
+## 难度曲线概述
 
-> **Guidance**: The first hour deserves its own detailed breakdown because it
-> does the most difficult design work: it must teach every foundational skill
-> without feeling like a lesson, and it must create enough investment that the
-> player commits to the journey ahead. Research on player retention shows that
-> most players who leave a game do so in the first 30 minutes — not because
-> the game is bad, but because onboarding failed to connect them.
+> **指导**：此表描述整个游戏的预期挑战弧。难度级别使用 1-10 量表，
+> 其中 1 = 无意义挑战，10 = 游戏可以产生的最大挑战。量表是相对于 THIS 游戏的
+> 设计意图 — soulslike 中的 6/10 与休闲游戏中的 6/10 不同。
 >
-> The scaffolding principle (Vygotsky's Zone of Proximal Development, adapted
-> for game design): introduce each mechanic in isolation before combining it
-> with others. A player cannot learn two skills simultaneously under pressure.
+> "主要挑战类型"指的是在该阶段做最多工作的难度轴（从上表）。
+> 新引入的系统只列出第一次引入的系统 — 学习新系统本身就是一种难度形式。
+>
+> "目标玩家状态"是设计师预期的情感状态。如果实际的 playtest 状态偏离
+> 预期状态，这一列是需要实现的。
 
-### What the Player Knows at Each Stage
-
-| Time | What the Player Knows | What They Do Not Know Yet |
-|------|-----------------------|--------------------------|
-| [0 min] | [Literally nothing — treat this row as your most important UX audit. What can a player infer from the title screen alone?] | [Everything] |
-| [5 min] | [Core movement verb, basic world reading] | [All progression systems, all secondary mechanics] |
-| [15 min] | [Core interaction loop, first goal] | [Build depth, advanced mechanics, danger severity] |
-| [30 min] | [Has made at least one strategic choice] | [Whether that choice was optimal] |
-| [60 min] | [Has a working model of the core loop] | [Late-game depth, optional systems] |
-
-### Mechanic Introduction Sequence
-
-> The order mechanics are introduced is a design decision with real consequences.
-> Introduce the most essential verb first. Introduce mechanics that modify other
-> mechanics AFTER the base mechanic is internalized. Never introduce two new
-> mechanics in the same encounter.
-
-| Mechanic | Introduced At | Introduction Method | Stakes at Introduction |
-|----------|--------------|--------------------|-----------------------|
-| [Core movement / primary verb] | [e.g., First 30 seconds] | [Tutorial prompt / environmental design / NPC instruction] | [None — safe space to experiment] |
-| [Primary interaction / action] | [e.g., First 2 minutes] | [Method] | [Low — reversible, forgiving window] |
-| [First resource mechanic] | [e.g., 5 min] | [Method] | [Low — abundant at introduction] |
-| [First strategic choice] | [e.g., 15 min] | [Method] | [Low — choice can be changed or revisited] |
-| [First real failure risk] | [e.g., 20-30 min] | [Method] | [Moderate — player should feel genuine threat but have fair tools to respond] |
-| [Add mechanic] | [Timing] | [Method] | [Stakes] |
-
-### The First Failure
-
-[Describe the intended design of the first moment the player can meaningfully
-fail. This is one of the most important beats in the game.
-
-A well-designed first failure teaches rather than punishes. The player should
-be able to immediately identify what they did wrong and what they would do
-differently. If the cause of failure is ambiguous, the player blames the game.
-
-Answer: What causes the first failure? What does the player learn from it?
-How quickly can they retry? What is the cost? Does the game provide any
-feedback that bridges cause and effect?]
-
-### When the Player First Feels Competent
-
-[Identify the specific moment — not a vague window, but a specific beat —
-where the player should shift from "learning" to "doing." This is the moment
-of first competence: the first time their prediction about the game comes true,
-or the first time they execute a plan and it works.
-
-This moment must happen within the first hour. If it does not, the player
-will not reach Phase 3 of the journey (First Mastery). Design this moment
-deliberately — do not leave it to chance.
-
-What is the moment? What systems create it? What does the player do to
-trigger it? How does the game communicate that they have succeeded?]
+| 阶段 | 持续时间 | 难度级别 (1-10) | 主要挑战类型 | 新引入系统 | 目标玩家状态 |
+| ---- | -------- | --------------- | ------------ | ---------- | ------------ |
+| [序幕/教程] | [例如 0-15 分钟] | [2/10] | [知识] | [核心移动、基本交互] | [安全、好奇、建立信心] |
+| [早期游戏] | [例如 15 分钟 - 2 小时] | [3-5/10] | [执行] | [战斗、库存、第一条升级路径] | [学习、偶尔失败、清晰因果] |
+| [中期游戏 - 开头] | [例如 2-6 小时] | [5-7/10] | [决策复杂性] | [构建选择、高级敌人、制作] | [参与、策略、感觉成长] |
+| [中期游戏 - 深度] | [例如 6-15 小时] | [6-8/10] | [资源压力] | [精英敌人、可选硬内容、终局预览] | [挑战、投入、接近掌握] |
+| [后期游戏] | [例如 15-25 小时] | [7-9/10] | [执行 + 知识] | [终局系统、NG+ 或等效] | [掌握、对构建身份自信、寻求峰值挑战] |
+| [可选/终局] | [例如 25+ 小时] | [8-10/10] | [所有轴组合] | [掌握挑战、成就目标] | [专家游戏、自我设定目标、社区比较] |
 
 ---
 
-## Difficulty Spikes and Valleys
+## 新手引导坡度
 
-> **Guidance**: A healthy difficulty curve follows a sawtooth pattern
-> (Csikszentmihalyi's flow model applied to macro-structure): tension builds
-> through a sequence, then releases at a milestone, then re-engages at a
-> slightly higher baseline. Flat difficulty creates boredom; uninterrupted
-> escalation creates fatigue.
+> **指导**：第一个小时值得自己的详细分解，因为它做了最困难的设计工作：
+> 它必须在不感觉像一课的情况下教授每个基础技能，并且它必须创造足够的投入，
+> 让玩家承诺接下来的旅程。关于玩家留存的研究表明，大多数离开游戏的玩家
+> 是在前 30 分钟 — 不是因为游戏不好，而是因为新手引导未能连接他们。
 >
-> Spikes are intentional peaks that test accumulated skills. Valleys are
-> intentional troughs that give the player space to breathe, experiment, and
-> feel powerful before the next escalation. Both are designed, not emergent.
->
-> "Recovery design" is critical: what happens immediately after a spike? The
-> player should exit a hard moment feeling accomplished, not depleted. Give
-> them a valley, a reward, or a narrative payoff.
+> 脚手架原则（Vygotsky 的最近发展区，应用于游戏设计）：
+> 在组合之前分别介绍每个机制。玩家不能在压力下同时学习两个技能。
 
-| Name | Location in Game | Type | Purpose | Recovery Design |
-|------|-----------------|------|---------|-----------------|
-| [e.g., "The First Boss"] | [e.g., End of Area 1, ~1 hr] | [Spike] | [Tests all skills introduced in Area 1. Acts as a gate confirming the player is ready for increased complexity.] | [Post-boss: safe area, upgrade opportunity, story beat that provides emotional relief before Area 2 escalation begins.] |
-| [e.g., "The Safe Zone"] | [e.g., Hub area between Areas 1 and 2, ~1.5 hrs] | [Valley] | [Player feels powerful from boss win. Space to experiment with build options before stakes rise.] | [N/A — this IS the recovery from the preceding spike.] |
-| [e.g., "The Knowledge Wall"] | [e.g., Area 3 first encounter, ~4 hrs] | [Spike — knowledge type] | [Forces players to engage with a mechanic they may have been avoiding. Survival requires understanding it.] | [Clear feedback on what killed them. Tutorial hint surfaces on third failure. Mechanic becomes standard after this point.] |
-| [e.g., "Pre-Climax Valley"] | [e.g., Just before final act, ~20 hrs] | [Valley] | [Emotional breathing room before the final escalation. Player reflects on how far they have come.] | [N/A — designed as relief before the finale's spike.] |
-| [Add spike/valley] | [Location] | [Type] | [Purpose] | [Recovery] |
+### 玩家在每个阶段知道什么
+
+| 时间 | 玩家知道什么 | 他们还不知道什么 |
+| ---- | ------------ | ---------------- |
+| [0 分钟] | [literally 无 — 把这行作为你最重要的 UX 审计。玩家从标题屏幕 alone 可以推断什么？] | [一切] |
+| [5 分钟] | [核心移动动词、基本世界阅读] | [所有进度系统、所有次要机制] |
+| [15 分钟] | [核心交互循环、第一个目标] | [构建深度、高级机制、危险严重性] |
+| [30 分钟] | [已经做出至少一个战略选择] | [那个选择是否最优] |
+| [60 分钟] | [有工作的核心循环模型] | [终局深度、可选系统] |
+
+### 机制介绍顺序
+
+> 引入机制的顺序是有真实后果的设计决定。
+> 首先介绍最必要的动词。在 base 机制被内化之后介绍修改其他机制的机制。
+> 永远不要在同一个遭遇中介绍两个新机制。
+
+| 机制 | 介绍时间 | 介绍方法 | 介绍时的风险 |
+| ---- | -------- | -------- | ------------ |
+| [核心移动/主要动词] | [例如 前 30 秒] | [教程提示 / 环境设计 / NPC 指令] | [无 — 安全空间进行实验] |
+| [主要交互/动作] | [例如 前 2 分钟] | [方法] | [低 — 可逆、宽容窗口] |
+| [第一个资源机制] | [例如 5 分钟] | [方法] | [低 — 介绍时丰富] |
+| [第一个战略选择] | [例如 15 分钟] | [方法] | [低 — 选择可以更改或重新审视] |
+| [第一个真正失败风险] | [例如 20-30 分钟] | [方法] | [中等 — 玩家应该感到真正威胁但有公平工具响应] |
+| [添加机制] | [时间] | [方法] | [风险] |
+
+### 第一次失败
+
+[描述玩家可能有意义地失败的第一个预期设计时刻。这是游戏中最重要的节拍之一。
+
+设计良好的第一次失败教授而非惩罚。玩家应该能够立即识别他们做错了什么，
+以及他们会做什么不同。如果失败的原因模糊，玩家责怪游戏。
+
+回答：什么导致第一次失败？玩家从中学习什么？他们多快可以重试？成本是什么？
+游戏是否提供桥接原因和效果的任何反馈？]
+
+### 玩家第一次感到有能力的时间
+
+[识别具体时刻 — 不是模糊窗口，而是具体节拍 —
+玩家应该从"学习"转变为"做"。这是第一次能力时刻：
+玩家对游戏的预测第一次成真，或者他们第一次执行计划并且它有效。
+
+这个时刻必须在第一个小时内发生。如果不发生，玩家不会达到旅程的第 3 阶段（第一次掌握）。
+设计这个时刻 deliberate — 不要留给偶然。
+
+什么是时刻？什么系统创造它？玩家做什么触发它？游戏如何传达他们成功了？]
 
 ---
 
-## Balancing Levers
+## 难度峰值和谷值
 
-> **Guidance**: Balancing levers are the specific values and parameters that
-> tune difficulty at each phase. Centralizing them here makes it possible to
-> tune the whole-game difficulty curve without hunting through individual GDDs.
-> For each lever, the GDD that owns it should be cross-referenced.
+> **指导**：健康的难度曲线遵循锯齿模式（Csikszentmihalyi 的心流模型应用于宏观结构）：
+> 张力通过序列建立，然后在里程碑释放，然后以稍高的基线重新参与。
+> 平坦难度产生无聊；不间断的升级产生疲劳。
 >
-> "Current setting" is the design intent at the time of writing — implementation
-> values live in `assets/data/`. The tuning range is the safe operating range:
-> values outside this range reliably break the intended experience.
+> 峰值是测试累积技能的预期高潮。谷值是给玩家喘息空间、让他们进行实验、
+> 并在下一个升级前感到强大的预期低谷。两者都是设计出来的，不是涌现的。
+>
+> "恢复设计"至关重要：峰值后立即发生什么？玩家应该感到成就感而非枯竭。
+> 给他们一个谷、一个奖励，或一个在下一个升级前的叙事支付。]
 
-| Lever | Phase(s) | Effect | Current Setting | Tuning Range | Notes |
-|-------|----------|--------|----------------|-------------|-------|
-| [Enemy health multiplier] | [All] | [Higher = longer fights = more resource pressure and execution time] | [1.0x] | [0.7x - 1.5x] | [Below 0.7x, fights end before player can read enemy patterns. Above 1.5x, attrition replaces skill.] |
-| [Enemy aggression timer] | [Mid game onward] | [Time between enemy attacks; lower = less time to react] | [e.g., 2.0s] | [1.2s - 3.0s] | [Below 1.2s, reaction window is sub-human. Above 3.0s, encounters feel passive.] |
-| [Resource drop rate] | [Early game] | [Lower = more resource pressure = punishes inefficiency harder] | [e.g., 1.5x baseline] | [0.8x - 2.0x] | [Onboarding generosity; reduces in mid-game as player skill assumed.] |
-| [New mechanic introduction density] | [First hour] | [How many new concepts per minute of play; too high = cognitive overload] | [e.g., 1 new mechanic per 8 min] | [1 per 5 min (max) to 1 per 15 min (slow)] | [Above 1 per 5 min in early game causes retention drop. Below 1 per 15 min causes boredom.] |
-| [Failure cost] | [All] | [Time lost on failure; higher = more punishing = more tension] | [e.g., 2 min setback] | [30s - 8 min] | [Must scale with encounter frequency. Frequent failures need fast recovery.] |
-| [Add lever] | [Phase] | [Effect] | [Setting] | [Range] | [Notes] |
+| 名称 | 在游戏中的位置 | 类型 | 目的 | 恢复设计 |
+| ---- | ------------- | ---- | ---- | -------- |
+| [例如 "第一个 Boss"] | [例如 区域 1 末尾，约 1 小时] | [峰值] | [测试区域 1 引入的所有技能。作为确认玩家准备好增加复杂性的 gate。] | [Boss 后：安全区域、升级机会、在区域 2 升级开始前提供情感缓解的故事节拍。] |
+| [例如 "安全区"] | [例如 区域 1 和 2 之间的枢纽区域，约 1.5 小时] | [谷] | [玩家从 Boss 胜利感到强大。空间在风险上升之前尝试构建选项。] | [N/A — 这就是从前一个峰会的恢复。] |
+| [例如 "知识墙"] | [例如 区域 3 第一个遭遇，约 4 小时] | [峰值 — 知识类型] | [强制玩家参与他们可能一直避免的机制。生存需要理解它。] | [关于什么杀死他们的清晰反馈。第三次失败时表面教程提示。，此后机制变为标准。] |
+| [例如 "前高潮谷"] | [例如 就在最终 act 之前，约 20 小时] | [谷] | [最终升级前的情感喘息空间。玩家反思他们走了多远。] | [N/A — 作为高潮峰会的缓解而设计。] |
+| [添加峰值/谷] | [位置] | [类型] | [目的] | [恢复] |
 
 ---
 
-## Player Skill Assumptions
+## 平衡杠杆
 
-> **Guidance**: Every game implicitly assumes players develop a set of skills
-> over the course of play. Making these assumptions explicit allows the team to
-> verify that each skill is actually taught before it is tested, and that the
-> gap between "introduced" and "tested hard" is long enough for internalization.
+> **指导**：平衡杠杆是调优每个阶段难度的特定值和参数。
+> 在此集中它们可以调优整个游戏难度曲线而不需要通过单个 GDD 狩猎。
+> 对于每个杠杆，应交叉引用拥有它的 GDD。
 >
-> A skill introduced and tested in the same encounter is a surprise difficulty
-> spike. A skill assumed but never formally introduced is an undocumented knowledge
-> wall. Both are fixable — but only if they are documented.
->
-> "Taught by" refers to the mechanism: tutorial prompt, environmental design,
-> safe practice opportunity, NPC instruction, or organic discovery.
->
-> "Tested by" refers to the first encounter that REQUIRES this skill to survive
-> without taking significant damage or cost.
+> "当前设置"是撰写时的设计意图 — 实现值位于 `assets/data/`。
+> 调优范围是安全操作范围：此范围外的值可靠地破坏预期体验。
 
-| Skill | Introduced In | Expected Mastered By | Taught By | First Hard Test |
-|-------|--------------|---------------------|-----------|-----------------|
-| [Core movement / dodging] | [Tutorial area, 0-5 min] | [End of Area 1, ~1 hr] | [Safe practice zone with visible hazards] | [First Elite enemy, ~45 min] |
-| [Resource management] | [First shop encounter, ~10 min] | [Mid game, ~4 hrs] | [Resource scarcity in Area 2 forces planning] | [Boss that requires consumables to survive efficiently] |
-| [Build decision-making] | [First upgrade choice, ~20 min] | [End of mid game, ~10 hrs] | [Multiple playthroughs / community discussion / in-game build advisor] | [Endgame encounters that punish build incoherence] |
-| [Enemy pattern reading] | [Area 1 basic enemies] | [Area 3, ~4 hrs] | [Enemy telegraphs visible and consistent from introduction] | [Elite enemy with 3+ distinct attack patterns] |
-| [Add skill] | [When introduced] | [When mastered] | [Taught by] | [First hard test] |
+| 杠杆 | 阶段 | 效果 | 当前设置 | 调优范围 | 备注 |
+| ---- | ---- | ---- | -------- | -------- | ---- |
+| [敌人生命值倍数] | [所有] | [更高 = 更长的战斗 = 更多的资源压力和执行时间] | [1.0x] | [0.7x - 1.5x] | [低于 0.7x，战斗在玩家可以阅读敌人模式之前结束。高于 1.5x，消耗取代技能。] |
+| [敌人攻击性计时器] | [中期游戏及以后] | [敌人攻击之间的间隔；更低 = 更少时间反应] | [例如 2.0s] | [1.2s - 3.0s] | [低于 1.2s，反应窗口是亚人类的。高于 3.0s，遭遇感觉被动。] |
+| [资源掉落率] | [早期游戏] | [更低 = 更多资源压力 = 更严厉地惩罚低效] | [例如 1.5x 基线] | [0.8x - 2.0x] | [新手引导慷慨；随玩家技能假设在中期游戏减少。] |
+| [新机制介绍密度] | [第一小时] | [每分钟游戏介绍多少新概念；太高 = 认知过载] | [例如 每 8 分钟 1 个新机制] | [每 5 分钟最多（最快）到每 15 分钟（最慢）] | [早期游戏每 5 分钟以上会导致留存下降。每 15 分钟以下会导致无聊。] |
+| [失败成本] | [所有] | [失败时损失的时间；更高 = 更惩罚 = 更多紧张] | [例如 2 分钟挫折] | [30s - 8 分钟] | [必须随遭遇频率缩放。频繁失败需要快速恢复。] |
+| [添加杠杆] | [阶段] | [效果] | [设置] | [范围] | [备注] |
 
 ---
 
-## Accessibility Considerations
+## 玩家技能假设
 
-> **Guidance**: Accessibility in difficulty design is not about making the game
-> easier — it is about ensuring players with different needs and skill profiles
-> can reach the intended emotional experience. Be explicit about what CAN be
-> adjusted and what CANNOT, and justify both.
+> **指导**：每款游戏隐含假设玩家在游戏过程中开发一套技能。
+> 明确这些假设允许团队验证每个技能在实际被测试之前被教授，
+> 并且"引入"和"硬测"之间的差距足以进行内化。
 >
-> The principle from Self-Determination Theory: players need to feel competent.
-> Accessibility options that help players feel competent without removing the
-> feeling of agency are always worth including. Options that make competence
-> meaningless undermine the core experience.
-
-### What Can Be Adjusted
-
-| Adjustment | Method | Effect on Experience | Tradeoff |
-|-----------|--------|---------------------|----------|
-| [e.g., Enemy speed reduction] | [Difficulty setting / accessibility menu] | [Lowers execution difficulty without changing knowledge or decision requirements] | [Reduces the tension of combat timing; acceptable for narrative players] |
-| [e.g., Extended input windows] | [Accessibility menu] | [Allows players with motor impairments to achieve the same skill outcomes with more time] | [Minimal — skill expression preserved, threshold relaxed] |
-| [e.g., Hint frequency] | [Settings toggle] | [Surfaces contextual guidance more or less aggressively based on player preference] | [Higher hints reduce knowledge difficulty; players who want to discover organically may feel over-guided] |
-| [Add option] | [Method] | [Effect] | [Tradeoff] |
-
-### What Cannot Be Adjusted (and Why)
-
-| Fixed Element | Why It Cannot Change | Design Reasoning |
-|--------------|---------------------|-----------------|
-| [e.g., Permadeath in roguelike run] | [Removing it eliminates the resource pressure axis that all encounter balance is built around] | [The weight of each decision comes from permanence; without it, the core loop loses meaning] |
-| [e.g., Core narrative pacing] | [Difficulty valleys are timed to story beats; adjustable pacing would decouple challenge from narrative intention] | [Story and difficulty are designed as one arc, not two independent tracks] |
-| [Add fixed element] | [Why] | [Reasoning] |
-
----
-
-## Cross-System Difficulty Interactions
-
-> **Guidance**: When two systems operate simultaneously, their combined
-> difficulty is often greater than the sum of their parts — or sometimes
-> less. These interactions are frequently unintended and only surface during
-> playtesting. Documenting anticipated interactions here creates a checklist
-> for QA and playtest sessions.
+> "引入"和"在同一个遭遇中测试"的技能是惊喜难度峰值。
+> "假设但从未正式引入"的技能是未记录的知识墙。两者都可修复
+> — 但只有它们被记录时才能修复。
 >
-> "Is this intended?" Yes means the interaction is a designed feature.
-> No means it should be mitigated. Partial means the interaction is
-> acceptable in small doses but problematic if it becomes the dominant
-> experience.
+> "由...教授"指的是机制：教程提示、环境设计、安全练习机会、NPC 指令或有机发现。
+>
+> "由...测试"指的是第一个 REQUIRES 这个技能才能生存而不会受到重大伤害或成本的遭遇。
 
-| System A | System B | Combined Effect | Intended? |
-|----------|----------|----------------|-----------|
-| [Combat difficulty] | [Resource scarcity] | [Resource-poor players face combat encounters with fewer options, compounding difficulty for players already struggling. Can create a death spiral where failing creates worse conditions.] | [Partial — intended as stakes, not as a trap. Pity mechanics required to prevent unrecoverable states.] |
-| [Build complexity] | [Time pressure] | [Players who are still learning their build take longer to make decisions under time pressure, increasing cognitive load beyond the intended challenge of either system alone.] | [No — reduce decision complexity demand in high time-pressure encounters.] |
-| [New mechanic introduction] | [Resource pressure] | [Introducing a new system while the player is already under resource pressure forces them to learn and optimize simultaneously.] | [No — new mechanics should be introduced in low-resource-pressure environments.] |
-| [Enemy density] | [Execution difficulty] | [High enemy counts with individually demanding enemies produce difficulty that scales exponentially, not linearly.] | [Partial — intended for optional challenge content only; not acceptable on the critical path.] |
-| [Add System A] | [Add System B] | [Combined effect description] | [Yes / No / Partial] |
-
----
-
-## Validation Checklist
-
-> **Guidance**: These checkpoints structure playtesting sessions to verify
-> the difficulty curve is achieving its intent. Each item should be checked
-> with at least 3 playtester sessions before being marked complete. Note the
-> playtester profile that revealed issues — difficulty problems are almost
-> always player-profile-specific.
-
-### Onboarding (0-30 min)
-- [ ] Players with no prior genre experience complete the tutorial area without external help
-- [ ] Zero players cite confusion about what they are supposed to be doing in the first 5 minutes
-- [ ] At least one playtester spontaneously says "I want to see what's next" within 15 minutes
-- [ ] First failure moment produces a visible learning response (player verbalizes what went wrong)
-
-### Early Game (30 min - 2 hrs)
-- [ ] Average player reaches the first competence moment within 60 minutes
-- [ ] First major encounter (boss or equivalent) is passed within 3-5 attempts on average
-- [ ] No player cites a mechanic introduced "too suddenly without warning"
-- [ ] Players can describe their current goal without prompting
-
-### Mid Game (2-10 hrs)
-- [ ] Players discover at least one depth mechanic through organic play (without guide)
-- [ ] Playtest sessions report "I want to try a different build / strategy next run"
-- [ ] No single difficulty axis dominates player complaints — frustration is distributed
-- [ ] Players who fail a mid-game encounter correctly identify the cause without being told
-
-### Late Game (10+ hrs)
-- [ ] Players report the final challenge feels like a culmination of everything they have learned
-- [ ] Failure at late-game content does not feel unfair (even if it is hard)
-- [ ] Players who complete the main content express a reason to continue playing
-
-### Accessibility
-- [ ] All listed accessibility options function without breaking encounter intent
-- [ ] Players using accessibility settings report feeling competent, not patronized
-- [ ] Fixed difficulty elements are encountered and accepted without negative reception from accessibility playtesters
+| 技能 | 引入于 | 预期掌握于 | 由...教授 | 第一次硬测试 |
+| ---- | ------ | --------- | --------- | ------------ |
+| [核心移动/躲避] | [教程区域，0-5 分钟] | [区域 1 末尾，约 1 小时] | [带有可见危险的的安全练习区] | [第一个精英敌人，约 45 分钟] |
+| [资源管理] | [第一次商店遭遇，10 分钟] | [中期游戏，约 4 小时] | [区域 2 中的资源稀缺强制计划] | [需要消耗品才能有效生存的 Boss] |
+| [构建决策] | [第一次升级选择，20 分钟] | [中期游戏末尾，约 10 小时] | [多次游玩 / 社区讨论 / 游戏内构建顾问] | [惩罚构建不连贯的终局遭遇] |
+| [敌人模式阅读] | [区域 1 基础敌人] | [区域 3，约 4 小时] | [从介绍可见且一致的敌人 telegraph] | [具有 3+ 个不同攻击模式的精英敌人] |
+| [添加技能] | [何时引入] | [何时掌握] | [由...教授] | [第一次硬测试] |
 
 ---
 
-## Open Questions
+## 无障碍考虑
 
-| Question | Owner | Deadline | Resolution |
-|----------|-------|----------|-----------|
-| [Is the onboarding ramp correctly calibrated for players without prior genre experience?] | [game-designer] | [Date] | [Unresolved — schedule genre-naive playtester sessions] |
-| [Does the first boss represent the correct difficulty spike or is it a wall?] | [game-designer, systems-designer] | [Date] | [Unresolved — requires 5+ playtester sessions to establish average attempt count] |
-| [Do any cross-system interactions produce unrecoverable states?] | [systems-designer] | [Date] | [Unresolved — requires targeted playtest with resource-constrained starting conditions] |
-| [Add question] | [Owner] | [Date] | [Resolution] |
+> **指导**：难度设计中的无障碍不是让游戏更容易 — 而是确保具有不同需求
+> 和技能配置文件的玩家可以达到预期的情感体验。要明确什么可以调整和什么不能，
+> 两者都要有理由。
+>
+> 来自自我决定理论的原则：玩家需要感到有能力。
+> 帮助玩家感到有能力而不消除代理的无障碍选项始终值得包含。
+> 使能力变得毫无意义的选项会破坏核心体验。
+
+### 什么可以调整
+
+| 调整 | 方法 | 对体验的效果 | 权衡 |
+| ---- | ---- | ------------ | ---- |
+| [例如 敌人速度降低] | [难度设置 / 无障碍菜单] | [降低执行难度而不改变知识或决策要求] | [降低战斗时序的紧张感；对叙事玩家可接受] |
+| [例如 扩展输入窗口] | [无障碍菜单] | [允许有运动障碍的玩家用更多时间达到相同的技能结果] | [最小 — 技能表达保留，阈值放宽] |
+| [例如 提示频率] | [设置切换] | [根据玩家偏好更或更少地 aggressive 地 surface 上下文指导] | [更高提示降低知识难度；想要有机发现的玩家可能觉得被过度引导] |
+| [添加选项] | [方法] | [效果] | [权衡] |
+
+### 什么不能调整（和为什么）
+
+| 固定元素 | 为什么不能更改 | 设计理由 |
+| -------- | -------------- | -------- |
+| [例如 roguelike 运行中的永久死亡] | [删除它消除了所有遭遇平衡所基于的资源压力轴] | [每个决策的权重来自永久性；没有它，核心循环失去意义] |
+| [例如 核心叙事节奏] | [难度谷是按时故事节拍安排的；可调节奏会将挑战与叙事意图分离] | [故事和难度被设计为一个弧，不是两个独立轨道] |
+| [添加固定元素] | [为什么] | [理由] |
+
+---
+
+## 跨系统难度交互
+
+> **指导**：当两个系统同时运行时，它们的组合难度通常大于其部分之和
+> — 有时更少。这些交互经常是无意的，只在游戏测试期间表面。
+> 在此记录预期的交互为 QA 和游戏测试会话创建检查清单。
+>
+> "这是预期的吗？" 是表示交互是设计功能。否表示应该减轻。
+> 部分表示交互在小剂量中可接受，但如果成为主导体验则有问题。
+
+| 系统 A | 系统 B | 组合效果 | 预期？ |
+| ---- | ---- | -------- | ------ |
+| [战斗难度] | [资源稀缺] | [资源匮乏的玩家面临更少选项的战斗遭遇，复合已经挣扎的玩家困难。可以创建死亡螺旋，失败产生更差条件。] | [部分 — 预期作为赌注，不是陷阱。需要怜悯机制防止不可恢复状态。] |
+| [构建复杂性] | [时间压力] | [仍在学习构建的玩家在时间压力下做出决策需要更长时间， 增加超出任一系统单独意图的认知负荷。] | [否 — 在高时间压力遭遇中减少决策复杂性要求。] |
+| [新机制介绍] | [资源压力] | [在新系统上引入的同时玩家已经处于资源压力下，强制他们同时学习和优化。] | [否 — 新机制应在低资源压力环境中介绍。] |
+| [敌人密度] | [执行难度] | [具有 individually 要求高的敌人的高敌人数量产生指数级而非线性增长难度。] | [部分 — 预期用于可选挑战内容；关键路径上不可接受。] |
+| [添加系统 A] | [添加系统 B] | [组合效果描述] | [是 / 否 / 部分] |
+
+---
+
+## 验证检查清单
+
+> **指导**：这些检查点结构化游戏测试会话以验证难度曲线正在实现其意图。
+> 每个项目应在标记为完成之前通过至少 3 个游戏测试者会话检查。
+> 注意揭示问题的游戏测试者画像 — 难度问题几乎总是玩家画像特定的。
+
+### 新手引导（0-30 分钟）
+- [ ] 没有先前类型经验的玩家完成教程区域 without external help
+- [ ] 零玩家在前 5 分钟内引用关于他们应该做什么的困惑
+- [ ] 至少一个游戏测试者在 15 分钟内自发说"我想看看接下来会发生什么"
+- [ ] 第一次失败时刻产生可见的学习响应（游戏测试者口述什么出错了）
+
+### 早期游戏（30 分钟 - 2 小时）
+- [ ] 平均玩家在 60 分钟内达到第一次能力时刻
+- [ ] 第一个主要遭遇（Boss 或等效）在平均 3-5 次尝试内通过
+- [ ] 没有玩家引用"太突然而没有警告"引入的机制
+- [ ] 玩家可以描述他们当前目标 without prompting
+
+### 中期游戏（2-10 小时）
+- [ ] 玩家通过有机游戏（without guide）发现至少一个深度机制
+- [ ] 游戏测试会话报告"下次我想尝试不同的构建/策略"
+- [ ] 没有单一难度轴主导玩家投诉 — 挫折是分布式的
+- [ ] 在中期游戏遭遇中失败的玩家正确识别原因 without being told
+
+### 后期游戏（10+ 小时）
+- [ ] 玩家报告最终挑战感觉像是他们所学一切的集结
+- [ ] 后期游戏内容的失败不感觉不公平（即使它很难）
+- [ ] 完成主要内容的玩家表达继续玩的理由
+
+### 无障碍
+- [ ] 所有列出的无障碍选项功能 without breaking encounter intent
+- [ ] 使用无障碍设置的游戏测试者报告感到有能力，而非被轻视
+- [ ] 固定难度元素被遇到并被无障碍游戏测试者接受 without negative reception
+
+---
+
+## 未解决的问题
+
+| 问题 | 负责人 | 截止日期 | 解决方案 |
+| ---- | ------ | -------- | -------- |
+| [新手引导坡度是否对没有先前类型经验的玩家正确校准？] | [game-designer] | [日期] | [未解决 — 安排类型 naive 游戏测试者会话] |
+| [第一个 Boss 代表正确的难度峰值还是一堵墙？] | [game-designer, systems-designer] | [日期] | [未解决 — 需要 5+ 游戏测试者会话建立平均尝试次数] |
+| [任何跨系统交互产生不可恢复状态吗？] | [systems-designer] | [日期] | [未解决 — 需要目标游戏测试与资源受限起始条件] |
+| [添加问题] | [负责人] | [日期] | [解决方案] |
