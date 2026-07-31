@@ -8,237 +8,225 @@ model: sonnet
 agent: technical-director
 ---
 
-# Adopt — Brownfield Template Adoption
+# Adopt — Brownfield 模板采用
 
-This skill audits an existing project's artifacts for **format compliance** with
-the template's skill pipeline, then produces a prioritised migration plan.
+此 skill 审计现有项目的产物是否符合模板 skill 管道的**格式合规性**，然后生成一个按优先级排序的迁移计划。
 
-**This is not `/project-stage-detect`.**
-`/project-stage-detect` answers: *what exists?*
-`/adopt` answers: *will what exists actually work with the template's skills?*
+**这不是 `/project-stage-detect`。**
+`/project-stage-detect` 回答：*存在什么？*
+`/adopt` 回答：*存在的内容能否真正与模板的 skill 一起工作？*
 
-A project can have GDDs, ADRs, and stories — and every format-sensitive skill
-will still fail silently or produce wrong results if those artifacts are in the
-wrong internal format.
+一个项目可能有 GDD、ADR 和 story —— 但如果这些产物的内部格式不正确，每个格式敏感的 skill 仍会静默失败或产生错误结果。
 
-**Output:** `docs/adoption-plan-[date].md` — a persistent, checkable migration plan.
+**输出：** `docs/adoption-plan-[date].md` —— 一个持久、可检查的迁移计划。
 
-**Argument modes:**
+**参数模式：**
 
-**Audit mode:** `$ARGUMENTS[0]` (blank = `full`)
+**审计模式：** `$ARGUMENTS[0]`（空白 = `full`）
 
-- **No argument / `full`**: Complete audit — all artifact types
-- **`gdds`**: GDD format compliance only
-- **`adrs`**: ADR format compliance only
-- **`stories`**: Story format compliance only
-- **`infra`**: Infrastructure artifact gaps only (registry, manifest, sprint-status, stage.txt)
+- **无参数 / `full`**：完整审计 —— 所有产物类型
+- **`gdds`**：仅 GDD 格式合规性
+- **`adrs`**：仅 ADR 格式合规性
+- **`stories`**：仅 story 格式合规性
+- **`infra`**：仅基础设施产物缺口（registry、manifest、sprint-status、stage.txt）
 
 ---
 
-## Phase 1: Detect Project State
+## 阶段 1：检测项目状态
 
-Emit one line before reading: `"Scanning project artifacts..."` — this confirms the
-skill is running during the silent read phase.
+在读取之前输出一行：`"Scanning project artifacts..."` —— 这确认 skill 在静默读取阶段正在运行。
 
-Then read silently before presenting anything else.
+然后在展示任何其他内容之前静默读取。
 
-### Existence check
-- `production/stage.txt` — if present, read it (authoritative phase)
-- `design/gdd/game-concept.md` — concept exists?
-- `design/gdd/systems-index.md` — systems index exists?
-- Count GDD files: `design/gdd/*.md` (excluding game-concept.md and systems-index.md)
-- Count ADR files: `docs/architecture/adr-*.md`
-- Count story files: `production/epics/**/*.md` (excluding EPIC.md)
-- `.claude/docs/technical-preferences.md` — engine configured?
-- `docs/engine-reference/` — engine reference docs present?
-- Glob `docs/adoption-plan-*.md` — note the filename of the most recent prior plan if any exist
+### 存在性检查
+- `production/stage.txt` —— 如果存在，读取它（权威阶段）
+- `design/gdd/game-concept.md` —— 概念是否存在？
+- `design/gdd/systems-index.md` —— 系统索引是否存在？
+- 统计 GDD 文件：`design/gdd/*.md`（不包括 game-concept.md 和 systems-index.md）
+- 统计 ADR 文件：`docs/architecture/adr-*.md`
+- 统计 story 文件：`production/epics/**/*.md`（不包括 EPIC.md）
+- `.claude/docs/technical-preferences.md` —— 引擎是否已配置？
+- `docs/engine-reference/` —— 引擎参考文档是否存在？
+- Glob `docs/adoption-plan-*.md` —— 如果存在先前的计划，记录其文件名
 
-### Infer phase (if no stage.txt)
-Use the same heuristic as `/project-stage-detect`:
-- 10+ source files in `src/` → Production
-- Stories in `production/epics/` → Pre-Production
-- ADRs exist → Technical Setup
-- systems-index.md exists → Systems Design
-- game-concept.md exists → Concept
-- Nothing → Fresh (not a brownfield project — suggest `/start`)
+### 推断阶段（如果没有 stage.txt）
+使用与 `/project-stage-detect` 相同的启发式方法：
+- `src/` 中有 10+ 个源文件 → Production
+- `production/epics/` 中有 story → Pre-Production
+- ADR 存在 → Technical Setup
+- systems-index.md 存在 → Systems Design
+- game-concept.md 存在 → Concept
+- 什么都没有 → Fresh（不是 brownfield 项目 —— 建议 `/start`）
 
-If the project appears fresh (no artifacts at all), use `AskUserQuestion`:
-- "This looks like a fresh project — no existing artifacts found. `/adopt` is for
-  projects with work to migrate. What would you like to do?"
-  - "Run `/start` — begin guided first-time onboarding"
-  - "My artifacts are in a non-standard location — help me find them"
-  - "Cancel"
+如果项目看起来是全新的（完全没有产物），使用 `AskUserQuestion`：
+- "这看起来是一个全新项目 —— 未找到现有产物。`/adopt` 适用于有工作要迁移的项目。你想做什么？"
+  - "运行 `/start` —— 开始引导式首次 onboarding"
+  - "我的产物在非标准位置 —— 帮我找到它们"
+  - "取消"
 
-Then stop — do not proceed with the audit regardless of which option the user picks
-(each option leads to a different skill or manual investigation).
+然后停止 —— 无论用户选择哪个选项，都不要继续审计
+（每个选项导向不同的 skill 或手动调查）。
 
-Report: "Detected phase: [phase]. Found: [N] GDDs, [M] ADRs, [P] stories."
+报告："Detected phase: [phase]. Found: [N] GDDs, [M] ADRs, [P] stories."
 
 ---
 
-## Phase 2: Format Audit
+## 阶段 2：格式审计
 
-For each artifact type in scope (based on argument mode), check not just that
-the file exists but that it contains the internal structure the template requires.
+对于范围内的每个产物类型（基于参数模式），不仅检查文件是否存在，还检查它是否包含模板所需的内部结构。
 
-### 2a: GDD Format Audit
+### 2a：GDD 格式审计
 
-For each GDD file found, check for the 8 required sections by scanning headings:
+对于找到的每个 GDD 文件，通过扫描标题检查 8 个必需章节：
 
-| Required Section | Heading pattern to look for |
+| 必需章节 | 要查找的标题模式 |
 |---|---|
 | Overview | `## Overview` |
 | Player Fantasy | `## Player Fantasy` |
-| Detailed Rules / Design | `## Detailed` or `## Core Rules` or `## Detailed Design` |
-| Formulas | `## Formulas` or `## Formula` |
+| Detailed Rules / Design | `## Detailed` 或 `## Core Rules` 或 `## Detailed Design` |
+| Formulas | `## Formulas` 或 `## Formula` |
 | Edge Cases | `## Edge Cases` |
-| Dependencies | `## Dependencies` or `## Depends` |
+| Dependencies | `## Dependencies` 或 `## Depends` |
 | Tuning Knobs | `## Tuning` |
 | Acceptance Criteria | `## Acceptance` |
 
-For each GDD, record:
-- Which sections are present
-- Which sections are missing
-- Whether it has any content in present sections or just placeholder text
-  (`[To be designed]` or equivalent)
+对于每个 GDD，记录：
+- 哪些章节存在
+- 哪些章节缺失
+- 存在的章节是否有实际内容或只是占位文本
+  （`[To be designed]` 或类似内容）
 
-Also check: does each GDD have a `**Status**:` field in its header block?
-Valid values: `In Design`, `Designed`, `In Review`, `Approved`, `Needs Revision`.
+还要检查：每个 GDD 的头部块中是否有 `**Status**:` 字段？
+有效值：`In Design`、`Designed`、`In Review`、`Approved`、`Needs Revision`。
 
-### 2b: ADR Format Audit
+### 2b：ADR 格式审计
 
-For each ADR file found, check for these critical sections:
+对于找到的每个 ADR 文件，检查这些关键章节：
 
-| Section | Impact if missing |
+| 章节 | 缺失时的影响 |
 |---|---|
-| `## Status` | **BLOCKING** — `/story-readiness` ADR status check silently passes everything |
-| `## ADR Dependencies` | HIGH — dependency ordering in `/architecture-review` breaks |
-| `## Engine Compatibility` | HIGH — post-cutoff API risk is unknown |
-| `## GDD Requirements Addressed` | MEDIUM — traceability matrix loses coverage |
-| `## Performance Implications` | LOW — not pipeline-critical |
+| `## Status` | **BLOCKING** —— `/story-readiness` ADR 状态检查会静默通过一切 |
+| `## ADR Dependencies` | HIGH —— `/architecture-review` 中的依赖排序会中断 |
+| `## Engine Compatibility` | HIGH —— post-cutoff API 风险未知 |
+| `## GDD Requirements Addressed` | MEDIUM —— 可追溯性矩阵失去覆盖 |
+| `## Performance Implications` | LOW —— 非管道关键 |
 
-For each ADR, record: which sections present, which missing, current Status value
-if the Status section exists.
+对于每个 ADR，记录：哪些章节存在，哪些缺失，如果 Status 章节存在，记录当前 Status 值。
 
-### 2c: systems-index.md Format Audit
+### 2c：systems-index.md 格式审计
 
-If `design/gdd/systems-index.md` exists:
+如果 `design/gdd/systems-index.md` 存在：
 
-1. **Parenthetical status values** — Grep for any Status cell containing
-   parentheses: `"Needs Revision ("`, `"In Progress ("`, etc.
-   These break exact-string matching in `/gate-check`, `/create-stories`,
-   and `/architecture-review`. **BLOCKING.**
+1. **括号状态值** —— Grep 查找任何包含括号的 Status 单元格：
+   `"Needs Revision ("`、`"In Progress ("` 等。
+   这些会破坏 `/gate-check`、`/create-stories` 和 `/architecture-review` 中的精确字符串匹配。**BLOCKING。**
 
-2. **Valid status values** — check that Status column values are only from:
-   `Not Started`, `In Progress`, `In Review`, `Designed`, `Approved`, `Needs Revision`
-   Flag any unrecognised values.
+2. **有效状态值** —— 检查 Status 列的值仅来自：
+   `Not Started`、`In Progress`、`In Review`、`Designed`、`Approved`、`Needs Revision`
+   标记任何无法识别的值。
 
-3. **Column structure** — check that the table has at minimum: System name,
-   Layer, Priority, Status columns. Missing columns degrade skill functionality.
+3. **列结构** —— 检查表格至少包含：System name、
+   Layer、Priority、Status 列。缺失列会降低 skill 功能。
 
-### 2d: Story Format Audit
+### 2d：Story 格式审计
 
-For each story file found:
+对于找到的每个 story 文件：
 
-- **`Manifest Version:` field** — present in story header? (LOW — auto-passes if absent)
-- **TR-ID reference** — does story contain `TR-[a-z]+-[0-9]+` pattern? (MEDIUM — no staleness tracking)
-- **ADR reference** — does story reference at least one ADR? (check for `ADR-` pattern)
-- **Status field** — present and readable?
-- **Acceptance criteria** — does the story have a checkbox list (`- [ ]`)?
+- **`Manifest Version:` 字段** —— 是否存在于 story 头部？（LOW —— 如果缺失则自动通过）
+- **TR-ID 引用** —— story 是否包含 `TR-[a-z]+-[0-9]+` 模式？（MEDIUM —— 无过时跟踪）
+- **ADR 引用** —— story 是否引用至少一个 ADR？（检查 `ADR-` 模式）
+- **Status 字段** —— 是否存在且可读？
+- **验收标准** —— story 是否有复选框列表（`- [ ]`）？
 
-### 2e: Infrastructure Audit
+### 2e：基础设施审计
 
-| Artifact | Path | Impact if missing |
+| 产物 | 路径 | 缺失时的影响 |
 |---|---|---|
-| TR registry | `docs/architecture/tr-registry.yaml` | HIGH — no stable requirement IDs |
-| Control manifest | `docs/architecture/control-manifest.md` | HIGH — no layer rules for stories |
-| Manifest version stamp | In manifest header: `Manifest Version:` | MEDIUM — staleness checks blind |
-| Sprint status | `production/sprint-status.yaml` | MEDIUM — `/sprint-status` falls back to markdown |
-| Stage file | `production/stage.txt` | MEDIUM — phase auto-detect unreliable |
-| Engine reference | `docs/engine-reference/[engine]/VERSION.md` | HIGH — ADR engine checks blind |
-| Architecture traceability | `docs/architecture/architecture-traceability.md` | MEDIUM — no persistent matrix |
+| TR registry | `docs/architecture/tr-registry.yaml` | HIGH —— 无稳定需求 ID |
+| Control manifest | `docs/architecture/control-manifest.md` | HIGH —— 无 story 的层级规则 |
+| Manifest version stamp | 在 manifest 头部：`Manifest Version:` | MEDIUM —— 过时检查盲目 |
+| Sprint status | `production/sprint-status.yaml` | MEDIUM —— `/sprint-status` 回退到 markdown |
+| Stage file | `production/stage.txt` | MEDIUM —— 阶段自动检测不可靠 |
+| Engine reference | `docs/engine-reference/[engine]/VERSION.md` | HIGH —— ADR 引擎检查盲目 |
+| Architecture traceability | `docs/architecture/architecture-traceability.md` | MEDIUM —— 无持久矩阵 |
 
-### 2f: Technical Preferences Audit
+### 2f：技术偏好审计
 
-Read `.claude/docs/technical-preferences.md`. Check each field for `[TO BE CONFIGURED]`:
-- Engine, Language, Rendering, Physics → HIGH if unconfigured (ADR skills fail)
-- Naming conventions → MEDIUM
-- Performance budgets → MEDIUM
-- Forbidden Patterns, Allowed Libraries → LOW (starts empty by design)
-
----
-
-## Phase 3: Classify and Prioritise Gaps
-
-Organise every gap found across all audits into four severity tiers:
-
-**BLOCKING** — Will cause template skills to silently produce wrong results *right now*.
-Examples: ADR missing Status field, systems-index parenthetical status values,
-engine not configured when ADRs exist.
-
-**HIGH** — Will cause stories to be generated with missing safety checks, or
-infrastructure bootstrapping will fail.
-Examples: ADRs missing Engine Compatibility, GDDs missing Acceptance Criteria
-(stories can't be generated from them), tr-registry.yaml missing.
-
-**MEDIUM** — Degrades quality and pipeline tracking but does not break functionality.
-Examples: GDDs missing Tuning Knobs or Formulas sections, stories missing TR-IDs,
-sprint-status.yaml missing.
-
-**LOW** — Retroactive improvements that are nice-to-have but not urgent.
-Examples: Stories missing Manifest Version stamps, GDDs missing Open Questions section.
-
-Count totals per tier. If zero BLOCKING and zero HIGH gaps: report that the project
-is template-compatible and only advisory improvements remain.
+读取 `.claude/docs/technical-preferences.md`。检查每个字段是否为 `[TO BE CONFIGURED]`：
+- Engine、Language、Rendering、Physics → 如果未配置则为 HIGH（ADR skill 会失败）
+- 命名约定 → MEDIUM
+- 性能预算 → MEDIUM
+- Forbidden Patterns、Allowed Libraries → LOW（设计上空着开始）
 
 ---
 
-## Phase 4: Build the Migration Plan
+## 阶段 3：分类和优先排序缺口
 
-Compose a numbered, ordered action plan. Ordering rules:
-1. BLOCKING gaps first (must fix before any pipeline skill runs reliably)
-2. HIGH gaps next, infrastructure before GDD/ADR content (bootstrapping needs correct formats)
-3. MEDIUM gaps ordered: GDD gaps before ADR gaps before story gaps (stories depend on GDDs and ADRs)
-4. LOW gaps last
+将所有审计中发现的所有缺口组织到四个严重性层级中：
 
-For each gap, produce a plan entry with:
-- A clear problem statement (one sentence, no jargon)
-- The exact command to fix it, if a skill handles it
-- Manual steps if it requires direct editing
-- A time estimate (rough: 5 min / 30 min / 1 session)
-- A checkbox `- [ ]` for tracking
+**BLOCKING** —— 会导致模板 skill 现在静默产生错误结果。
+示例：ADR 缺少 Status 字段，systems-index 括号状态值，
+ADR 存在时引擎未配置。
 
-**Special case — systems-index parenthetical status values:**
-This is always the first item if present. Show the exact values that need changing
-and the exact replacement text. Offer to fix this immediately before writing the plan.
+**HIGH** —— 会导致 story 生成时缺少安全检查，或
+基础设施引导会失败。
+示例：ADR 缺少 Engine Compatibility，GDD 缺少 Acceptance Criteria
+（无法从中生成 story），tr-registry.yaml 缺失。
 
-**Special case — ADRs missing Status field:**
-For each affected ADR, the fix is:
+**MEDIUM** —— 降低质量和管道跟踪但不破坏功能。
+示例：GDD 缺少 Tuning Knobs 或 Formulas 章节，story 缺少 TR-ID，
+sprint-status.yaml 缺失。
+
+**LOW** —— 追溯性改进，有更好但不紧急。
+示例：story 缺少 Manifest Version 戳，GDD 缺少 Open Questions 章节。
+
+统计每个层级的总数。如果零个 BLOCKING 和零个 HIGH 缺口：报告项目
+与模板兼容，仅剩下建议性改进。
+
+---
+
+## 阶段 4：构建迁移计划
+
+编写一个编号的、有序的操作计划。排序规则：
+1. BLOCKING 缺口优先（在任何管道 skill 可靠运行之前必须修复）
+2. 接下来是 HIGH 缺口，基础设施在 GDD/ADR 内容之前（引导需要正确格式）
+3. MEDIUM 缺口排序：GDD 缺口在 ADR 缺口之前，ADR 缺口在 story 缺口之前（story 依赖于 GDD 和 ADR）
+4. LOW 缺口最后
+
+对于每个缺口，生成一个计划条目，包含：
+- 清晰的问题陈述（一句话，无行话）
+- 如果 skill 处理，给出确切的修复命令
+- 如果需要直接编辑，给出手动步骤
+- 时间估算（粗略：5 分钟 / 30 分钟 / 1 个会话）
+- 用于跟踪的复选框 `- [ ]`
+
+**特殊情况 —— systems-index 括号状态值：**
+如果存在，这始终是第一个项目。显示需要更改的确切值和确切的替换文本。提供在写入计划之前立即修复此问题。
+
+**特殊情况 —— ADR 缺少 Status 字段：**
+对于每个受影响的 ADR，修复方法是：
 `/architecture-decision retrofit docs/architecture/adr-[NNNN]-[slug].md`
-List each ADR as a separate checkable item.
+将每个 ADR 列为单独的可检查项目。
 
-**Special case — GDDs missing sections:**
-For each affected GDD, list which sections are missing and the fix:
+**特殊情况 —— GDD 缺少章节：**
+对于每个受影响的 GDD，列出缺少哪些章节以及修复方法：
 `/design-system retrofit design/gdd/[filename].md`
 
-**Infrastructure bootstrap ordering** — always present in this sequence:
-1. Fix ADR formats first (registry depends on reading ADR Status fields)
-2. Run `/architecture-review` → bootstraps `tr-registry.yaml`
-3. Run `/create-control-manifest` → creates manifest with version stamp
-4. Run `/sprint-plan update` → creates `sprint-status.yaml`
-5. Run `/gate-check [phase]` → writes `stage.txt` authoritatively
+**基础设施引导顺序** —— 始终按此序列呈现：
+1. 首先修复 ADR 格式（registry 依赖于读取 ADR Status 字段）
+2. 运行 `/architecture-review` → 引导 `tr-registry.yaml`
+3. 运行 `/create-control-manifest` → 创建带版本戳的 manifest
+4. 运行 `/sprint-plan update` → 创建 `sprint-status.yaml`
+5. 运行 `/gate-check [phase]` → 权威地写入 `stage.txt`
 
-**Existing stories** — note explicitly:
-> "Existing stories continue to work with all template skills — all new format
-> checks auto-pass when the fields are absent. They won't benefit from TR-ID
-> staleness tracking or manifest version checks until they're regenerated. This
-> is intentional: do not regenerate stories that are already in progress."
+**现有 story** —— 明确说明：
+> "现有 story 继续使用所有模板 skill —— 当字段缺失时，所有新格式检查自动通过。在重新生成之前，它们不会从 TR-ID 过时跟踪或 manifest 版本检查中受益。这是故意的：不要重新生成已经在进行中的 story。"
 
 ---
 
-## Phase 5: Present Summary and Ask to Write
+## 阶段 5：展示摘要并询问是否写入
 
-Present a compact summary before writing:
+在写入之前展示一个紧凑的摘要：
 
 ```
 ## Adoption Audit Summary
@@ -257,32 +245,30 @@ Gap counts:
 Estimated remediation: [X blocking items × ~Y min each = roughly Z hours]
 ```
 
-Before asking to write, show a **Gap Preview**:
-- List every BLOCKING gap as a one-line bullet describing the actual problem
-  (e.g. `systems-index.md: 3 rows have parenthetical status values`,
-  `adr-0002.md: missing ## Status section`). No counts — show the actual items.
-- Show HIGH / MEDIUM / LOW as counts only (e.g. `HIGH: 4, MEDIUM: 2, LOW: 1`).
+在询问写入之前，展示一个**缺口预览**：
+- 将每个 BLOCKING 缺口列为一行项目符号，描述实际问题
+  （例如 `systems-index.md: 3 rows have parenthetical status values`，
+  `adr-0002.md: missing ## Status section`）。不显示计数 —— 显示实际项目。
+- 将 HIGH / MEDIUM / LOW 仅显示为计数（例如 `HIGH: 4, MEDIUM: 2, LOW: 1`）。
 
-This gives the user enough context to judge scope before committing to writing the file.
+这给用户足够的上下文来判断范围，然后再承诺写入文件。
 
-If a prior adoption plan was detected in Phase 1, add a note:
-> "A previous plan exists at `docs/adoption-plan-[prior-date].md`. The new plan will
-> reflect current project state — it does not diff against the prior run."
+如果在阶段 1 检测到先前的采用计划，添加说明：
+> "先前的计划存在于 `docs/adoption-plan-[prior-date].md`。新计划将反映当前项目状态 —— 它不会与先前的运行进行差异比较。"
 
-Use `AskUserQuestion`:
-- "Ready to write the migration plan?"
-  - "Yes — write `docs/adoption-plan-[date].md`"
-  - "Show me the full plan preview first (don't write yet)"
-  - "Cancel — I'll handle migration manually"
+使用 `AskUserQuestion`：
+- "准备好写入迁移计划了吗？"
+  - "是 —— 写入 `docs/adoption-plan-[date].md`"
+  - "先向我展示完整计划预览（暂不写入）"
+  - "取消 —— 我会手动处理迁移"
 
-If the user picks "Show me the full plan preview", output the complete plan as a
-fenced markdown block. Then ask again with the same three options.
+如果用户选择"向我展示完整计划预览"，将完整计划输出为围栏 markdown 块。然后使用相同的三个选项再次询问。
 
 ---
 
-## Phase 6: Write the Adoption Plan
+## 阶段 6：写入采用计划
 
-If approved, write `docs/adoption-plan-[date].md` with this structure:
+如果获得批准，使用以下结构写入 `docs/adoption-plan-[date].md`：
 
 ```markdown
 # Adoption Plan
@@ -292,152 +278,136 @@ If approved, write `docs/adoption-plan-[date].md` with this structure:
 > **Engine**: [name + version, or "Not configured"]
 > **Template version**: v1.0+
 
-Work through these steps in order. Check off each item as you complete it.
-Re-run `/adopt` anytime to check remaining gaps.
+按顺序完成这些步骤。每完成一项就勾选。
+随时重新运行 `/adopt` 检查剩余缺口。
 
 ---
 
 ## Step 1: Fix Blocking Gaps
 
-[One sub-section per blocking gap with problem, fix command, time estimate, checkbox]
+[每个 blocking 缺口一个子章节，包含问题、修复命令、时间估算、复选框]
 
 ---
 
 ## Step 2: Fix High-Priority Gaps
 
-[One sub-section per high gap]
+[每个 high 缺口一个子章节]
 
 ---
 
 ## Step 3: Bootstrap Infrastructure
 
 ### 3a. Register existing requirements (creates tr-registry.yaml)
-Run `/architecture-review` — even if ADRs already exist, this run bootstraps
-the TR registry from your existing GDDs and ADRs.
-**Time**: 1 session (review can be long for large codebases)
+运行 `/architecture-review` —— 即使 ADR 已存在，此运行也会从现有 GDD 和 ADR 引导 TR registry。
+**时间**: 1 个会话（对于大型代码库审查可能较长）
 - [ ] tr-registry.yaml created
 
 ### 3b. Create control manifest
-Run `/create-control-manifest`
-**Time**: 30 min
+运行 `/create-control-manifest`
+**时间**: 30 min
 - [ ] docs/architecture/control-manifest.md created
 
 ### 3c. Create sprint tracking file
-Run `/sprint-plan update`
-**Time**: 5 min (if sprint plan already exists as markdown)
+运行 `/sprint-plan update`
+**时间**: 5 min（如果 sprint plan 已作为 markdown 存在）
 - [ ] production/sprint-status.yaml created
 
 ### 3d. Set authoritative project stage
-Run `/gate-check [current-phase]`
-**Time**: 5 min
+运行 `/gate-check [current-phase]`
+**时间**: 5 min
 - [ ] production/stage.txt written
 
 ---
 
 ## Step 4: Medium-Priority Gaps
 
-[One sub-section per medium gap]
+[每个 medium 缺口一个子章节]
 
 ---
 
 ## Step 5: Optional Improvements
 
-[One sub-section per low gap]
+[每个 low 缺口一个子章节]
 
 ---
 
 ## What to Expect from Existing Stories
 
-Existing stories continue to work with all template skills. New format checks
-(TR-ID validation, manifest version staleness) auto-pass when the fields are
-absent — so nothing breaks. They won't benefit from staleness tracking until
-regenerated. Do not regenerate stories that are in progress or done.
+现有 story 继续使用所有模板 skill。当字段缺失时，新格式检查（TR-ID 验证、manifest 版本过时）会自动通过 —— 所以不会破坏任何东西。在重新生成之前，它们不会从过时跟踪中受益。不要重新生成正在进行中或已完成的 story。
 
 ---
 
 ## Re-run
 
-Run `/adopt` again after completing Step 3 to verify all blocking and high gaps
-are resolved. The new run will reflect the current state of the project.
+完成 Step 3 后再次运行 `/adopt`，验证所有 blocking 和 high 缺口已解决。新运行将反映项目的当前状态。
 ```
 
 ---
 
-## Phase 6b: Set Review Mode
+## 阶段 6b：设置审查模式
 
-After writing the adoption plan (or if the user cancels writing), check whether
-`production/review-mode.txt` exists.
+写入采用计划后（或如果用户取消写入），检查 `production/review-mode.txt` 是否存在。
 
-**If it exists**: Read it and note the current mode — "Review mode is already set to `[current]`." — skip the prompt.
+**如果存在**：读取它并注意当前模式 —— "Review mode is already set to `[current]`。" —— 跳过提示。
 
-**If it does not exist**: Use `AskUserQuestion`:
+**如果不存在**：使用 `AskUserQuestion`：
 
-- **Prompt**: "One more setup step: how much design review would you like as you work through the workflow?"
-- **Options**:
-  - `Full` — Director specialists review at each key workflow step. Best for teams, learning the workflow, or when you want thorough feedback on every decision.
-  - `Lean (recommended)` — Directors only at phase gate transitions (/gate-check). Skips per-skill reviews. Balanced for solo devs and small teams.
-  - `Solo` — No director reviews at all. Maximum speed. Best for game jams, prototypes, or if reviews feel like overhead.
+- **提示**："还有一个设置步骤：你希望在完成工作流时进行多少设计审查？"
+- **选项**：
+  - `Full` —— Director 专家在每个关键工作流步骤进行审查。最适合团队、学习工作流，或当你希望对每个决策进行彻底反馈时。
+  - `Lean (recommended)` —— 仅在阶段门转换时（/gate-check）进行 Director 审查。跳过每个 skill 的审查。适合 solo 开发者和小型团队。
+  - `Solo` —— 完全没有 Director 审查。最大速度。最适合 game jam、原型，或如果审查感觉像开销。
 
-Write the choice to `production/review-mode.txt` immediately after selection — no separate "May I write?" needed:
-- `Full` → write `full`
-- `Lean (recommended)` → write `lean`
-- `Solo` → write `solo`
+选择后立即将选择写入 `production/review-mode.txt` —— 无需单独的"可以写入吗？"：
+- `Full` → 写入 `full`
+- `Lean (recommended)` → 写入 `lean`
+- `Solo` → 写入 `solo`
 
-Create the `production/` directory if it does not exist.
-
----
-
-## Phase 7: Offer First Action
-
-After writing the plan, don't stop there. Pick the single highest-priority gap
-and offer to handle it immediately using `AskUserQuestion`. Choose the first
-branch that applies:
-
-**If there are parenthetical status values in systems-index.md:**
-Use `AskUserQuestion`:
-- "The most urgent fix is `systems-index.md` — [N] rows have parenthetical status
-  values (e.g. `Needs Revision (see notes)`) that break /gate-check,
-  /create-stories, and /architecture-review right now. I can fix these in-place."
-  - "Fix it now — edit systems-index.md"
-  - "I'll fix it myself"
-  - "Done — leave me with the plan"
-
-**If ADRs are missing `## Status` (and no parenthetical issue):**
-Use `AskUserQuestion`:
-- "The most urgent fix is adding `## Status` to [N] ADR(s): [list filenames].
-  Without it, /story-readiness silently passes all ADR checks. Start with
-  [first affected filename]?"
-  - "Yes — retrofit [first affected filename] now"
-  - "Retrofit all [N] ADRs one by one"
-  - "I'll handle ADRs myself"
-
-**If GDDs are missing Acceptance Criteria (and no blocking issues above):**
-Use `AskUserQuestion`:
-- "The most urgent gap is missing Acceptance Criteria in [N] GDD(s):
-  [list filenames]. Without them, /create-stories can't generate stories.
-  Start with [highest-priority GDD filename]?"
-  - "Yes — add Acceptance Criteria to [GDD filename] now"
-  - "Do all [N] GDDs one by one"
-  - "I'll handle GDDs myself"
-
-**If no BLOCKING or HIGH gaps exist:**
-Use `AskUserQuestion`:
-- "No blocking gaps — this project is template-compatible. What next?"
-  - "Walk me through the medium-priority improvements"
-  - "Run /project-stage-detect for a broader health check"
-  - "Done — I'll work through the plan at my own pace"
-
-> **Adoption plan saved to `docs/adoption-plan-[date].md`.** Re-run `/adopt` at any time to re-check remaining gaps as you complete them.
+如果 `production/` 目录不存在，创建它。
 
 ---
 
-## Collaborative Protocol
+## 阶段 7：提供首个操作
 
-1. **Read silently** — complete the full audit before presenting anything
-2. **Show the summary first** — let the user see scope before asking to write
-3. **Ask before writing** — always confirm before creating the adoption plan file
-4. **Offer, don't force** — the plan is advisory; the user decides what to fix and when
-5. **One action at a time** — after handing off the plan, offer one specific next step,
-   not a list of six things to do simultaneously
-6. **Never regenerate existing artifacts** — only fill gaps in what exists;
-   do not rewrite GDDs, ADRs, or stories that already have content
+写入计划后，不要在那里停下来。选择单个最高优先级的缺口，并立即使用 `AskUserQuestion` 提供处理。选择适用的第一个分支：
+
+**如果 systems-index.md 中有括号状态值：**
+使用 `AskUserQuestion`：
+- "最紧急的修复是 `systems-index.md` —— [N] 行有括号状态值（例如 `Needs Revision (see notes)`）会立即破坏 /gate-check、/create-stories 和 /architecture-review。我可以就地修复这些。"
+  - "现在修复 —— 编辑 systems-index.md"
+  - "我会自己修复"
+  - "完成 —— 把计划留给我"
+
+**如果 ADR 缺少 `## Status`（且没有括号问题）：**
+使用 `AskUserQuestion`：
+- "最紧急的修复是为 [N] 个 ADR 添加 `## Status`：[列出文件名]。没有它，/story-readiness 会静默通过所有 ADR 检查。从 [第一个受影响的文件名] 开始？"
+  - "是 —— 现在 retrofit [第一个受影响的文件名]"
+  - "逐个 retrofit 所有 [N] 个 ADR"
+  - "我会自己处理 ADR"
+
+**如果 GDD 缺少 Acceptance Criteria（且没有上述 blocking 问题）：**
+使用 `AskUserQuestion`：
+- "最紧急的缺口是 [N] 个 GDD 缺少 Acceptance Criteria：[列出文件名]。没有它们，/create-stories 无法生成 story。从 [最高优先级的 GDD 文件名] 开始？"
+  - "是 —— 现在为 [GDD 文件名] 添加 Acceptance Criteria"
+  - "逐个处理所有 [N] 个 GDD"
+  - "我会自己处理 GDD"
+
+**如果没有 BLOCKING 或 HIGH 缺口：**
+使用 `AskUserQuestion`：
+- "没有 blocking 缺口 —— 此项目与模板兼容。接下来做什么？"
+  - "带我浏览 medium 优先级的改进"
+  - "运行 /project-stage-detect 进行更广泛的健康检查"
+  - "完成 —— 我会按自己的节奏完成计划"
+
+> **采用计划已保存到 `docs/adoption-plan-[date].md`。** 随时重新运行 `/adopt` 在你完成时重新检查剩余缺口。
+
+---
+
+## 协作协议
+
+1. **静默读取** —— 在展示任何内容之前完成完整审计
+2. **先展示摘要** —— 让用户在询问写入之前看到范围
+3. **写入前询问** —— 在创建采用计划文件之前始终确认
+4. **提供但不强迫** —— 计划是建议性的；用户决定修复什么以及何时修复
+5. **一次一个操作** —— 交出计划后，提供一个具体的下一步，而不是同时列出六件事
+6. **永远不要重新生成现有产物** —— 仅填补现有内容中的缺口；不要重写已有内容的 GDD、ADR 或 story

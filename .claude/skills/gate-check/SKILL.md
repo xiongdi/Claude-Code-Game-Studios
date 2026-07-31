@@ -7,536 +7,528 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Task, AskUserQuestion
 model: opus
 ---
 
-# Phase Gate Validation
+# Phase Gate 验证
 
-This skill validates whether the project is ready to advance to the next development
-phase. It checks for required artifacts, quality standards, and blockers.
+此技能验证项目是否准备好进入下一个开发阶段。它检查必需的工件、质量标准和阻塞项。
 
-**Distinct from `/project-stage-detect`**: That skill is diagnostic ("where are we?").
-This skill is prescriptive ("are we ready to advance?" with a formal verdict).
+**与 `/project-stage-detect` 的区别**：那个技能是诊断性的（"我们在哪里？"）。此技能是规范性的（"我们准备好推进了吗？"，带有正式裁决）。
 
-## Production Stages (7)
+## 生产阶段（7 个）
 
-The project progresses through these stages:
+项目通过这些阶段推进：
 
-1. **Concept** — Brainstorming, game concept document
-2. **Systems Design** — Mapping systems, writing GDDs
-3. **Technical Setup** — Engine config, architecture decisions
-4. **Pre-Production** — Prototyping, vertical slice validation
-5. **Production** — Feature development (Epic/Feature/Task tracking active)
-6. **Polish** — Performance, playtesting, bug fixing
-7. **Release** — Launch prep, certification
+1. **Concept**——头脑风暴、游戏概念文档
+2. **Systems Design**——映射系统、编写 GDD
+3. **Technical Setup**——引擎配置、架构决策
+4. **Pre-Production**——原型、垂直切片验证
+5. **Production**——功能开发（Epic/Feature/Task 跟踪活跃）
+6. **Polish**——性能、试玩、bug 修复
+7. **Release**——发布准备、认证
 
-**When a gate passes**, write the new stage name to `production/stage.txt`
-(single line, e.g. `Production`). This updates the status line immediately.
+当门通过时，将新阶段名称写入 `production/stage.txt`
+（单行，例如 `Production`）。这会立即更新状态行。
 
 ---
 
-## 1. Parse Arguments
+## 1. 解析参数
 
-**Target phase:** `$ARGUMENTS[0]` (blank = auto-detect current stage, then validate next transition)
+**目标阶段：** `$ARGUMENTS[0]`（空白 = 自动检测当前阶段，然后验证下一个转换）
 
-Also resolve the review mode (once, store for all gate spawns this run):
-1. If `--review [full|lean|solo]` was passed → use that
-2. Else read `production/review-mode.txt` → use that value
-3. Else → default to `lean`
+还解析审查模式（一次，存储供本次运行的所有门生成使用）：
+1. 如果传入了 `--review [full|lean|solo]` → 使用该值
+2. 否则读取 `production/review-mode.txt` → 使用该值
+3. 否则 → 默认为 `lean`
 
-Note: in `solo` mode, director spawns (CD-PHASE-GATE, TD-PHASE-GATE, PR-PHASE-GATE, AD-PHASE-GATE) are skipped — gate-check becomes artifact-existence checks only. In `lean` mode, all four directors still run (phase gates are the purpose of lean mode).
+注意：在 `solo` 模式下，主管生成（CD-PHASE-GATE、TD-PHASE-GATE、PR-PHASE-GATE、AD-PHASE-GATE）被跳过——gate-check 仅变为工件存在检查。在 `lean` 模式下，所有四个主管仍然运行（phase gates 是 lean 模式的目的）。
 
-- **With argument**: `/gate-check production` — validate readiness for that specific phase
-- **No argument**: Auto-detect current stage using the same heuristics as
-  `/project-stage-detect`, then **confirm with the user before running**:
+- **带参数**：`/gate-check production`——验证该特定阶段的准备情况
+- **无参数**：使用与 `/project-stage-detect` 相同的启发式方法自动检测当前阶段，然后**在运行前向用户确认**：
 
-  Use `AskUserQuestion`:
-  - Prompt: "Detected stage: **[current stage]**. Running gate for [Current] → [Next] transition. Is this correct?"
-  - Options:
-    - `[A] Yes — run this gate`
-    - `[B] No — pick a different gate` (if selected, show a second widget listing all gate options: Concept → Systems Design, Systems Design → Technical Setup, Technical Setup → Pre-Production, Pre-Production → Production, Production → Polish, Polish → Release)
+  使用 `AskUserQuestion`：
+  - 提示："检测到阶段：**[current stage]**。运行 [Current] → [Next] 转换的门。这正确吗？"
+  - 选项：
+    - `[A] 是——运行此门`
+    - `[B] 否——选择不同的门`（如果选择，显示第二个 widget 列出所有门选项：Concept → Systems Design、Systems Design → Technical Setup、Technical Setup → Pre-Production、Pre-Production → Production、Production → Polish、Polish → Release）
   
-  Do not skip this confirmation step when no argument is provided.
+  当未提供参数时，不要跳过此确认步骤。
 
 ---
 
-## 2. Phase Gate Definitions
+## 2. Phase Gate 定义
 
-### Gate: Concept → Systems Design
+### 门：Concept → Systems Design
 
-**Required Artifacts:**
-- [ ] `design/gdd/game-concept.md` exists and has content
-- [ ] Game pillars defined (in concept doc or `design/gdd/game-pillars.md`)
-- [ ] Visual Identity Anchor section exists in `design/gdd/game-concept.md` (from brainstorm Phase 4 art-director output)
+**必需工件：**
+- [ ] `design/gdd/game-concept.md` 存在且有内容
+- [ ] 游戏支柱已定义（在概念文档或 `design/gdd/game-pillars.md` 中）
+- [ ] `design/gdd/game-concept.md` 中存在 Visual Identity Anchor 部分（来自 brainstorm 第 4 阶段 art-director 输出）
 
-**Recommended (not blocking):**
-- [ ] Concept prototype exists in `prototypes/` with a REPORT.md showing PROCEED verdict
-      (`/prototype [core-mechanic]`) — skipping this means GDDs may be written for an
-      idea that hasn't been played. Acceptable if the concept is proven by other means.
+**推荐（不阻塞）：**
+- [ ] 概念原型存在于 `prototypes/` 中，带有显示 PROCEED 裁决的 REPORT.md
+      （`/prototype [core-mechanic]`）——跳过此意味着 GDD 可能为未经试玩验证的想法编写。如果概念通过其他方式证明则可接受。
 
-**Quality Checks:**
-- [ ] Game concept has been reviewed (`/design-review` verdict not MAJOR REVISION NEEDED)
-- [ ] Core loop is described and understood
-- [ ] Target audience is identified
-- [ ] Visual Identity Anchor contains a one-line visual rule and at least 2 supporting visual principles
-
----
-
-### Gate: Systems Design → Technical Setup
-
-**Required Artifacts:**
-- [ ] Systems index exists at `design/gdd/systems-index.md` with at least MVP systems enumerated
-- [ ] All MVP-tier GDDs exist in `design/gdd/` and individually pass `/design-review`
-- [ ] A cross-GDD review report exists in `design/gdd/` (from `/review-all-gdds`)
-
-**Quality Checks:**
-- [ ] All MVP GDDs pass individual design review (8 required sections, no MAJOR REVISION NEEDED verdict)
-- [ ] `/review-all-gdds` verdict is not FAIL (cross-GDD consistency and design theory checks pass)
-- [ ] All cross-GDD consistency issues flagged by `/review-all-gdds` are resolved or explicitly accepted
-- [ ] System dependencies are mapped in the systems index and are bidirectionally consistent
-- [ ] MVP priority tier is defined
-- [ ] No stale GDD references flagged (older GDDs updated to reflect decisions made in later GDDs)
+**质量检查：**
+- [ ] 游戏概念已被审查（`/design-review` 裁决不是 MAJOR REVISION NEEDED）
+- [ ] 核心循环已描述和理解
+- [ ] 目标受众已识别
+- [ ] Visual Identity Anchor 包含一行视觉规则和至少 2 个支持性视觉原则
 
 ---
 
-### Gate: Technical Setup → Pre-Production
+### 门：Systems Design → Technical Setup
 
-**Required Artifacts:**
-- [ ] Engine chosen (CLAUDE.md Technology Stack is not `[CHOOSE]`)
-- [ ] Technical preferences configured (`.claude/docs/technical-preferences.md` populated)
-- [ ] Art bible exists at `design/art/art-bible.md` with at least Sections 1–4 (Visual Identity Foundation)
-- [ ] At least 3 Architecture Decision Records in `docs/architecture/` covering
-      Foundation-layer systems (scene management, event architecture, save/load)
-- [ ] Engine reference docs exist in `docs/engine-reference/[engine]/`
-- [ ] Test framework initialized: `tests/unit/` and `tests/integration/` directories exist
-- [ ] CI/CD test workflow exists at `.github/workflows/tests.yml` (or equivalent)
-- [ ] At least one example test file exists to confirm the framework is functional
-- [ ] Master architecture document exists at `docs/architecture/architecture.md`
-- [ ] Architecture traceability index exists at `docs/architecture/requirements-traceability.md`
-- [ ] `/architecture-review` has been run (a review report file exists in `docs/architecture/`)
-- [ ] `design/accessibility-requirements.md` exists with accessibility tier committed
-- [ ] `design/ux/interaction-patterns.md` exists (pattern library initialized, even if minimal)
+**必需工件：**
+- [ ] Systems index 存在于 `design/gdd/systems-index.md`，至少枚举了 MVP 系统
+- [ ] 所有 MVP 级 GDD 存在于 `design/gdd/` 并单独通过 `/design-review`
+- [ ] 跨 GDD 审查报告存在于 `design/gdd/` 中（来自 `/review-all-gdds`）
 
-**Quality Checks:**
-- [ ] Architecture decisions cover core systems (rendering, input, state management)
-- [ ] Technical preferences have naming conventions and performance budgets set
-- [ ] Accessibility tier is defined and documented (even "Basic" is acceptable — undefined is not)
-- [ ] At least one screen's UX spec started (often the main menu or core HUD is designed during Technical Setup)
-- [ ] All ADRs have an **Engine Compatibility section** with engine version stamped
-- [ ] All ADRs have a **GDD Requirements Addressed section** with explicit GDD linkage
-- [ ] No ADR references APIs listed in `docs/engine-reference/[engine]/deprecated-apis.md`
-- [ ] All HIGH RISK engine domains (per VERSION.md) have been explicitly addressed
-      in the architecture document or flagged as open questions
-- [ ] Architecture traceability matrix has **zero Foundation layer gaps**
-      (all Foundation requirements must have ADR coverage before Pre-Production)
-
-**ADR Circular Dependency Check**: For all ADRs in `docs/architecture/`, read each ADR's
-"ADR Dependencies" / "Depends On" section. Build a dependency graph (ADR-A → ADR-B means
-A depends on B). If any cycle is detected (e.g. A→B→A, or A→B→C→A):
-- Flag as **FAIL**: "Circular ADR dependency: [ADR-X] → [ADR-Y] → [ADR-X].
-  Neither can reach Accepted while the cycle exists. Remove one 'Depends On' edge to
-  break the cycle."
-
-**Engine Validation** (read `docs/engine-reference/[engine]/VERSION.md` first):
-- [ ] ADRs that touch post-cutoff engine APIs are flagged with Knowledge Risk: HIGH/MEDIUM
-- [ ] `/architecture-review` engine audit shows no deprecated API usage
-- [ ] All ADRs agree on the same engine version (no stale version references)
+**质量检查：**
+- [ ] 所有 MVP GDD 通过单独设计审查（8 个必需部分，无 MAJOR REVISION NEEDED 裁决）
+- [ ] `/review-all-gdds` 裁决不是 FAIL（跨 GDD 一致性和设计理论检查通过）
+- [ ] `/review-all-gdds` 标记的所有跨 GDD 一致性问题已解决或明确接受
+- [ ] 系统依赖关系在 systems index 中映射且双向一致
+- [ ] MVP 优先级层级已定义
+- [ ] 未标记过时的 GDD 引用（较旧的 GDD 已更新以反映在较新 GDD 中做出的决策）
 
 ---
 
-### Gate: Pre-Production → Production
+### 门：Technical Setup → Pre-Production
 
-**Required Artifacts:**
-- [ ] Vertical slice exists in `prototypes/` with a REPORT.md (run `/vertical-slice`) — **recommended, not blocking**; if absent, surface as CONCERNS
-- [ ] First sprint plan exists in `production/sprints/`
-- [ ] Art bible is complete (all 9 sections) and AD-ART-BIBLE sign-off verdict is recorded in `design/art/art-bible.md`
-- [ ] Entity inventory exists at `design/assets/entity-inventory.md` (recommended — run `/asset-spec` with no arguments to generate collaboratively from GDDs + art bible)
-- [ ] All MVP-tier GDDs from systems index are complete
-- [ ] Master architecture document exists at `docs/architecture/architecture.md`
-- [ ] At least 3 ADRs covering Foundation-layer decisions exist in `docs/architecture/`
-- [ ] All Foundation and Core layer ADRs have status `Accepted` (not `Proposed`) — stories cannot be unblocked until their governing ADR is accepted
-- [ ] Control manifest exists at `docs/architecture/control-manifest.md`
-      (generated by `/create-control-manifest` from Accepted ADRs)
-- [ ] Epics defined in `production/epics/` with at least Foundation and Core
-      layer epics present (use `/create-epics layer: foundation` and
-      `/create-epics layer: core` to create them, then `/create-stories [epic-slug]`
-      for each epic)
-- [ ] Vertical Slice build exists and is playable (not just scope-defined) — **recommended, not blocking**; if absent, surface as CONCERNS
-- [ ] Vertical Slice has been playtested with at least 1 documented session — **recommended, not blocking**; if absent, surface as CONCERNS
-- [ ] Vertical Slice playtest report exists at `production/playtests/` or equivalent — **recommended, not blocking**; if absent, surface as CONCERNS
-- [ ] UX specs exist for key screens: main menu, core gameplay HUD (at `design/ux/`), pause menu
-- [ ] HUD design document exists at `design/ux/hud.md` (if game has in-game HUD)
-- [ ] All key screen UX specs have passed `/ux-review` (verdict APPROVED or NEEDS REVISION accepted)
+**必需工件：**
+- [ ] 引擎已选择（CLAUDE.md 技术栈不是 `[CHOOSE]`）
+- [ ] 技术偏好已配置（`.claude/docs/technical-preferences.md` 已填充）
+- [ ] Art bible 存在于 `design/art/art-bible.md`，至少包含部分 1-4（Visual Identity Foundation）
+- [ ] `docs/architecture/` 中至少有 3 个架构决策记录涵盖
+      Foundation 层系统（场景管理、事件架构、save/load）
+- [ ] 引擎参考文档存在于 `docs/engine-reference/[engine]/`
+- [ ] 测试框架已初始化：`tests/unit/` 和 `tests/integration/` 目录存在
+- [ ] CI/CD 测试工作流存在于 `.github/workflows/tests.yml`（或等效文件）
+- [ ] 至少存在一个示例测试文件以确认框架功能正常
+- [ ] 主架构文档存在于 `docs/architecture/architecture.md`
+- [ ] 架构可追溯性索引存在于 `docs/architecture/requirements-traceability.md`
+- [ ] 已运行 `/architecture-review`（审查报告文件存在于 `docs/architecture/` 中）
+- [ ] `design/accessibility-requirements.md` 存在，已承诺无障碍层级
+- [ ] `design/ux/interaction-patterns.md` 存在（模式库已初始化，即使最小）
 
-**Quality Checks:**
-- [ ] **Core loop fun is validated** — playtest data confirms the central mechanic is enjoyable, not just functional. Explicitly check the Vertical Slice playtest report.
-- [ ] UX specs cover all UI Requirements sections from MVP-tier GDDs
-- [ ] Interaction pattern library documents patterns used in key screens
-- [ ] Accessibility tier from `design/accessibility-requirements.md` is addressed in all key screen UX specs
-- [ ] Sprint plan references real story file paths from `production/epics/`
-      (not just GDDs — stories must embed GDD req ID + ADR reference)
-- [ ] **Vertical Slice is COMPLETE**, not just scoped — the build demonstrates the full core loop end-to-end. At least one complete [start → challenge → resolution] cycle works.
-- [ ] Architecture document has no unresolved open questions in Foundation or Core layers
-- [ ] All ADRs have Engine Compatibility sections stamped with the engine version
-- [ ] All ADRs have ADR Dependencies sections (even if all fields are "None")
-- [ ] Manual validation confirms GDDs + architecture + epics are coherent
-      (run `/review-all-gdds` and `/architecture-review` if not done recently)
-- [ ] **Core fantasy is delivered** — at least one playtester independently described an experience that matches the Player Fantasy section of the core system GDDs (without being prompted).
+**质量检查：**
+- [ ] 架构决策涵盖核心系统（渲染、输入、状态管理）
+- [ ] 技术偏好设置了命名约定和性能预算
+- [ ] 无障碍层级已定义并记录（即使是"基本"也可接受——未定义不可接受）
+- [ ] 至少一个屏幕的 UX 规范已开始（通常在 Technical Setup 期间设计主菜单或核心 HUD）
+- [ ] 所有 ADR 都有 **Engine Compatibility 部分**，盖有引擎版本章
+- [ ] 所有 ADR 都有 **GDD Requirements Addressed 部分**，有明确的 GDD 链接
+- [ ] 没有 ADR 引用 `docs/engine-reference/[engine]/deprecated-apis.md` 中列出的 API
+- [ ] 所有 HIGH RISK 引擎领域（根据 VERSION.md）已在架构文档中明确解决或标记为未解决问题
+- [ ] 架构可追溯性矩阵在 Foundation 层**零空白**
+      （所有 Foundation 需求在 Pre-Production 之前必须有 ADR 覆盖）
 
-**Vertical Slice Validation** (only run these checks if a Vertical Slice was built):
-- [ ] A human has played through the core loop without developer guidance
-- [ ] The game communicates what to do within the first 2 minutes of play
-- [ ] No critical "fun blocker" bugs exist in the Vertical Slice build
-- [ ] The core mechanic feels good to interact with (this is a subjective check — ask the user)
+**ADR 循环依赖检查：** 对于 `docs/architecture/` 中的所有 ADR，读取每个 ADR 的
+"ADR Dependencies" / "Depends On" 部分。构建依赖图（ADR-A → ADR-B 表示
+A 依赖于 B）。如果检测到任何循环（例如 A→B→A，或 A→B→C→A）：
+- 标记为 **FAIL**："循环 ADR 依赖：[ADR-X] → [ADR-Y] → [ADR-X]。
+  在循环存在的情况下，两者都无法达到 Accepted。移除一个 'Depends On' 边以
+  打破循环。"
 
-> **Verdict rules for Vertical Slice:**
-> - **Slice was built AND any validation item is NO** → verdict is automatically FAIL. A broken
->   or unfun vertical slice should not advance to Production.
-> - **Slice was not built (skipped)** → downgrade to CONCERNS only, not FAIL. Surface the risk
->   clearly: "Advancing without a validated Vertical Slice increases the risk of late-stage design
->   pivots. Recommended before committing full production scope." The user decides.
-> - Skipping is a valid solo dev or time-constrained call. Shipping a broken one is not.
+**引擎验证**（首先读取 `docs/engine-reference/[engine]/VERSION.md`）：
+- [ ] 触及 cutoff 后引擎 API 的 ADR 标记为 Knowledge Risk: HIGH/MEDIUM
+- [ ] `/architecture-review` 引擎审计显示无已弃用 API 使用
+- [ ] 所有 ADR 同意相同的引擎版本（无过时版本引用）
 
 ---
 
-### Gate: Production → Polish
+### 门：Pre-Production → Production
 
-**Required Artifacts:**
-- [ ] `src/` has active code organized into subsystems
-- [ ] All core mechanics from GDD are implemented (cross-reference `design/gdd/` with `src/`)
-- [ ] Main gameplay path is playable end-to-end
-- [ ] Test files exist in `tests/unit/` and `tests/integration/` covering Logic and Integration stories
-- [ ] All Logic stories from this sprint have corresponding unit test files in `tests/unit/`
-- [ ] Smoke check has been run with a PASS or PASS WITH WARNINGS verdict — report exists in `production/qa/`
-- [ ] QA plan exists in `production/qa/` (generated by `/qa-plan`) covering this sprint or final production sprint
-- [ ] At least one QA plan exists in `production/qa/` covering this production phase — run `/qa-plan` if missing (CONCERNS — advisory, not blocking)
-- [ ] QA sign-off report exists in `production/qa/` (generated by `/team-qa`) with verdict APPROVED or APPROVED WITH CONDITIONS
-- [ ] At least 3 distinct playtest sessions documented in `production/playtests/`
-- [ ] Playtest reports cover: new player experience, mid-game systems, and difficulty curve
-- [ ] Fun hypothesis from Game Concept has been explicitly validated or revised
+**必需工件：**
+- [ ] 垂直切片存在于 `prototypes/` 中，带有 REPORT.md（运行 `/vertical-slice`）——**推荐，不阻塞**；如果缺失，作为 CONCERNS 展示
+- [ ] 第一个 sprint 计划存在于 `production/sprints/` 中
+- [ ] Art bible 已完成（所有 9 个部分）且 AD-ART-BIBLE 签字确认裁决记录在 `design/art/art-bible.md` 中
+- [ ] 实体清单存在于 `design/assets/entity-inventory.md`（推荐——运行 `/asset-spec` 不带参数以从 GDD + art bible 协作生成）
+- [ ] Systems index 中的所有 MVP 级 GDD 已完成
+- [ ] 主架构文档存在于 `docs/architecture/architecture.md`
+- [ ] `docs/architecture/` 中至少有 3 个涵盖 Foundation 层决策的 ADR
+- [ ] 所有 Foundation 和 Core 层 ADR 的状态为 `Accepted`（不是 `Proposed`）——story 无法解除阻塞，直到其管辖 ADR 被接受
+- [ ] Control manifest 存在于 `docs/architecture/control-manifest.md`
+      （由 `/create-control-manifest` 从 Accepted ADR 生成）
+- [ ] Epic 在 `production/epics/` 中定义，至少存在 Foundation 和 Core
+      层 epic（使用 `/create-epics layer: foundation` 和
+      `/create-epics layer: core` 创建它们，然后为每个 epic 运行 `/create-stories [epic-slug]`）
+- [ ] 垂直切片构建存在且可玩（不仅仅是范围定义）——**推荐，不阻塞**；如果缺失，作为 CONCERNS 展示
+- [ ] 垂直切片已被试玩，至少有 1 次记录会话——**推荐，不阻塞**；如果缺失，作为 CONCERNS 展示
+- [ ] 垂直切片试玩报告存在于 `production/playtests/` 或等效位置——**推荐，不阻塞**；如果缺失，作为 CONCERNS 展示
+- [ ] 关键屏幕存在 UX 规范：主菜单、核心游戏 HUD（在 `design/ux/` 中）、暂停菜单
+- [ ] HUD 设计文档存在于 `design/ux/hud.md` 中（如果游戏有游戏内 HUD）
+- [ ] 所有关键屏幕 UX 规范已通过 `/ux-review`（裁决 APPROVED 或 NEEDS REVISION 已接受）
 
-**Quality Checks:**
-- [ ] Tests are passing (run test suite via Bash)
-- [ ] No critical/blocker bugs in any bug tracker or known issues
-- [ ] Core loop plays as designed (compare to GDD acceptance criteria)
-- [ ] Performance is within budget (check technical-preferences.md targets)
-- [ ] Playtest findings have been reviewed and critical fun issues addressed (not just documented)
-- [ ] No "confusion loops" identified — no point in the game where >50% of playtesters got stuck without knowing why
-- [ ] Difficulty curve matches the Difficulty Curve design doc (if one exists at `design/difficulty-curve.md`)
-- [ ] All implemented screens have corresponding UX specs (no "designed in-code" screens)
-- [ ] Interaction pattern library is up-to-date with all patterns used in implementation
-- [ ] Accessibility compliance verified against committed tier in `design/accessibility-requirements.md`
+**质量检查：**
+- [ ] **核心循环乐趣已验证**——试玩数据确认核心机制令人愉悦，不仅仅是功能性的。明确检查垂直切片试玩报告。
+- [ ] UX 规范涵盖 MVP 级 GDD 的所有 UI Requirements 部分
+- [ ] 交互模式库记录关键屏幕中使用的模式
+- [ ] `design/accessibility-requirements.md` 中的无障碍层级在所有关键屏幕 UX 规范中得到解决
+- [ ] Sprint 计划引用来自 `production/epics/` 的真实 story 文件路径
+      （不仅仅是 GDD——story 必须嵌入 GDD req ID + ADR 引用）
+- [ ] **垂直切片已完成**，不仅仅是范围定义——构建端到端展示完整核心循环。至少一个完整的 [开始 → 挑战 → 解决] 循环有效。
+- [ ] 架构文档在 Foundation 或 Core 层没有未解决的未解决问题
+- [ ] 所有 ADR 都有盖有引擎版本章的 Engine Compatibility 部分
+- [ ] 所有 ADR 都有 ADR Dependencies 部分（即使所有字段都是 "None"）
+- [ ] 手动验证确认 GDD + 架构 + epic 是连贯的
+      （如果最近没有完成，运行 `/review-all-gdds` 和 `/architecture-review`）
+- [ ] **核心幻想已交付**——至少有一名试玩者在没有被提示的情况下独立描述了与核心系统 GDD 的 Player Fantasy 部分相匹配的体验。
 
----
+**垂直切片验证**（仅在构建了垂直切片时运行这些检查）：
+- [ ] 有人在没有开发者指导的情况下玩完了核心循环
+- [ ] 游戏在开始玩的前 2 分钟内传达了要做什么
+- [ ] 垂直切片构建中不存在关键的"乐趣阻塞"bug
+- [ ] 核心机制感觉良好互动（这是一个主观检查——询问用户）
 
-### Gate: Polish → Release
-
-**Required Artifacts:**
-- [ ] All features from milestone plan are implemented
-- [ ] Content is complete (all levels, assets, dialogue referenced in design docs exist)
-- [ ] Localization strings are externalized (no hardcoded player-facing text in `src/`)
-- [ ] QA test plan exists (`/qa-plan` output in `production/qa/`)
-- [ ] QA sign-off report exists (`/team-qa` output — APPROVED or APPROVED WITH CONDITIONS)
-- [ ] All Must Have story test evidence is present (Logic/Integration: test files pass; Visual/Feel/UI: sign-off docs in `production/qa/evidence/`)
-- [ ] Smoke check passes cleanly (PASS verdict) on the release candidate build
-- [ ] No test regressions from previous sprint (test suite passes fully)
-- [ ] Balance data has been reviewed (`/balance-check` run)
-- [ ] Release checklist completed (`/release-checklist` or `/launch-checklist` run)
-- [ ] Store metadata prepared (if applicable)
-- [ ] Changelog / patch notes drafted
-
-**Quality Checks:**
-- [ ] Full QA pass signed off by `qa-lead`
-- [ ] All tests passing
-- [ ] Performance targets met across all target platforms
-- [ ] No known critical, high, or medium-severity bugs
-- [ ] Accessibility basics covered (remapping, text scaling if applicable)
-- [ ] Localization verified for all target languages
-- [ ] Legal requirements met (EULA, privacy policy, age ratings if applicable)
-- [ ] Build compiles and packages cleanly
+> **垂直切片的裁决规则：**
+> - **切片已构建且任何验证项为否** → 裁决自动为 FAIL。损坏的
+>   或无聊的垂直切片不应推进到 Production。
+> - **切片未构建（跳过）** → 仅降级为 CONCERNS，不是 FAIL。清楚地展示风险：
+>   "在没有经过验证的垂直切片的情况下推进会增加后期设计
+>   转变的风险。在承诺完整生产范围之前推荐。"用户决定。
+>   跳过是 solo 开发或时间限制的合理选择。发布损坏的不是。
 
 ---
 
-## 3. Run the Gate Check
+### 门：Production → Polish
 
-**Before running artifact checks**, read `docs/consistency-failures.md` if it exists.
-Extract entries whose Domain matches the target phase (e.g., if checking
-Systems Design → Technical Setup, pull entries in Economy, Combat, or any GDD domain;
-if checking Technical Setup → Pre-Production, pull entries in Architecture, Engine).
-Carry these as context — recurring conflict patterns in the target domain warrant
-increased scrutiny on those specific checks.
+**必需工件：**
+- [ ] `src/` 有组织成子系统的活动代码
+- [ ] GDD 中的所有核心机制已实现（将 `design/gdd/` 与 `src/` 交叉引用）
+- [ ] 主要游戏路径端到端可玩
+- [ ] 测试文件存在于 `tests/unit/` 和 `tests/integration/` 中，涵盖 Logic 和 Integration story
+- [ ] 此 sprint 的所有 Logic story 在 `tests/unit/` 中有对应的单元测试文件
+- [ ] 冒烟检查已运行，裁决为 PASS 或 PASS WITH WARNINGS——报告存在于 `production/qa/` 中
+- [ ] QA 计划存在于 `production/qa/` 中（由 `/qa-plan` 生成）涵盖此 sprint 或最终生产 sprint
+- [ ] `production/qa/` 中至少存在一个 QA 计划涵盖此生产阶段——如果缺失则运行 `/qa-plan`（CONCERNS——建议性，不阻塞）
+- [ ] QA 签字确认报告存在于 `production/qa/` 中（由 `/team-qa` 生成），裁决为 APPROVED 或 APPROVED WITH CONDITIONS
+- [ ] 至少 3 次不同的试玩会话记录在 `production/playtests/` 中
+- [ ] 试玩报告涵盖：新玩家体验、中期系统和难度曲线
+- [ ] 游戏概念中的乐趣假设已明确验证或修订
 
-For each item in the target gate:
-
-### Artifact Checks
-- Use `Glob` and `Read` to verify files exist and have meaningful content
-- Don't just check existence — verify the file has real content (not just a template header)
-- For code checks, verify directory structure and file counts
-
-**Systems Design → Technical Setup gate — cross-GDD review check**:
-Use `Glob('design/gdd/gdd-cross-review-*.md')` to find the `/review-all-gdds` report.
-If no file matches, mark the "cross-GDD review report exists" artifact as **FAIL** and
-surface it prominently: "No `/review-all-gdds` report found in `design/gdd/`. Run
-`/review-all-gdds` before advancing to Technical Setup."
-If a file is found, read it and check the verdict line: a FAIL verdict means the
-cross-GDD consistency check failed and must be resolved before advancing.
-
-### Quality Checks
-- For test checks: Run the test suite via `Bash` if a test runner is configured
-- For design review checks: `Read` the GDD and check for the 8 required sections
-- For performance checks: `Read` technical-preferences.md and compare against any
-  profiling data in `tests/performance/` or recent `/perf-profile` output
-- For localization checks: `Grep` for hardcoded strings in `src/`
-
-### Cross-Reference Checks
-- Compare `design/gdd/` documents against `src/` implementations
-- Check that every system referenced in architecture docs has corresponding code
-- Verify sprint plans reference real work items
+**质量检查：**
+- [ ] 测试通过（通过 Bash 运行测试套件）
+- [ ] 任何 bug 跟踪器或已知问题中没有关键/阻塞 bug
+- [ ] 核心循环按设计进行（与 GDD 验收标准比较）
+- [ ] 性能在预算内（检查 technical-preferences.md 目标）
+- [ ] 试玩发现已审查且关键乐趣问题已解决（不仅仅是记录）
+- [ ] 未识别"困惑循环"——游戏中没有超过 50% 的试玩者卡住而不知道为什么的点
+- [ ] 难度曲线与 Difficulty Curve 设计文档匹配（如果存在于 `design/difficulty-curve.md`）
+- [ ] 所有实现的屏幕都有对应的 UX 规范（无"代码中设计"的屏幕）
+- [ ] 交互模式库与实现中使用的所有模式保持最新
+- [ ] 无障碍合规性对照 `design/accessibility-requirements.md` 中承诺的层级进行验证
 
 ---
 
-## 4. Collaborative Assessment
+### 门：Polish → Release
 
-For items that can't be automatically verified, **ask the user**:
+**必需工件：**
+- [ ] 里程碑计划中的所有功能已实现
+- [ ] 内容完整（设计文档中引用的所有关卡、资产、对话存在）
+- [ ] 本地化字符串已外部化（`src/` 中无硬编码的玩家面向文本）
+- [ ] QA 测试计划存在（`/qa-plan` 输出在 `production/qa/` 中）
+- [ ] QA 签字确认报告存在（`/team-qa` 输出——APPROVED 或 APPROVED WITH CONDITIONS）
+- [ ] 所有 Must Have story 测试证据存在（Logic/Integration：测试文件通过；Visual/Feel/UI：`production/qa/evidence/` 中的签字确认文档）
+- [ ] 冒烟检查在候选发布构建上干净通过（PASS 裁决）
+- [ ] 与先前 sprint 无测试回归（测试套件完全通过）
+- [ ] 平衡数据已审查（运行了 `/balance-check`）
+- [ ] 发布清单已完成（运行了 `/release-checklist` 或 `/launch-checklist`）
+- [ ] 商店元数据已准备（如适用）
+- [ ] Changelog / patch notes 已起草
 
-- "I can't automatically verify that the core loop plays well. Has it been playtested?"
-- "No playtest report found. Has informal testing been done?"
-- "Performance profiling data isn't available. Would you like to run `/perf-profile`?"
-
-**Never assume PASS for unverifiable items.** Mark them as MANUAL CHECK NEEDED.
+**质量检查：**
+- [ ] 完整的 QA 通过由 `qa-lead` 签字确认
+- [ ] 所有测试通过
+- [ ] 性能目标在所有目标平台上达到
+- [ ] 无已知的关键、高或中严重性 bug
+- [ ] 无障碍基础覆盖（重映射、文本缩放，如适用）
+- [ ] 本地化针对所有目标语言验证
+- [ ] 法律要求满足（EULA、隐私政策、年龄评级，如适用）
+- [ ] 构建干净编译和打包
 
 ---
 
-## 4b. Director Panel Assessment
+## 3. 运行门检查
 
-**Apply review mode before spawning any director:**
-- `solo` → skip all four directors. Note in output: "Director Panel skipped — Solo mode. Gate verdict based on artifact and quality checks only." Proceed to Phase 5.
-- `lean` → spawn all four directors (phase gates always run in lean mode — this is their purpose).
-- `full` → spawn all four directors as normal.
+**在运行工件检查之前**，如果存在，读取 `docs/consistency-failures.md`。
+提取 Domain 与目标阶段匹配的条目（例如，如果检查
+Systems Design → Technical Setup，拉取 Economy、Combat 或任何 GDD 领域的条目；
+如果检查 Technical Setup → Pre-Production，拉取 Architecture、Engine 中的条目）。
+将这些作为上下文携带——目标领域中的反复冲突模式值得
+对这些特定检查加大审查力度。
 
-(Review mode was resolved in Phase 1. Use that stored value here.)
+对于目标门中的每个项目：
 
-Before generating the final verdict, spawn all four directors as **parallel subagents** via Task using the parallel gate protocol from `.claude/docs/director-gates.md`. Issue all four Task calls simultaneously — do not wait for one before starting the next.
+### 工件检查
+- 使用 `Glob` 和 `Read` 验证文件存在且有有意义的内容
+- 不要只检查存在——验证文件有真实内容（不仅仅是模板头部）
+- 对于代码检查，验证目录结构和文件计数
 
-**Spawn in parallel:**
+**Systems Design → Technical Setup 门——跨 GDD 审查检查**：
+使用 `Glob('design/gdd/gdd-cross-review-*.md')` 查找 `/review-all-gdds` 报告。
+如果没有文件匹配，将"跨 GDD 审查报告存在"工件标记为 **FAIL** 并
+突出展示："在 `design/gdd/` 中未找到 `/review-all-gdds` 报告。在推进到 Technical Setup 之前运行
+`/review-all-gdds`。"
+如果找到文件，读取它并检查裁决行：FAIL 裁决意味着跨 GDD 一致性检查失败，必须在推进前解决。
 
-1. **`creative-director`** — gate **CD-PHASE-GATE** (`.claude/docs/director-gates.md`)
-2. **`technical-director`** — gate **TD-PHASE-GATE** (`.claude/docs/director-gates.md`)
-3. **`producer`** — gate **PR-PHASE-GATE** (`.claude/docs/director-gates.md`)
-4. **`art-director`** — gate **AD-PHASE-GATE** (`.claude/docs/director-gates.md`)
+### 质量检查
+- 对于测试检查：如果配置了测试运行器，通过 `Bash` 运行测试套件
+- 对于设计审查检查：`Read` GDD 并检查 8 个必需部分
+- 对于性能检查：`Read` technical-preferences.md 并与 `tests/performance/` 中的任何分析数据或最近的 `/perf-profile` 输出进行比较
+- 对于本地化检查：`Grep` `src/` 中的硬编码字符串
 
-Pass to each: target phase name, list of artifacts present, and the context fields listed in that gate's definition.
+### 交叉引用检查
+- 将 `design/gdd/` 文档与 `src/` 实现进行比较
+- 检查架构文档中引用的每个系统都有对应的代码
+- 验证 sprint 计划引用真实的工作项
 
-**Collect all four responses, then present the Director Panel summary:**
+---
+
+## 4. 协作评估
+
+对于无法自动验证的项目，**询问用户**：
+
+- "我无法自动验证核心循环是否玩得好。它被试玩了吗？"
+- "未找到试玩报告。是否进行了非正式测试？"
+- "性能分析数据不可用。你想运行 `/perf-profile` 吗？"
+
+**永远不要对无法验证的项目假设 PASS。** 将它们标记为 MANUAL CHECK NEEDED。
+
+---
+
+## 4b. 主管小组评估
+
+**在生成任何主管之前应用审查模式：**
+- `solo` → 跳过所有四个主管。在输出中注明："主管小组已跳过——Solo 模式。门裁决仅基于工件和质量检查。" 进入第 5 阶段。
+- `lean` → 生成所有四个主管（phase gates 始终在 lean 模式下运行——这是它们的目的）。
+- `full` → 正常生成所有四个主管。
+
+（审查模式在第 1 阶段已解析。在此使用存储的值。）
+
+在生成最终裁决之前，通过 Task 使用 `.claude/docs/director-gates.md` 中的并行门协议将所有四个主管作为**并行子代理**生成。同时发出所有四个 Task 调用——不要在开始下一个之前等待一个。
+
+**并行生成：**
+
+1. **`creative-director`**——门 **CD-PHASE-GATE**（`.claude/docs/director-gates.md`）
+2. **`technical-director`**——门 **TD-PHASE-GATE**（`.claude/docs/director-gates.md`）
+3. **`producer`**——门 **PR-PHASE-GATE**（`.claude/docs/director-gates.md`）
+4. **`art-director`**——门 **AD-PHASE-GATE**（`.claude/docs/director-gates.md`）
+
+传递给每个：目标阶段名称、存在的工件列表以及该门定义中列出的上下文字段。
+
+**收集所有四个响应，然后展示主管小组摘要：**
 
 ```
-## Director Panel Assessment
+## 主管小组评估
 
-Creative Director:  [READY / CONCERNS / NOT READY]
-  [feedback]
+Creative Director：  [READY / CONCERNS / NOT READY]
+  [反馈]
 
-Technical Director: [READY / CONCERNS / NOT READY]
-  [feedback]
+Technical Director： [READY / CONCERNS / NOT READY]
+  [反馈]
 
-Producer:           [READY / CONCERNS / NOT READY]
-  [feedback]
+Producer：           [READY / CONCERNS / NOT READY]
+  [反馈]
 
-Art Director:       [READY / CONCERNS / NOT READY]
-  [feedback]
+Art Director：       [READY / CONCERNS / NOT READY]
+  [反馈]
 ```
 
-**Apply to the verdict:**
-- Any director returns NOT READY → verdict is minimum FAIL (user may override with explicit acknowledgement)
-- Any director returns CONCERNS → verdict is minimum CONCERNS
-- All four READY → eligible for PASS (still subject to artifact and quality checks from Section 3)
+**应用于裁决：**
+- 任何主管返回 NOT READY → 裁决最低为 FAIL（用户可以用明确确认覆盖）
+- 任何主管返回 CONCERNS → 裁决最低为 CONCERNS
+- 所有四个 READY → 有资格获得 PASS（仍受第 3 节的工件和质量检查约束）
 
 ---
 
-## 5. Output the Verdict
+## 5. 输出裁决
 
 ```
-## Gate Check: [Current Phase] → [Target Phase]
+## 门检查：[当前阶段] → [目标阶段]
 
-**Date**: [date]
-**Checked by**: gate-check skill
+**日期**：[date]
+**检查者**：gate-check skill
 
-### Required Artifacts: [X/Y present]
-- [x] design/gdd/game-concept.md — exists, 2.4KB
-- [ ] docs/architecture/ — MISSING (no ADRs found)
-- [x] production/sprints/ — exists, 1 sprint plan
+### 必需工件：[X/Y 存在]
+- [x] design/gdd/game-concept.md——存在，2.4KB
+- [ ] docs/architecture/——缺失（未找到 ADR）
+- [x] production/sprints/——存在，1 个 sprint 计划
 
-### Quality Checks: [X/Y passing]
-- [x] GDD has 8/8 required sections
-- [ ] Tests — FAILED (3 failures in tests/unit/)
-- [?] Core loop playtested — MANUAL CHECK NEEDED
+### 质量检查：[X/Y 通过]
+- [x] GDD 有 8/8 必需部分
+- [ ] 测试——失败（tests/unit/ 中有 3 个失败）
+- [?] 核心循环已试玩——MANUAL CHECK NEEDED
 
-### Blockers
-1. **No Architecture Decision Records** — Run `/architecture-decision` to create one
-   covering core system architecture before entering production.
-2. **3 test failures** — Fix failing tests in tests/unit/ before advancing.
+### 阻塞项
+1. **无架构决策记录**——在进入生产之前运行 `/architecture-decision` 创建一个
+   涵盖核心系统架构。
+2. **3 个测试失败**——在推进之前修复 tests/unit/ 中失败的测试。
 
-### Recommendations
-- [Priority actions to resolve blockers]
-- [Optional improvements that aren't blocking]
+### 建议
+- [解决阻塞项目的优先操作]
+- [不阻塞的可选改进]
 
-### Verdict: [PASS / CONCERNS / FAIL]
-- **PASS**: All required artifacts present, all quality checks passing
-- **CONCERNS**: Minor gaps exist but can be addressed during the next phase
-- **FAIL**: Critical blockers must be resolved before advancing
+### 裁决：[PASS / CONCERNS / FAIL]
+- **PASS**：所有必需工件存在，所有质量检查通过
+- **CONCERNS**：存在小空白，但可以在下一阶段解决
+- **FAIL**：在推进之前必须解决关键阻塞项
 ```
 
 ---
 
-## 5a. Chain-of-Verification
+## 5a. 验证链
 
-After drafting the verdict in Phase 5, challenge it before finalising.
+在第 5 阶段起草裁决后，在最终确定之前挑战它。
 
-**Step 1 — Generate 5 challenge questions** designed to disprove the verdict:
+**步骤 1 — 生成 5 个挑战问题**，旨在反驳裁决：
 
-> **Tool-action requirement**: At least 2 of the 5 challenge questions below must be answered by re-reading a specific file (Read tool) or re-running a specific check (Grep tool) — not by reflection alone. Mark these with [TOOL ACTION] to indicate a tool was used.
+> **工具操作要求**：以下 5 个挑战问题中至少 2 个必须通过重新读取特定文件（Read 工具）或重新运行特定检查（Grep 工具）来回答——不仅仅是反思。用 [TOOL ACTION] 标记这些以指示使用了工具。
 
-For a **PASS** draft:
-- "Which quality checks did I verify by actually reading a file, vs. inferring they passed?"
-- "Are there MANUAL CHECK NEEDED items I marked PASS without user confirmation? [TOOL ACTION] Re-scan the checklist for any [?] or MANUAL CHECK items."
-- "Did I confirm all listed artifacts have real content, not just empty headers? [TOOL ACTION] Re-read the file and check it has non-placeholder content."
-- "Could any blocker I dismissed as minor actually prevent the phase from succeeding?"
-- "Which single check am I least confident in, and why?"
+对于 **PASS** 草稿：
+- "我通过实际读取文件验证了哪些质量检查，与推断它们通过？"
+- "是否有我标记为 PASS 的 MANUAL CHECK NEEDED 项目而没有用户确认？[TOOL ACTION] 重新扫描清单中的任何 [?] 或 MANUAL CHECK 项目。"
+- "我是否确认所有列出的工件都有真实内容，而不仅仅是空头部？[TOOL ACTION] 重新读取文件并检查它是否有非占位符内容。"
+- "我作为次要驳回的任何阻塞项是否实际上可能阻止阶段成功？"
+- "我最不确定的单一检查是什么，为什么？"
 
-For a **CONCERNS** draft:
-- "Could any listed CONCERN be elevated to a blocker given the project's current state?"
-- "Is the concern resolvable within the next phase, or does it compound over time?"
-- "Did I soften any FAIL condition into a CONCERN to avoid a harder verdict?"
-- "Are there artifacts I didn't check that could reveal additional blockers?"
-- "Do all the CONCERNS together create a blocking problem even if each is minor alone?"
+对于 **CONCERNS** 草稿：
+- "鉴于项目的当前状态，列出的任何 CONCERN 是否可以升级为阻塞项？"
+- "关注点是否可以在下一阶段内解决，还是会随时间复合？"
+- "我是否将任何 FAIL 条件软化为 CONCERNS 以避免更难的裁决？"
+- "是否有我没有检查的工件可能揭示额外的阻塞项？"
+- "所有 CONCERNS 在一起是否创建了阻塞问题，即使每个单独都很小？"
 
-For a **FAIL** draft:
-- "Have I accurately separated hard blockers from strong recommendations?"
-- "Are there any PASS items I was too lenient about?"
-- "Am I missing any additional blockers the user should know about?"
-- "Can I provide a minimal path to PASS — the specific 3 things that must change?"
-- "Is the fail condition resolvable, or does it indicate a deeper design problem?"
+对于 **FAIL** 草稿：
+- "我是否准确地将硬阻塞项与强烈建议分开？"
+- "是否有任何 PASS 项目我过于宽松？"
+- "我是否遗漏了用户应该知道的任何额外阻塞项？"
+- "我可以提供通往 PASS 的最小路径——必须改变的特定 3 件事吗？"
+- "失败条件是否可解决，还是它表明更深的设计问题？"
 
-**Step 2 — Answer each question** independently.
-Do NOT reference the draft verdict text — re-check specific files or ask the user.
+**步骤 2 — 独立回答每个问题。**
+不要参考裁决草稿文本——重新检查特定文件或询问用户。
 
-**Step 3 — Revise if needed:**
-- If any answer reveals a missed blocker → upgrade verdict (PASS→CONCERNS or CONCERNS→FAIL)
-- If any answer reveals an over-stated blocker → downgrade only if citing specific evidence
-- If answers are consistent → confirm verdict unchanged
+**步骤 3 — 如需修订：**
+- 如果任何答案揭示遗漏的阻塞项 → 升级裁决（PASS→CONCERNS 或 CONCERNS→FAIL）
+- 如果任何答案揭示过度陈述的阻塞项 → 仅在引用具体证据时降级
+- 如果答案一致 → 确认裁决不变
 
-**Step 4 — Note the verification** in the final report output:
-`Chain-of-Verification: [N] questions checked — verdict [unchanged | revised from X to Y]`
+**步骤 4 — 在最终报告输出中注明验证：**
+`验证链：[N] 个问题已检查——裁决 [未更改 | 从 X 修订为 Y]`
 
 ---
 
-## 6. Update Stage on PASS
+## 6. 通过时更新阶段
 
-When the verdict is **PASS** and the user confirms they want to advance:
+当裁决为 **PASS** 且用户确认他们想要推进时：
 
-1. Write the new stage name to `production/stage.txt` (single line, no trailing newline)
-2. This immediately updates the status line for all future sessions
+1. 将新阶段名称写入 `production/stage.txt`（单行，无尾随换行符）
+2. 这会立即更新所有未来会话的状态行
 
-Example: if passing the "Pre-Production → Production" gate:
+示例：如果通过 "Pre-Production → Production" 门：
 ```bash
 echo -n "Production" > production/stage.txt
 ```
 
-**Always ask before writing**: "Gate passed. May I update `production/stage.txt` to 'Production'?"
+**始终在写入前询问**："门已通过。我可以将 `production/stage.txt` 更新为 'Production' 吗？"
 
 ---
 
-## 7. Closing Next-Step Widget
+## 7. 关闭后续步骤 Widget
 
-After the verdict is presented and any stage.txt update is complete, close with a structured next-step prompt using `AskUserQuestion`.
+在裁决呈现且任何 stage.txt 更新完成后，使用 `AskUserQuestion` 以结构化的后续步骤提示关闭。
 
-**Tailor the options to the gate that just ran:**
+**为刚刚运行的门定制选项：**
 
-For **systems-design PASS**:
+对于 **systems-design 通过**：
 ```
-Gate passed. What would you like to do next?
-[A] Run /create-architecture — produce your master architecture blueprint and ADR work plan (recommended next step)
-[B] Design more GDDs first — return here when all MVP systems are complete
-[C] Stop here for this session
-```
-
-> **Note for systems-design PASS**: `/create-architecture` is the required next step before writing any ADRs. It produces the master architecture document and a prioritized list of ADRs to write. Running `/architecture-decision` without this step means writing ADRs without a blueprint — skip it at your own risk.
-
-For **technical-setup PASS**:
-```
-Gate passed. What would you like to do next?
-[A] Run /create-control-manifest — generate the layer rules manifest from your Accepted ADRs (do this first)
-[B] Run /vertical-slice — build the Vertical Slice (do this before writing epics — validate fun first)
-[C] Write more ADRs first — run /architecture-decision [next-system]
-[D] Stop here for this session
+门已通过。你想下一步做什么？
+[A] 运行 /create-architecture — 生成你的主架构蓝图和 ADR 工作计划（推荐的下一步）
+[B] 先设计更多 GDD —— 当所有 MVP 系统完成时回到这里
+[C] 本次会话停在这里
 ```
 
-> **Note for technical-setup PASS**: The Pre-Production sequence is deliberately ordered
-> to validate fun before committing to detailed planning:
+> **systems-design 通过的注意事项**：`/create-architecture` 是在写任何 ADR 之前必需的下一步。它生成主架构文档和要写的 ADR 的优先列表。没有此步骤运行 `/architecture-decision` 意味着在没有蓝图的情况下写 ADR——风险自负。
+
+对于 **technical-setup 通过**：
+```
+门已通过。你想下一步做什么？
+[A] 运行 /create-control-manifest — 从你的 Accepted ADR 生成层级规则 manifest（先做这个）
+[B] 运行 /vertical-slice —— 构建垂直切片（在写 epic 之前做这个——先验证乐趣）
+[C] 先写更多 ADR —— 运行 /architecture-decision [next-system]
+[D] 本次会话停在这里
+```
+
+> **technical-setup 通过的注意事项**：Pre-Production 序列是故意排序的，
+> 以在承诺详细规划之前验证乐趣：
 >
-> 1. `/create-control-manifest` — extract technical rules from Accepted ADRs (required before epics)
-> 2. `/vertical-slice` — build the Vertical Slice **FIRST**, before writing epics or stories
-> 3. Playtest → `/playtest-report` — at least 1 session required to pass the Pre-Production gate; 3+ recommended before committing the full team
-> 4. `/ux-design [screen]` — UX specs for main menu, core HUD, pause menu (if not done)
-> 5. `/create-epics layer:foundation` then `/create-epics layer:core` — plan after fun is validated
-> 6. `/create-stories [epic-slug]` for each epic
+> 1. `/create-control-manifest` — 从 Accepted ADR 提取技术规则（epic 之前必需）
+> 2. `/vertical-slice` — **首先**构建垂直切片，在写 epic 或 story 之前
+> 3. 试玩 → `/playtest-report` — 通过 Pre-Production 门至少需要 1 次会话；在承诺完整团队之前推荐 3+ 次
+> 4. `/ux-design [screen]` — 主菜单、核心 HUD、暂停菜单的 UX 规范（如果未完成）
+> 5. `/create-epics layer:foundation` 然后 `/create-epics layer:core` — 乐趣验证后计划
+> 6. `/create-stories [epic-slug]` 为每个 epic
 > 7. `/sprint-plan new`
 >
-> **Why prototype before epics?** If the prototype reveals the core loop needs to change,
-> epics written before that discovery will be partially wrong. Validate fun cheaply first,
-> then plan in detail. This is the #1 lesson from GDC postmortem data.
+> **为什么在 epic 之前原型？** 如果原型揭示核心循环需要改变，
+> 在那次发现之前写的 epic 将部分错误。先便宜地验证乐趣，
+> 然后详细计划。这是 GDC 事后分析数据中的 #1 教训。
 
-For all other gates, offer the two most logical next steps for that phase plus "Stop here".
-
----
-
-## 8. Follow-Up Actions
-
-Based on the verdict, suggest specific next steps:
-
-- **No art bible?** → `/art-bible` to create the visual identity specification
-- **Art bible exists but no asset specs?** → `/asset-spec system:[name]` to generate per-asset visual specs and generation prompts from approved GDDs
-- **No game concept?** → `/brainstorm` to create one
-- **No systems index?** → `/map-systems` to decompose the concept into systems
-- **Missing design docs?** → `/reverse-document` or delegate to `game-designer`
-- **Small design change needed?** → `/quick-design` for changes under ~4 hours (bypasses full GDD pipeline)
-- **No UX specs?** → `/ux-design [screen name]` to author specs, or `/team-ui [feature]` for full pipeline
-- **UX specs not reviewed?** → `/ux-review [file]` or `/ux-review all` to validate
-- **No accessibility requirements doc?** → run `/ux-design` which creates both `design/accessibility-requirements.md` and `design/ux/interaction-patterns.md` in one step
-- **No interaction pattern library?** → `/ux-design patterns` to initialize it
-- **GDDs not cross-reviewed?** → `/review-all-gdds` (run after all MVP GDDs are individually approved)
-- **Cross-GDD consistency issues?** → fix flagged GDDs, then re-run `/review-all-gdds`
-- **No test framework?** → `/test-setup` to scaffold the framework for your engine
-- **No QA plan for current sprint?** → `/qa-plan sprint` to generate one before implementation begins
-- **Missing ADRs?** → `/architecture-decision` for individual decisions
-- **No master architecture doc?** → `/create-architecture` for the full blueprint
-- **ADRs missing engine compatibility sections?** → Re-run `/architecture-decision`
-  or manually add Engine Compatibility sections to existing ADRs
-- **Missing control manifest?** → `/create-control-manifest` (requires Accepted ADRs)
-- **Missing epics?** → `/create-epics layer: foundation` then `/create-epics layer: core` (requires control manifest)
-- **Missing stories for an epic?** → `/create-stories [epic-slug]` (run after each epic is created)
-- **Stories not implementation-ready?** → `/story-readiness` to validate stories before developers pick them up
-- **Tests failing?** → delegate to `lead-programmer` or `qa-tester`
-- **No playtest data?** → `/playtest-report`
-- **No playtest sessions beyond the minimum?** → Additional sessions give more reliable signal. 3+ total is recommended before committing the full team. Use `/playtest-report` to structure findings.
-- **No Difficulty Curve doc?** → Create `design/difficulty-curve.md` from the template at `.claude/docs/templates/difficulty-curve.md` — or use `/quick-design "difficulty curve"` for a guided session.
-- **No player journey map?** → Create `design/player-journey.md` from the template at `.claude/docs/templates/player-journey.md` — or author it collaboratively using `/ux-design` Phase 2b.
-- **Need a quick sprint check?** → `/sprint-status` for current sprint progress snapshot
-- **Performance unknown?** → `/perf-profile`
-- **Not localized?** → `/localize`
-- **Ready for release?** → `/launch-checklist`
+对于所有其他门，为该阶段提供两个最合乎逻辑的下一步加上"停在这里"。
 
 ---
 
-## Collaborative Protocol
+## 8. 后续操作
 
-This skill follows the collaborative design principle:
+根据裁决，建议具体的后续步骤：
 
-1. **Scan first**: Check all artifacts and quality gates
-2. **Ask about unknowns**: Don't assume PASS for things you can't verify
-3. **Present findings**: Show the full checklist with status
-4. **User decides**: The verdict is a recommendation — the user makes the final call
-5. **Get approval**: "May I write this gate check report to production/gate-checks/?"
-6. **Never auto-fix**: If required artifacts are missing, report the FAIL verdict and
-   name the skill to run (e.g. "run `/test-setup`"). Do NOT create missing files or
-   re-run the gate automatically. Creating files to manufacture a PASS defeats the
-   gate's purpose.
+- **没有 art bible？** → `/art-bible` 创建视觉身份规范
+- **Art bible 存在但没有资产规范？** → `/asset-spec system:[name]` 从批准的 GDD 生成每个资产的视觉规范和生成提示
+- **没有游戏概念？** → `/brainstorm` 创建一个
+- **没有 systems index？** → `/map-systems` 将概念分解为系统
+- **缺少设计文档？** → `/reverse-document` 或委托给 `game-designer`
+- **需要小设计更改？** → `/quick-design` 用于约 ~4 小时以下的更改（绕过完整 GDD 管道）
+- **没有 UX 规范？** → `/ux-design [screen name]` 编写规范，或 `/team-ui [feature]` 用于完整管道
+- **UX 规范未审查？** → `/ux-review [file]` 或 `/ux-review all` 验证
+- **没有无障碍需求文档？** → 运行 `/ux-design`，它一步创建 `design/accessibility-requirements.md` 和 `design/ux/interaction-patterns.md`
+- **没有交互模式库？** → `/ux-design patterns` 初始化它
+- **GDD 未交叉审查？** → `/review-all-gdds`（在所有 MVP GDD 单独批准后运行）
+- **跨 GDD 一致性问题？** → 修复标记的 GDD，然后重新运行 `/review-all-gdds`
+- **没有测试框架？** → `/test-setup` 为你的引擎搭建框架
+- **当前 sprint 没有 QA 计划？** → `/qa-plan sprint` 在实现开始前生成一个
+- **缺少 ADR？** → `/architecture-decision` 用于单个决策
+- **没有主架构文档？** → `/create-architecture` 用于完整蓝图
+- **ADR 缺少引擎兼容性部分？** → 重新运行 `/architecture-decision`
+  或手动将 Engine Compatibility 部分添加到现有 ADR
+- **缺少 control manifest？** → `/create-control-manifest`（需要 Accepted ADR）
+- **缺少 epic？** → `/create-epics layer: foundation` 然后 `/create-epics layer: core`（需要 control manifest）
+- **Epic 缺少 story？** → `/create-stories [epic-slug]`（在每个 epic 创建后运行）
+- **Story 未准备好实现？** → `/story-readiness` 在开发者接手之前验证 story
+- **测试失败？** → 委托给 `lead-programmer` 或 `qa-tester`
+- **没有试玩数据？** → `/playtest-report`
+- **超过最低限度的试玩会话？** → 额外会话提供更可靠信号。在承诺完整团队之前推荐总共 3+ 次。使用 `/playtest-report` 构建发现。
+- **没有 Difficulty Curve 文档？** → 从 `.claude/docs/templates/difficulty-curve.md` 中的模板创建 `design/difficulty-curve.md` —— 或使用 `/quick-design "difficulty curve"` 进行引导会话。
+- **没有玩家旅程地图？** → 从 `.claude/docs/templates/player-journey.md` 中的模板创建 `design/player-journey.md` —— 或使用 `/ux-design` 第 2b 阶段协作编写。
+- **需要快速 sprint 检查？** → `/sprint-status` 获取当前 sprint 进度快照
+- **性能未知？** → `/perf-profile`
+- **未本地化？** → `/localize`
+- **准备发布？** → `/launch-checklist`
 
-**Never** block a user from advancing — the verdict is advisory. Document the risks
-and let the user decide whether to proceed despite concerns.
+---
+
+## 协作协议
+
+此技能遵循协作设计原则：
+
+1. **先扫描**：检查所有工件和质量门
+2. **询问未知数**：对你无法验证的事情不要假设 PASS
+3. **展示发现**：显示完整清单及状态
+4. **用户决定**：裁决是建议——用户做最终决定
+5. **获得批准**："我可以将此门检查报告写入 production/gate-checks/ 吗？"
+6. **永远不要自动修复**：如果必需工件缺失，报告 FAIL 裁决并
+   命名要运行的技能（例如"运行 `/test-setup`"）。不要创建缺失的文件或
+   自动重新运行门。创建文件来制造 PASS 会破坏门的
+   目的。
+
+**永远不要**阻止用户推进——裁决是建议性的。记录风险并
+让用户决定是否在有顾虑的情况下继续。

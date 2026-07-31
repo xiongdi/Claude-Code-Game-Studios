@@ -2,14 +2,7 @@
 
 ## Skill Summary
 
-Orchestrates the polish team through a six-phase pipeline: performance assessment
-(performance-analyst) → optimization (performance-analyst, optionally with
-engine-programmer when engine-level root causes are found) → visual polish
-(technical-artist, parallel with Phase 2) → audio polish (sound-designer, parallel
-with Phase 2) → hardening (qa-tester) → sign-off (orchestrator collects all results
-and issues READY FOR RELEASE or NEEDS MORE WORK). Uses `AskUserQuestion` at each
-phase transition. Engine-programmer is spawned conditionally only when Phase 1
-identifies engine-level root causes. Verdict is READY FOR RELEASE or NEEDS MORE WORK.
+协调打磨团队完成一个六阶段流程：performance assessment（performance-analyst）→ optimization（performance-analyst，当发现引擎级根因时可选 engine-programmer）→ visual polish（technical-artist，与 Phase 2 并行）→ audio polish（sound-designer，与 Phase 2 并行）→ hardening（qa-tester）→ sign-off（orchestrator 收集所有结果并发布 READY FOR RELEASE 或 NEEDS MORE WORK）。在每个阶段转换时使用 `AskUserQuestion`。engine-programmer 仅在 Phase 1 识别出引擎级根因时按条件派生。裁决为 READY FOR RELEASE 或 NEEDS MORE WORK。
 
 ---
 

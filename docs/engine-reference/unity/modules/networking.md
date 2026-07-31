@@ -1,63 +1,63 @@
-# Unity 6.3 — Networking Module Reference
+# Unity 6.3 — 网络模块参考
 
-**Last verified:** 2026-02-13
-**Knowledge Gap:** Unity 6 uses Netcode for GameObjects (UNet deprecated)
+**最后验证时间：** 2026-02-13
+**知识缺口：** Unity 6 使用 Netcode for GameObjects（UNet 已弃用）
 
 ---
 
-## Overview
+## 概述
 
-Unity 6 networking options:
-- **Netcode for GameObjects** (RECOMMENDED): Official Unity multiplayer framework
-- **Mirror**: Community-driven (UNet successor)
-- **Photon**: Third-party service (PUN2)
-- **Custom**: Low-level sockets
+Unity 6 网络选项：
+- **Netcode for GameObjects**（推荐）：官方 Unity 多人游戏框架
+- **Mirror**：社区驱动（UNet 继任者）
+- **Photon**：第三方服务（PUN2）
+- **Custom**：底层 socket
 
-**UNet (Legacy)**: Deprecated, do not use.
+**UNet (Legacy)**：已弃用，不要使用。
 
 ---
 
 ## Netcode for GameObjects
 
-### Installation
+### 安装
 1. `Window > Package Manager`
-2. Search "Netcode for GameObjects"
-3. Install `com.unity.netcode.gameobjects`
+2. 搜索 "Netcode for GameObjects"
+3. 安装 `com.unity.netcode.gameobjects`
 
 ---
 
-## Basic Setup
+## 基本设置
 
 ### NetworkManager
 
 ```csharp
-// Add to scene: GameObject > Add Component > NetworkManager
+// 添加到场景：GameObject > Add Component > NetworkManager
 
-// Or create custom NetworkManager:
+// 或创建自定义 NetworkManager：
 using Unity.Netcode;
 
 public class CustomNetworkManager : MonoBehaviour {
     void Start() {
-        NetworkManager.Singleton.StartHost(); // Server + client
-        // OR
-        NetworkManager.Singleton.StartServer(); // Dedicated server
-        // OR
-        NetworkManager.Singleton.StartClient(); // Client only
+        NetworkManager.Singleton.StartHost(); // 服务器 + 客户端
+        // 或
+        NetworkManager.Singleton.StartServer(); // 专用服务器
+        // 或
+        NetworkManager.Singleton.StartClient(); // 仅客户端
     }
 }
 ```
 
 ---
 
-## NetworkObject (Networked GameObjects)
+## NetworkObject（网络 GameObject）
 
-### Mark GameObject as Networked
+### 将 GameObject 标记为网络化
 
-1. Add `NetworkObject` component to GameObject
-2. Must be in root of prefab (not nested)
-3. Register prefab in `NetworkManager > NetworkPrefabs List`
+1. 将 `NetworkObject` 组件添加到 GameObject
+2. 必须在预制件根目录中（不能嵌套）
+3. 在 `NetworkManager > NetworkPrefabs List` 中注册预制件
 
-### Spawn Network Objects
+### 生成网络对象
 
 ```csharp
 using Unity.Netcode;
@@ -75,26 +75,26 @@ public class GameManager : NetworkBehaviour {
 
 ---
 
-## NetworkBehaviour (Networked Scripts)
+## NetworkBehaviour（网络脚本）
 
-### NetworkBehaviour Base Class
+### NetworkBehaviour 基类
 
 ```csharp
 using Unity.Netcode;
 
 public class Player : NetworkBehaviour {
-    // Called when spawned on network
+    // 在网络上生成时调用
     public override void OnNetworkSpawn() {
         if (IsOwner) {
-            // Only run on owner's client
+            // 仅在所有者的客户端上运行
             GetComponent<Camera>().enabled = true;
         }
     }
 
     void Update() {
-        if (!IsOwner) return; // Only owner can control
+        if (!IsOwner) return; // 只有所有者可以控制
 
-        // Handle input
+        // 处理输入
         if (Input.GetKey(KeyCode.W)) {
             MoveServerRpc(Vector3.forward);
         }
@@ -102,7 +102,7 @@ public class Player : NetworkBehaviour {
 
     [ServerRpc]
     void MoveServerRpc(Vector3 direction) {
-        // Runs on server
+        // 在服务器上运行
         transform.position += direction * Time.deltaTime;
     }
 }
@@ -110,7 +110,7 @@ public class Player : NetworkBehaviour {
 
 ---
 
-## Network Variables (Synchronized State)
+## 网络变量（同步状态）
 
 ### NetworkVariable<T>
 
@@ -118,11 +118,11 @@ public class Player : NetworkBehaviour {
 using Unity.Netcode;
 
 public class Player : NetworkBehaviour {
-    // ✅ Auto-synced across clients
+    // ✅ 跨客户端自动同步
     private NetworkVariable<int> health = new NetworkVariable<int>(100);
 
     public override void OnNetworkSpawn() {
-        // Subscribe to value changes
+        // 订阅值变化
         health.OnValueChanged += OnHealthChanged;
     }
 
@@ -133,19 +133,19 @@ public class Player : NetworkBehaviour {
 
     [ServerRpc]
     public void TakeDamageServerRpc(int damage) {
-        // Only server can modify NetworkVariable
+        // 只有服务器可以修改 NetworkVariable
         health.Value -= damage;
     }
 }
 ```
 
-### NetworkVariable Permissions
+### NetworkVariable 权限
 
 ```csharp
-// Server can write, clients read-only (default)
+// 服务器可以写入，客户端只读（默认）
 private NetworkVariable<int> score = new NetworkVariable<int>();
 
-// Owner can write
+// 所有者可以写入
 private NetworkVariable<int> ammo = new NetworkVariable<int>(
     default,
     NetworkVariableReadPermission.Everyone,
@@ -155,93 +155,93 @@ private NetworkVariable<int> ammo = new NetworkVariable<int>(
 
 ---
 
-## RPCs (Remote Procedure Calls)
+## RPC（远程过程调用）
 
-### ServerRpc (Client → Server)
+### ServerRpc（客户端 → 服务器）
 
 ```csharp
-// Client calls, server executes
+// 客户端调用，服务器执行
 [ServerRpc]
 void FireWeaponServerRpc() {
-    // Runs on server
+    // 在服务器上运行
     Debug.Log("Server: Weapon fired");
 }
 
-// Call from client:
+// 从客户端调用：
 if (IsOwner && Input.GetKeyDown(KeyCode.Space)) {
     FireWeaponServerRpc();
 }
 ```
 
-### ClientRpc (Server → All Clients)
+### ClientRpc（服务器 → 所有客户端）
 
 ```csharp
-// Server calls, all clients execute
+// 服务器调用，所有客户端执行
 [ClientRpc]
 void PlayExplosionClientRpc(Vector3 position) {
-    // Runs on all clients
+    // 在所有客户端上运行
     Instantiate(explosionPrefab, position, Quaternion.identity);
 }
 
-// Call from server:
+// 从服务器调用：
 [ServerRpc]
 void ExplodeServerRpc(Vector3 position) {
-    // Server logic
+    // 服务器逻辑
     DealDamageToNearbyPlayers(position);
 
-    // Notify all clients
+    // 通知所有客户端
     PlayExplosionClientRpc(position);
 }
 ```
 
-### RPC Parameters
+### RPC 参数
 
 ```csharp
-// ✅ Supported: Primitives, structs, strings, arrays
+// ✅ 支持：基元类型、结构体、字符串、数组
 [ServerRpc]
 void SetNameServerRpc(string playerName) { }
 
 [ClientRpc]
 void UpdateScoresClientRpc(int[] scores) { }
 
-// ❌ Not supported: MonoBehaviour, GameObject (use NetworkObjectReference)
+// ❌ 不支持：MonoBehaviour、GameObject（使用 NetworkObjectReference）
 ```
 
 ---
 
-## Network Ownership
+## 网络所有权
 
-### Check Ownership
+### 检查所有权
 
 ```csharp
 if (IsOwner) {
-    // This client owns this NetworkObject
+    // 此客户端拥有此 NetworkObject
 }
 
 if (IsServer) {
-    // Running on server
+    // 在服务器上运行
 }
 
 if (IsClient) {
-    // Running on client
+    // 在客户端上运行
 }
 
 if (IsLocalPlayer) {
-    // This is the local player object
+    // 这是本地玩家对象
 }
 ```
 
-### Transfer Ownership
+### 转移所有权
 
 ```csharp
-// Server transfers ownership
+// 服务器转移所有权
 NetworkObject netObj = GetComponent<NetworkObject>();
 netObj.ChangeOwnership(newOwnerClientId);
 ```
 
 ---
 
-## NetworkObjectReference (Pass GameObjects in RPCs)
+## NetworkObjectReference（在 RPC 中传递 GameObject）
 
 ```csharp
 using Unity.Netcode;
@@ -249,21 +249,21 @@ using Unity.Netcode;
 [ServerRpc]
 void AttackTargetServerRpc(NetworkObjectReference targetRef) {
     if (targetRef.TryGet(out NetworkObject target)) {
-        // Got the target object
+        // 获取了目标对象
         target.GetComponent<Health>().TakeDamage(10);
     }
 }
 
-// Call:
+// 调用：
 NetworkObject targetNetObj = target.GetComponent<NetworkObject>();
 AttackTargetServerRpc(targetNetObj);
 ```
 
 ---
 
-## Client-Server Architecture
+## 客户端-服务器架构
 
-### Server-Authoritative Pattern (RECOMMENDED)
+### 服务器权威模式（推荐）
 
 ```csharp
 public class Player : NetworkBehaviour {
@@ -271,18 +271,18 @@ public class Player : NetworkBehaviour {
 
     void Update() {
         if (IsOwner) {
-            // Client: Send input to server
+            // 客户端：将输入发送到服务器
             Vector3 input = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             MoveServerRpc(input);
         }
 
-        // All clients: Sync to networked position
+        // 所有客户端：同步到网络位置
         transform.position = position.Value;
     }
 
     [ServerRpc]
     void MoveServerRpc(Vector3 input) {
-        // Server: Validate and apply movement
+        // 服务器：验证并应用移动
         position.Value += input * Time.deltaTime * moveSpeed;
     }
 }
@@ -290,18 +290,18 @@ public class Player : NetworkBehaviour {
 
 ---
 
-## Network Transport
+## 网络传输
 
-### Unity Transport (Default)
+### Unity Transport（默认）
 
 ```csharp
-// Configured in NetworkManager:
-// - Transport: Unity Transport
-// - Address: 127.0.0.1 (localhost) or server IP
-// - Port: 7777 (default)
+// 在 NetworkManager 中配置：
+// - Transport：Unity Transport
+// - Address：127.0.0.1（localhost）或服务器 IP
+// - Port：7777（默认）
 ```
 
-### Connection Events
+### 连接事件
 
 ```csharp
 void Start() {
@@ -320,32 +320,32 @@ void OnClientDisconnected(ulong clientId) {
 
 ---
 
-## Performance Tips
+## 性能提示
 
-### Reduce Network Traffic
-- Use `NetworkVariable` for state that changes infrequently
-- Batch multiple changes before syncing
-- Use delta compression for large data
+### 减少网络流量
+- 对不经常变化的状态使用 `NetworkVariable`
+- 同步前批量处理多个更改
+- 对大型数据使用增量压缩
 
-### Prediction & Reconciliation
-- Run movement locally for responsiveness
-- Reconcile with server authoritative state
-- Use interpolation for smooth movement
+### 预测与和解
+- 本地运行移动以获得响应性
+- 与服务器权威状态和解
+- 使用插值实现平滑移动
 
 ---
 
-## Debugging
+## 调试
 
 ### Network Profiler
 - `Window > Analysis > Network Profiler`
-- Monitor bandwidth, RPC calls, variable updates
+- 监控带宽、RPC 调用、变量更新
 
-### Network Simulator (Test Latency/Packet Loss)
+### Network Simulator（测试延迟/丢包）
 - `NetworkManager > Network Simulator`
-- Add artificial lag and packet loss for testing
+- 添加人工延迟和丢包进行测试
 
 ---
 
-## Sources
+## 来源
 - https://docs-multiplayer.unity3d.com/netcode/current/about/
 - https://docs-multiplayer.unity3d.com/netcode/current/learn/bossroom/

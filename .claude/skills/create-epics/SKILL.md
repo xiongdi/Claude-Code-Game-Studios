@@ -10,236 +10,226 @@ agent: technical-director
 
 # Create Epics
 
-An epic is a named, bounded body of work that maps to one architectural module.
-It defines **what** needs to be built and **who owns it architecturally**. It
-does not prescribe implementation steps — that is the job of stories.
+epic 是一个命名的、有边界的工作体，对应一个架构模块。它定义**需要构建什么**以及**架构上由谁拥有**。它不规定实现步骤——那是 story 的工作。
 
-**Run this skill once per layer** as you approach that layer in development.
-Do not create Feature layer epics until Core is nearly complete — the design
-will have changed.
+**每个层级运行一次此技能**，随着开发接近该层级。在 Core 接近完成之前不要创建 Feature 层 epic——设计会发生变化。
 
-**Output:** `production/epics/[epic-slug]/EPIC.md` + `production/epics/index.md`
+**输出：** `production/epics/[epic-slug]/EPIC.md` + `production/epics/index.md`
 
-**Next step after each epic:** `/create-stories [epic-slug]`
+**每个 epic 后的下一步：** `/create-stories [epic-slug]`
 
-**When to run:** After `/create-control-manifest` and `/architecture-review` pass.
+**何时运行：** `/create-control-manifest` 和 `/architecture-review` 通过后。
 
 ---
 
-## 1. Parse Arguments
+## 1. 解析参数
 
-Resolve the review mode (once, store for all gate spawns this run):
-1. If `--review [full|lean|solo]` was passed → use that
-2. Else read `production/review-mode.txt` → use that value
-3. Else → default to `lean`
+解析审查模式（一次，存储供本次运行的所有门生成使用）：
+1. 如果传入了 `--review [full|lean|solo]` → 使用该值
+2. 否则读取 `production/review-mode.txt` → 使用该值
+3. 否则 → 默认为 `lean`
 
-See `.claude/docs/director-gates.md` for the full check pattern.
+参见 `.claude/docs/director-gates.md` 了解完整的检查模式。
 
-**Modes:**
-- `/create-epics all` — process all systems in layer order
-- `/create-epics layer: foundation` — Foundation layer only
-- `/create-epics layer: core` — Core layer only
-- `/create-epics layer: feature` — Feature layer only
-- `/create-epics layer: presentation` — Presentation layer only
-- `/create-epics [system-name]` — one specific system
-- No argument — ask: "Which layer or system would you like to create epics for?"
+**模式：**
+- `/create-epics all` — 按层级顺序处理所有系统
+- `/create-epics layer: foundation` — 仅 Foundation 层
+- `/create-epics layer: core` — 仅 Core 层
+- `/create-epics layer: feature` — 仅 Feature 层
+- `/create-epics layer: presentation` — 仅 Presentation 层
+- `/create-epics [system-name]` — 一个特定系统
+- 无参数 — 询问："你想为哪个层级或系统创建 epic？"
 
 ---
 
-## 2. Load Inputs
+## 2. 加载输入
 
-### Step 2a — Summary scan (fast)
+### 步骤 2a — 摘要扫描（快速）
 
-Grep all GDDs for their `## Summary` sections before reading anything fully:
+在完整读取任何内容之前，Grep 所有 GDD 的 `## Summary` 部分：
 
 ```
 Grep pattern="## Summary" glob="design/gdd/*.md" output_mode="content" -A 5
 ```
 
-For `layer:` or `[system-name]` modes: filter to only in-scope GDDs based on
-the Summary quick-reference. Skip full-reading anything out of scope.
+对于 `layer:` 或 `[system-name]` 模式：根据摘要快速参考仅筛选范围内的 GDD。跳过范围外任何内容的完整读取。
 
-### Step 2b — Full document load (in-scope systems only)
+### 步骤 2b — 完整文档加载（仅范围内的系统）
 
-Using the Step 2a grep results, identify which systems are in scope. Read full documents **only for in-scope systems** — do not read GDDs or ADRs for out-of-scope systems or layers.
+使用步骤 2a 的 grep 结果，确定哪些系统在范围内。**仅对范围内的系统**读取完整文档——不要读取范围外系统或层级的 GDD 或 ADR。
 
-Read for in-scope systems:
+为范围内的系统读取：
 
-- `design/gdd/systems-index.md` — authoritative system list, layers, priority
-- In-scope GDDs only (Approved or Designed status, filtered by Step 2a results)
-- `docs/architecture/architecture.md` — module ownership and API boundaries
-- Accepted ADRs **whose domains cover in-scope systems only** — read the "GDD Requirements Addressed", "Decision", and "Engine Compatibility" sections; skip ADRs for unrelated domains
-- `docs/architecture/control-manifest.md` — manifest version date from header
-- `docs/architecture/tr-registry.yaml` — for tracing requirements to ADR coverage
-- `docs/engine-reference/[engine]/VERSION.md` — engine name, version, risk levels
+- `design/gdd/systems-index.md` — 权威系统列表、层级、优先级
+- 仅范围内的 GDD（Approved 或 Designed 状态，按步骤 2a 结果筛选）
+- `docs/architecture/architecture.md` — 模块所有权和 API 边界
+- **仅涵盖范围内系统的** Accepted ADR — 读取 "GDD Requirements Addressed"、"Decision" 和 "Engine Compatibility" 部分；跳过不相关领域的 ADR
+- `docs/architecture/control-manifest.md` — 从头部获取 manifest 版本日期
+- `docs/architecture/tr-registry.yaml` — 用于追踪需求到 ADR 覆盖
+- `docs/engine-reference/[engine]/VERSION.md` — 引擎名称、版本、风险级别
 
-Report: "Loaded [N] GDDs, [M] ADRs, engine: [name + version]."
-
----
-
-## 3. Processing Order
-
-Process in dependency-safe layer order:
-1. **Foundation** (no dependencies)
-2. **Core** (depends on Foundation)
-3. **Feature** (depends on Core)
-4. **Presentation** (depends on Feature + Core)
-
-Within each layer, use the order from `systems-index.md`.
+报告："已加载 [N] 个 GDD，[M] 个 ADR，引擎：[name + version]。"
 
 ---
 
-## 4. Define Each Epic
+## 3. 处理顺序
 
-For each system, map it to an architectural module from `architecture.md`.
+按依赖安全的层级顺序处理：
+1. **Foundation**（无依赖）
+2. **Core**（依赖 Foundation）
+3. **Feature**（依赖 Core）
+4. **Presentation**（依赖 Feature + Core）
 
-Check ADR coverage against the TR registry:
-- **Traced requirements**: TR-IDs that have an Accepted ADR covering them
-- **Untraced requirements**: TR-IDs with no ADR — warn before proceeding
+每个层级内，使用 `systems-index.md` 中的顺序。
 
-Present to user before writing anything:
+---
+
+## 4. 定义每个 Epic
+
+对于每个系统，将其映射到 `architecture.md` 中的一个架构模块。
+
+对照 TR 注册表检查 ADR 覆盖：
+- **已追踪需求**：有 Accepted ADR 覆盖的 TR-ID
+- **未追踪需求**：没有 ADR 的 TR-ID — 在继续前警告
+
+在写入任何内容之前向用户展示：
 
 ```
-## Epic: [System Name]
+## Epic: [系统名称]
 
-**Layer**: [Foundation / Core / Feature / Presentation]
-**GDD**: design/gdd/[filename].md
-**Architecture Module**: [module name from architecture.md]
-**Governing ADRs**: [ADR-NNNN, ADR-MMMM]
-**Engine Risk**: [LOW / MEDIUM / HIGH — highest risk among governing ADRs]
-**GDD Requirements Covered by ADRs**: [N / total]
-**Untraced Requirements**: [list TR-IDs with no ADR, or "None"]
+**层级**：[Foundation / Core / Feature / Presentation]
+**GDD**：design/gdd/[filename].md
+**架构模块**：[来自 architecture.md 的模块名称]
+**管辖 ADR**：[ADR-NNNN, ADR-MMMM]
+**引擎风险**：[LOW / MEDIUM / HIGH — 管辖 ADR 中的最高风险]
+**ADR 覆盖的 GDD 需求**：[N / 总数]
+**未追踪需求**：[列出没有 ADR 的 TR-ID，或 "None"]
 ```
 
-If there are untraced requirements:
-> "⚠️ [N] requirements in [system] have no ADR. The epic can be created, but
-> stories for these requirements will be marked Blocked until ADRs exist.
-> Run `/architecture-decision` first, or proceed with placeholders."
+如果存在未追踪需求：
+> "⚠️ [system] 中有 [N] 个需求没有 ADR。可以创建 epic，但这些需求的 story 将被标记为 Blocked，直到 ADR 存在。先运行 `/architecture-decision`，或使用占位符继续。"
 
-Use `AskUserQuestion`:
-- Prompt: "Shall I create Epic: [name]?"
-- Options:
-  - `[A] Yes, create it`
-  - `[B] Skip this epic`
-  - `[C] Pause — I need to write ADRs first`
+使用 `AskUserQuestion`：
+- 提示："我可以创建 Epic: [name] 吗？"
+- 选项：
+  - `[A] 是，创建它`
+  - `[B] 跳过此 epic`
+  - `[C] 暂停 — 我需要先写 ADR`
 
 ---
 
-## 4b. Producer Epic Structure Gate
+## 4b. Producer Epic 结构门
 
-**Review mode check** — apply before spawning PR-EPIC:
-- `solo` → skip. Note: "PR-EPIC skipped — Solo mode." Proceed to Step 5 (write epic files).
-- `lean` → skip (not a PHASE-GATE). Note: "PR-EPIC skipped — Lean mode." Proceed to Step 5 (write epic files).
-- `full` → spawn as normal.
+**审查模式检查** — 在生成 PR-EPIC 之前应用：
+- `solo` → 跳过。注意："PR-EPIC 已跳过 — Solo 模式。" 进入第 5 步（写入 epic 文件）。
+- `lean` → 跳过（不是 PHASE-GATE）。注意："PR-EPIC 已跳过 — Lean 模式。" 进入第 5 步（写入 epic 文件）。
+- `full` → 正常生成。
 
-After all epics for the current layer are defined (Step 4 completed for all in-scope systems), and before writing any files, spawn `producer` via Task using gate **PR-EPIC** (`.claude/docs/director-gates.md`).
+在当前层级的所有 epic 都已定义（第 4 步对所有范围内的系统完成）后，在写入任何文件之前，通过 Task 使用门 **PR-EPIC**（`.claude/docs/director-gates.md`）生成 `producer`。
 
-Pass: the full epic structure summary (all epics, their scope summaries, governing ADR counts), the layer being processed, milestone timeline and team capacity.
+传递：完整的 epic 结构摘要（所有 epic、它们的范围摘要、管辖 ADR 计数）、正在处理的层级、里程碑时间线和团队产能。
 
-Present the producer's assessment.
+展示 producer 的评估。
 
-If UNREALISTIC: offer to revise epic boundaries (split overscoped or merge underscoped epics). Revise and re-run the gate before writing.
+如果 UNREALISTIC：提供修改 epic 边界（拆分过大或合并过小的 epic）。在写入前修改并重新运行门。
 
-If CONCERNS, use `AskUserQuestion`:
-- Prompt: "Producer raised concerns about the epic structure. How do you want to proceed?"
-- Options:
-  - `[A] Proceed as planned — I accept the producer's concerns`
-  - `[B] Revise epic boundaries — split or merge as recommended`
-  - `[C] Stop — I want to reconsider the scope`
+如果 CONCERNS，使用 `AskUserQuestion`：
+- 提示："Producer 对 epic 结构提出了担忧。你想如何继续？"
+- 选项：
+  - `[A] 按计划继续 — 我接受 producer 的担忧`
+  - `[B] 修改 epic 边界 — 按建议拆分或合并`
+  - `[C] 停止 — 我想重新考虑范围`
 
-If [A]: proceed to Step 5.
-If [B]: revise epic definitions from Step 4 and re-run the producer gate.
-If [C]: stop. Verdict: **BLOCKED** — user wants to reconsider epic scope.
+如果 [A]：进入第 5 步。
+如果 [B]：从第 4 步修改 epic 定义并重新运行 producer 门。
+如果 [C]：停止。裁决：**BLOCKED** — 用户想重新考虑 epic 范围。
 
-Do not write epic files until the producer gate resolves.
+在 producer 门解决之前不要写入 epic 文件。
 
 ---
 
-## 5. Write Epic Files
+## 5. 写入 Epic 文件
 
-After approval, ask: "May I write the epic file to `production/epics/[epic-slug]/EPIC.md`?"
+批准后，询问："我可以将 epic 文件写入 `production/epics/[epic-slug]/EPIC.md` 吗？"
 
-After user confirms, write:
+用户确认后，写入：
 
 ### `production/epics/[epic-slug]/EPIC.md`
 
 ```markdown
-# Epic: [System Name]
+# Epic: [系统名称]
 
-> **Layer**: [Foundation / Core / Feature / Presentation]
-> **GDD**: design/gdd/[filename].md
-> **Architecture Module**: [module name]
-> **Status**: Ready
-> **Stories**: Not yet created — run `/create-stories [epic-slug]`
+> **层级**：[Foundation / Core / Feature / Presentation]
+> **GDD**：design/gdd/[filename].md
+> **架构模块**：[模块名称]
+> **状态**：Ready
+> **Stories**：尚未创建 — 运行 `/create-stories [epic-slug]`
 
 ## Overview
 
-[1 paragraph describing what this epic implements, derived from the GDD Overview
-and the architecture module's stated responsibilities]
+[1 段描述此 epic 实现什么，源自 GDD Overview 和架构模块的声明职责]
 
 ## Governing ADRs
 
 | ADR | Decision Summary | Engine Risk |
 |-----|-----------------|-------------|
-| ADR-NNNN: [title] | [1-line summary] | LOW/MEDIUM/HIGH |
+| ADR-NNNN: [title] | [1 行摘要] | LOW/MEDIUM/HIGH |
 
 ## GDD Requirements
 
 | TR-ID | Requirement | ADR Coverage |
 |-------|-------------|--------------|
-| TR-[system]-001 | [requirement text from registry] | ADR-NNNN ✅ |
-| TR-[system]-002 | [requirement text] | ❌ No ADR |
+| TR-[system]-001 | [来自注册表的需求文本] | ADR-NNNN ✅ |
+| TR-[system]-002 | [需求文本] | ❌ 无 ADR |
 
 ## Definition of Done
 
-This epic is complete when:
-- All stories are implemented, reviewed, and closed via `/story-done`
-- All acceptance criteria from `design/gdd/[filename].md` are verified
-- All Logic and Integration stories have passing test files in `tests/`
-- All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
+此 epic 在以下情况完成：
+- 所有 story 已实现、审查并通过 `/story-done` 关闭
+- `design/gdd/[filename].md` 中的所有验收标准已验证
+- 所有 Logic 和 Integration story 在 `tests/` 中有通过的测试文件
+- 所有 Visual/Feel 和 UI story 在 `production/qa/evidence/` 中有签字确认的证据文档
 
 ## Next Step
 
-Run `/create-stories [epic-slug]` to break this epic into implementable stories.
+运行 `/create-stories [epic-slug]` 将此 epic 分解为可实现的 story。
 ```
 
-### Update `production/epics/index.md`
+### 更新 `production/epics/index.md`
 
-Create or update the master index:
+创建或更新主索引：
 
 ```markdown
 # Epics Index
 
-Last Updated: [date]
-Engine: [name + version]
+最后更新：[date]
+引擎：[name + version]
 
-| Epic | Layer | System | GDD | Stories | Status |
+| Epic | 层级 | 系统 | GDD | Stories | 状态 |
 |------|-------|--------|-----|---------|--------|
-| [name] | Foundation | [system] | [file] | Not yet created | Ready |
+| [name] | Foundation | [system] | [file] | 尚未创建 | Ready |
 ```
 
 ---
 
-## 6. Gate-Check Reminder
+## 6. Gate-Check 提醒
 
-After writing all epics for the requested scope:
+在写入请求范围内的所有 epic 后：
 
-- **Foundation + Core complete**: These are required for the Pre-Production →
-  Production gate. Run `/gate-check production` to check readiness.
-- **Reminder**: Epics define scope. Stories define implementation steps. Run
-  `/create-stories [epic-slug]` for each epic before developers can pick up work.
+- **Foundation + Core 完成**：这些是 Pre-Production → Production 门所必需的。运行 `/gate-check production` 检查准备情况。
+- **提醒**：Epic 定义范围。Story 定义实现步骤。在每个开发者可以接手工作之前，为每个 epic 运行 `/create-stories [epic-slug]`。
 
 ---
 
-## Collaborative Protocol
+## 协作协议
 
-1. **One epic at a time** — present each epic definition before asking to create it
-2. **Warn on gaps** — flag untraced requirements before proceeding
-3. **Ask before writing** — per-epic approval before writing any file
-4. **No invention** — all content comes from GDDs, ADRs, and architecture docs
-5. **Never create stories** — this skill stops at the epic level
+1. **一次一个 epic** — 在询问创建之前展示每个 epic 定义
+2. **对缺口发出警告** — 在继续前标记未追踪的需求
+3. **写入前询问** — 在写入任何文件之前获得每个 epic 的批准
+4. **不发明** — 所有内容来自 GDD、ADR 和架构文档
+5. **绝不创建 story** — 此技能在 epic 级别停止
 
-After all requested epics are processed:
+处理完所有请求的 epic 后：
 
-- **Verdict: COMPLETE** — [N] epic(s) written. Run `/create-stories [epic-slug]` per epic.
-- **Verdict: BLOCKED** — user declined all epics, or no eligible systems found.
+- **裁决：COMPLETE** — 已写入 [N] 个 epic。每个 epic 运行 `/create-stories [epic-slug]`。
+- **裁决：BLOCKED** — 用户拒绝了所有 epic，或未找到符合条件的系统。

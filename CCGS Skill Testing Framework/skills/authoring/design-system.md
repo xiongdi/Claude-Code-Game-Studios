@@ -2,191 +2,177 @@
 
 ## Skill Summary
 
-`/design-system` guides the user through section-by-section authoring of a Game
-Design Document (GDD) for a single game system. All 8 required sections must be
-authored: Overview, Player Fantasy, Detailed Rules, Formulas, Edge Cases,
-Dependencies, Tuning Knobs, and Acceptance Criteria. The skill uses a
-skeleton-first approach — it creates the GDD file with all 8 section headers
-before filling any content — and writes each section individually after approval.
+`/design-system` 引导用户逐章节编写单个游戏系统的游戏设计文档（GDD）。所有 8 个必需章节都必须编写：Overview、Player Fantasy、Detailed Rules、Formulas、Edge Cases、Dependencies、Tuning Knobs 和 Acceptance Criteria。该 skill 使用 skeleton-first 方法——在填写任何内容之前创建包含所有 8 个章节标题的 GDD 文件——并在批准后逐个写入每个章节。
 
-The CD-GDD-ALIGN gate (creative-director) runs in both `full` AND `lean` modes.
-It is only skipped in `solo` mode. If an existing GDD file is found, the skill
-offers a retrofit mode to update specific sections rather than rewriting the whole
-document.
+CD-GDD-ALIGN gate（creative-director）在 `full` 和 `lean` 模式下都运行。它仅在 `solo` 模式下被跳过。如果找到现有 GDD 文件，该 skill 提供改造模式以更新特定章节而非重写整个文档。
 
 ---
 
-## Static Assertions (Structural)
+## Static Assertions（结构性）
 
-Verified automatically by `/skill-test static` — no fixture needed.
+由 `/skill-test static` 自动验证——不需要 fixture。
 
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings
-- [ ] Contains verdict keywords: APPROVED, NEEDS REVISION, MAJOR REVISION
-- [ ] Contains "May I write" collaborative protocol language (per-section approval)
-- [ ] Has a next-step handoff at the end
-- [ ] Documents skeleton-first approach (file created with headers before content)
-- [ ] Documents CD-GDD-ALIGN gate: active in full AND lean mode; skipped in solo only
-- [ ] Documents retrofit mode for existing GDD files
+- [ ] 具有必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 具有 ≥2 个 phase 标题
+- [ ] 包含裁定关键词：APPROVED、NEEDS REVISION、MAJOR REVISION
+- [ ] 包含 "May I write" 协作协议语言（逐章节批准）
+- [ ] 末尾有下一步交接说明
+- [ ] 记录 skeleton-first 方法（文件先创建标题后填内容）
+- [ ] 记录 CD-GDD-ALIGN gate：在 full 和 lean 模式下活动；仅在 solo 下跳过
+- [ ] 记录现有 GDD 文件的改造模式
 
 ---
 
 ## Director Gate Checks
 
-In `full` mode: CD-GDD-ALIGN (creative-director) gate runs after each section is
-drafted, before writing. If MAJOR REVISION is returned, the section must be
-rewritten before proceeding.
+在 `full` 模式下：CD-GDD-ALIGN（creative-director）gate 在每个章节起草后、写入前运行。如果返回 MAJOR REVISION，该章节必须重写后才能继续。
 
-In `lean` mode: CD-GDD-ALIGN still runs (this gate is NOT skipped in lean mode —
-it runs in both full and lean). Only solo mode skips it.
+在 `lean` 模式下：CD-GDD-ALIGN 仍然运行（此 gate 在 lean 模式下不被跳过——它在 full 和 lean 下都运行）。仅 solo 模式跳过它。
 
-In `solo` mode: CD-GDD-ALIGN is skipped. Output notes:
-"CD-GDD-ALIGN skipped — solo mode". Sections are written with only user approval.
+在 `solo` 模式下：CD-GDD-ALIGN 被跳过。输出注明：
+"CD-GDD-ALIGN skipped — solo mode"。章节仅凭用户批准写入。
 
 ---
 
 ## Test Cases
 
-### Case 1: Happy Path — New GDD, skeleton-first, CD-GDD-ALIGN in lean mode
+### Case 1: Happy Path——新 GDD，skeleton-first，lean 模式下的 CD-GDD-ALIGN
 
 **Fixture:**
-- No existing GDD for the target system in `design/gdd/`
-- `production/session-state/review-mode.txt` contains `lean`
+- `design/gdd/` 中目标系统无现有 GDD
+- `production/session-state/review-mode.txt` 内容为 `lean`
 
 **Input:** `/design-system [system-name]`
 
 **Expected behavior:**
-1. Skill creates skeleton file `design/gdd/[system-name].md` with all 8 section headers (empty bodies)
-2. For each section: discusses with user, drafts content, shows draft
-3. CD-GDD-ALIGN gate runs on each section draft (lean mode — gate is active)
-4. Gate returns APPROVED for each section
-5. "May I write [section]?" asked after gate approval
-6. Section written to file after user approval
-7. Process repeats for all 8 sections
+1. Skill 创建骨架文件 `design/gdd/[system-name].md`，包含所有 8 个章节标题（空正文）
+2. 对于每个章节：与用户讨论、起草内容、显示草案
+3. CD-GDD-ALIGN gate 对每个章节草案运行（lean 模式——gate 是活动的）
+4. Gate 对每个章节返回 APPROVED
+5. 在 gate 批准后询问 "May I write [section]?"
+6. 章节在用户批准后写入文件
+7. 过程对所有 8 个章节重复
 
 **Assertions:**
-- [ ] Skeleton file is created with all 8 section headers before any content is written
-- [ ] CD-GDD-ALIGN runs on each section in lean mode (not skipped)
-- [ ] "May I write" is asked per section (not once for all sections)
-- [ ] Each section is written individually after gate + user approval
-- [ ] All 8 sections are present in the final GDD file
+- [ ] 骨架文件先创建，包含所有 8 个章节标题，在任何内容写入之前
+- [ ] CD-GDD-ALIGN 在 lean 模式下对每个章节运行（不被跳过）
+- [ ] 逐章节询问 "May I write"（非一次性对所有章节）
+- [ ] 每个章节在 gate + 用户批准后单独写入
+- [ ] 最终 GDD 文件中存在所有 8 个章节
 
 ---
 
-### Case 2: Retrofit Mode — Existing GDD, update specific section
+### Case 2: Retrofit Mode——现有 GDD，更新特定章节
 
 **Fixture:**
-- `design/gdd/[system-name].md` already exists with all 8 sections populated
+- `design/gdd/[system-name].md` 已存在，所有 8 个章节已填写
 
 **Input:** `/design-system [system-name]`
 
 **Expected behavior:**
-1. Skill detects existing GDD file and reads its current content
-2. Skill offers retrofit mode: "GDD already exists. Which section would you like to update?"
-3. User selects a specific section (e.g., Formulas)
-4. Skill authors only that section, runs CD-GDD-ALIGN, asks "May I write?"
-5. Only the selected section is updated — other sections are not modified
+1. Skill 检测现有 GDD 文件并读取其当前内容
+2. Skill 提供改造模式："GDD already exists. Which section would you like to update?"
+3. 用户选择特定章节（例如，Formulas）
+4. Skill 仅编写该章节，运行 CD-GDD-ALIGN，询问 "May I write?"
+5. 仅所选章节更新——其他章节不修改
 
 **Assertions:**
-- [ ] Skill detects and reads existing GDD before offering retrofit mode
-- [ ] User is asked which section to update — not asked to rewrite the whole document
-- [ ] Only the selected section is rewritten — others remain unchanged
-- [ ] CD-GDD-ALIGN still runs on the updated section
-- [ ] "May I write" is asked before updating the section
+- [ ] Skill 在提供改造模式前检测并读取现有 GDD
+- [ ] 用户被询问要更新哪个章节——不是被要求重写整个文档
+- [ ] 仅所选章节重写——其他章节保持不变
+- [ ] CD-GDD-ALIGN 仍对更新的章节运行
+- [ ] 在更新章节前询问 "May I write"
 
 ---
 
-### Case 3: Director Gate — CD-GDD-ALIGN returns MAJOR REVISION
+### Case 3: Director Gate——CD-GDD-ALIGN 返回 MAJOR REVISION
 
 **Fixture:**
-- New GDD being authored
-- `production/session-state/review-mode.txt` contains `lean`
-- CD-GDD-ALIGN gate returns MAJOR REVISION on the Player Fantasy section
+- 正在编写新 GDD
+- `production/session-state/review-mode.txt` 内容为 `lean`
+- CD-GDD-ALIGN gate 对 Player Fantasy 章节返回 MAJOR REVISION
 
 **Input:** `/design-system [system-name]`
 
 **Expected behavior:**
-1. Player Fantasy section is drafted
-2. CD-GDD-ALIGN gate runs and returns MAJOR REVISION with specific feedback
-3. Skill surfaces the feedback to the user
-4. Section is NOT written to file while MAJOR REVISION is unresolved
-5. User rewrites the section in collaboration with the skill
-6. CD-GDD-ALIGN runs again on the revised section
-7. If revised section passes, "May I write?" is asked and section is written
+1. Player Fantasy 章节起草完成
+2. CD-GDD-ALIGN gate 运行并返回带有具体反馈的 MAJOR REVISION
+3. Skill 向用户展示反馈
+4. 当 MAJOR REVISION 未解决时，章节不写入文件
+5. 用户与 skill 协作重写该章节
+6. CD-GDD-ALIGN 对修订后的章节再次运行
+7. 如果修订后的章节通过，询问 "May I write?" 并写入章节
 
 **Assertions:**
-- [ ] Section is NOT written when CD-GDD-ALIGN returns MAJOR REVISION
-- [ ] Gate feedback is shown to the user before requesting revision
-- [ ] CD-GDD-ALIGN runs again after the section is revised
-- [ ] Skill does NOT auto-proceed to the next section while MAJOR REVISION is unresolved
+- [ ] 当 CD-GDD-ALIGN 返回 MAJOR REVISION 时章节不写入
+- [ ] Gate 反馈在请求修订前显示给用户
+- [ ] CD-GDD-ALIGN 在章节修订后再次运行
+- [ ] Skill 在 MAJOR REVISION 未解决时不自动继续到下一章节
 
 ---
 
-### Case 4: Solo Mode — CD-GDD-ALIGN skipped; sections written with user approval only
+### Case 4: Solo Mode——CD-GDD-ALIGN 被跳过；章节仅凭用户批准写入
 
 **Fixture:**
-- New GDD being authored
-- `production/session-state/review-mode.txt` contains `solo`
+- 正在编写新 GDD
+- `production/session-state/review-mode.txt` 内容为 `solo`
 
 **Input:** `/design-system [system-name]`
 
 **Expected behavior:**
-1. Skeleton file is created with 8 section headers
-2. For each section: drafted, shown to user
-3. CD-GDD-ALIGN is skipped — noted per section: "CD-GDD-ALIGN skipped — solo mode"
-4. "May I write [section]?" asked after user reviews draft
-5. Section written after user approval
-6. No gate review at any stage
+1. 骨架文件创建，包含 8 个章节标题
+2. 对于每个章节：起草完成，显示给用户
+3. CD-GDD-ALIGN 被跳过——逐章节注明："CD-GDD-ALIGN skipped — solo mode"
+4. 用户审查草案后询问 "May I write [section]?"
+5. 章节在用户批准后写入
+6. 在任何阶段都无 gate 审查
 
 **Assertions:**
-- [ ] "CD-GDD-ALIGN skipped — solo mode" noted for each section
-- [ ] Sections are written after user approval alone (no gate required)
-- [ ] Skill does NOT spawn any CD-GDD-ALIGN gate in solo mode
-- [ ] Full GDD is written with only user approval in solo mode
+- [ ] 每个章节注明 "CD-GDD-ALIGN skipped — solo mode"
+- [ ] 章节仅凭用户批准后写入（不需要 gate）
+- [ ] Skill 在 solo 模式下不派生任何 CD-GDD-ALIGN gate
+- [ ] 在 solo 模式下完整 GDD 仅凭用户批准写入
 
 ---
 
-### Case 5: Director Gate — Empty sections not written to file
+### Case 5: Director Gate——空章节不写入文件
 
 **Fixture:**
-- GDD authoring in progress
-- User and skill discuss one section but do not produce any approved content
-  (e.g., discussion ends without a decision, or user says "skip for now")
+- GDD 编写进行中
+- 用户和 skill 讨论一个章节但未产生任何批准的内容
+  （例如，讨论结束时无决定，或用户说 "skip for now"）
 
 **Input:** `/design-system [system-name]`
 
 **Expected behavior:**
-1. Section discussion produces no approved content
-2. Skill does NOT write an empty or placeholder body to the section
-3. The section header remains in the skeleton file but the body stays empty
-4. Skill moves to the next section without writing the empty one
-5. At the end, incomplete sections are listed and user is reminded to return to them
+1. 章节讨论未产生批准的内容
+2. Skill 不向章节写入空或占位符正文
+3. 章节标题保留在骨架文件中但正文保持为空
+4. Skill 不写入空章节而移动到下一章节
+5. 最后，列出不完整的章节并提醒用户返回处理
 
 **Assertions:**
-- [ ] Empty or unapproved sections are NOT written to the file
-- [ ] Skeleton section header remains (preserves structure)
-- [ ] Skill tracks and lists incomplete sections at the end of the session
-- [ ] Skill does NOT write "TBD" or placeholder content without user approval
+- [ ] 空或未批准的章节不写入文件
+- [ ] 骨架章节标题保留（保持结构）
+- [ ] Skill 在会话结束时跟踪并列出不完整的章节
+- [ ] Skill 未经用户批准不写入 "TBD" 或占位符内容
 
 ---
 
 ## Protocol Compliance
 
-- [ ] Skeleton file created with all 8 headers before any content is written
-- [ ] CD-GDD-ALIGN runs in both full AND lean mode (not just full)
-- [ ] CD-GDD-ALIGN skipped only in solo mode — noted per section
-- [ ] "May I write [section]?" asked per section (not once for the whole document)
-- [ ] MAJOR REVISION from CD-GDD-ALIGN blocks section write until resolved
-- [ ] Only approved, non-empty sections are written to the file
-- [ ] Ends with next-step handoff: `/review-all-gdds` or `/map-systems next`
+- [ ] 骨架文件先创建，包含所有 8 个标题，在任何内容写入之前
+- [ ] CD-GDD-ALIGN 在 full 和 lean 模式下都运行（不仅是 full）
+- [ ] CD-GDD-ALIGN 仅在 solo 模式下被跳过——逐章节注明
+- [ ] 逐章节询问 "May I write [section]?"（非一次性对整个文档）
+- [ ] 来自 CD-GDD-ALIGN 的 MAJOR REVISION 阻塞章节写入直到解决
+- [ ] 仅批准的非空章节写入文件
+- [ ] 以下一步交接说明结束：`/review-all-gdds` 或 `/map-systems next`
 
 ---
 
 ## Coverage Notes
 
-- The 8 required sections are validated against the project's design document
-  standards defined in `CLAUDE.md` — not re-enumerated here.
-- The skill's internal section-ordering logic (which section to author first) is
-  not independently tested — the order follows the standard GDD template.
-- Pillar alignment checking within CD-GDD-ALIGN is evaluated holistically by
-  the gate agent — specific pillar checks are not fixture-tested here.
+- 8 个必需章节根据 `CLAUDE.md` 中定义的项目设计文档标准进行验证——不在此重新列举。
+- Skill 内部的章节排序逻辑（先编写哪个章节）不单独测试——顺序遵循标准 GDD 模板。
+- CD-GDD-ALIGN 内的 pillar 对齐检查由 gate agent 整体评估——具体的 pillar 检查不在此进行 fixture 测试。

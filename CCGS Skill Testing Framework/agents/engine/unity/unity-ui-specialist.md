@@ -1,81 +1,81 @@
 # Agent Test Spec: unity-ui-specialist
 
 ## Agent Summary
-Domain: Unity UI Toolkit (UXML/USS), UGUI (Canvas), data binding, runtime UI performance, and UI input event handling.
-Does NOT own: UX flow design (ux-designer), visual art style (art-director).
-Model tier: Sonnet (default).
-No gate IDs assigned.
+Domain: Unity UI Toolkit (UXML/USS)、UGUI (Canvas)、数据绑定、运行时 UI 性能和 UI 输入事件处理。
+Does NOT own: UX 流程设计（ux-designer）、视觉美术风格（art-director）。
+Model tier: Sonnet (default)。
+No gate IDs assigned。
 
 ---
 
 ## Static Assertions (Structural)
 
-- [ ] `description:` field is present and domain-specific (references UI Toolkit / UGUI / Canvas / data binding)
-- [ ] `allowed-tools:` list includes Read, Write, Edit, Bash, Glob, Grep
-- [ ] Model tier is Sonnet (default for specialists)
-- [ ] Agent definition does not claim authority over UX flow design or visual art direction
+- [ ] `description:` 字段存在且为领域特定（引用 UI Toolkit / UGUI / Canvas / 数据绑定）
+- [ ] `allowed-tools:` 列表包含 Read, Write, Edit, Bash, Glob, Grep
+- [ ] Model tier 为 Sonnet（specialist 默认值）
+- [ ] Agent 定义不声称对 UX 流程设计或视觉美术方向拥有权限
 
 ---
 
 ## Test Cases
 
-### Case 1: In-domain request — appropriate output
-**Input:** "Implement an inventory UI screen using Unity UI Toolkit."
+### Case 1: 领域内请求 — 适当的输出
+**Input:** "使用 Unity UI Toolkit 实现背包 UI 界面。"
 **Expected behavior:**
-- Produces a UXML document defining the inventory panel structure (ListView, item templates, detail panel)
-- Produces USS styles for the inventory layout and item states (default, hover, selected)
-- Provides C# code binding the inventory data model to the UI via `INotifyValueChanged` or `IBindable`
-- Uses `ListView` with `makeItem` / `bindItem` callbacks for the scrollable item list
-- Does NOT produce the UX flow design — implements from a provided spec
+- 生成定义背包面板结构的 UXML 文档（ListView、物品模板、详情面板）
+- 生成背包布局和物品状态（默认、悬停、选中）的 USS 样式
+- 提供通过 `INotifyValueChanged` 或 `IBindable` 将背包数据模型绑定到 UI 的 C# 代码
+- 对可滚动物品列表使用带 `makeItem` / `bindItem` 回调的 `ListView`
+- 不生成 UX 流程设计 — 根据提供的规格实现
 
-### Case 2: Out-of-domain redirect
-**Input:** "Design the UX flow for the inventory — what happens when the player equips vs. drops an item."
+### Case 2: 领域外重定向
+**Input:** "设计背包的 UX 流程 — 玩家装备与丢弃物品时会发生什么。"
 **Expected behavior:**
-- Does NOT produce UX flow design
-- Explicitly states that interaction flow design belongs to `ux-designer`
-- Redirects the request to `ux-designer`
-- Notes it will implement whatever flow the ux-designer specifies
+- 不生成 UX 流程设计
+- 明确声明交互流程设计属于 `ux-designer`
+- 将请求重定向到 `ux-designer`
+- 注意它将实现 ux-designer 指定的任何流程
 
-### Case 3: UI Toolkit data binding for dynamic list
-**Input:** "The inventory list needs to update in real time as items are added or removed from the player's bag."
+### Case 3: 动态列表的 UI Toolkit 数据绑定
+**Input:** "背包列表需要在玩家背包中添加或移除物品时实时更新。"
 **Expected behavior:**
-- Produces the `ListView` pattern with a bound `ObservableList<T>` or event-driven refresh approach
-- Uses `ListView.Rebuild()` or `ListView.RefreshItems()` on the backing collection change event
-- Notes the performance considerations for large lists (virtualization via `makeItem`/`bindItem` pattern)
-- Does NOT use `QuerySelector` loops to update individual elements as a list refresh strategy — flags that as a performance antipattern
+- 生成带绑定的 `ObservableList<T>` 或事件驱动刷新方法的 `ListView` 模式
+- 在底层集合变更事件上使用 `ListView.Rebuild()` 或 `ListView.RefreshItems()`
+- 注意大型列表的性能考虑（通过 `makeItem`/`bindItem` 模式实现虚拟化）
+- 不使用 `QuerySelector` 循环作为列表刷新策略更新单个元素 — 将其标记为性能反模式
 
-### Case 4: Canvas performance — overdraw
-**Input:** "The main menu canvas is causing GPU overdraw warnings; there are many overlapping panels."
+### Case 4: Canvas 性能 — 过度绘制
+**Input:** "主菜单 Canvas 导致 GPU 过度绘制警告；存在许多重叠面板。"
 **Expected behavior:**
-- Identifies overdraw causes: multiple stacked canvases, full-screen overlay panels not culled when inactive
-- Recommends:
-  - Separate canvases for world-space, screen-space-overlay, and screen-space-camera layers
-  - Disable/deactivate panels instead of setting alpha to 0 (invisible alpha-0 panels still draw)
-  - Canvas Group + alpha for fade effects, not individual Image alpha
-- Notes UI Toolkit alternative if the project is in a migration position
+- 识别过度绘制原因：多个堆叠 Canvas、非活动时未剔除的全屏覆盖面板
+- 建议：
+  - 为世界空间、屏幕空间覆盖层和屏幕空间相机层分离 Canvas
+  - 禁用/停用面板而不是将 alpha 设置为 0（不可见的 alpha-0 面板仍然绘制）
+  - 使用 Canvas Group + alpha 实现淡入淡出效果，而非单个 Image alpha
+- 如果项目处于迁移阶段，注意 UI Toolkit 替代方案
 
-### Case 5: Context pass — Unity version
-**Input:** Project context: Unity 2022.3 LTS. Request: "Implement the settings panel with data binding."
+### Case 5: 上下文传递 — Unity 版本
+**Input:** 项目上下文：Unity 2022.3 LTS。请求："实现带数据绑定的设置面板。"
 **Expected behavior:**
-- Uses UI Toolkit with the 2022.3 LTS version of the runtime binding system
-- Notes that Unity 2022.3 introduced runtime data binding (as opposed to editor-only binding in earlier versions)
-- Does NOT use the Unity 6 enhanced binding API features if they are not available in 2022.3
-- Produces code compatible with the stated Unity version, with version-specific API notes
+- 使用 Unity 2022.3 LTS 版本的运行时绑定系统的 UI Toolkit
+- 注意 Unity 2022.3 引入了运行时数据绑定（相对于早期版本的编辑器专用绑定）
+- 如果 Unity 6 增强绑定 API 功能在 2022.3 中不可用，则不使用
+- 生成与所述 Unity 版本兼容的代码，附带版本特定 API 说明
 
 ---
 
 ## Protocol Compliance
 
-- [ ] Stays within declared domain (UI Toolkit, UGUI, data binding, UI performance)
-- [ ] Redirects UX flow design to ux-designer
-- [ ] Returns structured output (UXML, USS, C# binding code)
-- [ ] Uses the correct Unity UI framework version for the project's Unity version
-- [ ] Flags Canvas overdraw as a performance antipattern and provides specific remediation
-- [ ] Does not use alpha-0 as a hide/show pattern — uses SetActive() or VisualElement.style.display
+- [ ] 保持在声明领域内（UI Toolkit、UGUI、数据绑定、UI 性能）
+- [ ] 将 UX 流程设计重定向到 ux-designer
+- [ ] 返回结构化输出（UXML、USS、C# 绑定代码）
+- [ ] 对项目的 Unity 版本使用正确的 Unity UI 框架版本
+- [ ] 将 Canvas 过度绘制标记为性能反模式并提供具体修复方案
+- [ ] 不使用 alpha-0 作为隐藏/显示模式 — 使用 SetActive() 或 VisualElement.style.display
 
 ---
 
 ## Coverage Notes
-- Inventory UI (Case 1) should have a manual walkthrough doc in `production/qa/evidence/`
-- Dynamic list binding (Case 3) should have an integration test or automated interaction test
-- Canvas overdraw (Case 4) verifies the agent knows the correct Unity UI performance patterns
+- 背包 UI（Case 1）应在 `production/qa/evidence/` 中有手动演练文档
+- 动态列表绑定（Case 3）应有集成测试或自动化交互测试
+- Canvas 过度绘制（Case 4）验证 agent 了解正确的 Unity UI 性能模式

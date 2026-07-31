@@ -7,710 +7,683 @@ allowed-tools: Read, Glob, Grep, Write, Edit, WebSearch, WebFetch, Task, AskUser
 model: sonnet
 ---
 
-When this skill is invoked:
+当此 skill 被调用时：
 
-## 1. Parse Arguments
+## 1. 解析参数
 
-Four modes:
+四种模式：
 
-- **Full spec**: `/setup-engine godot 4.6` — engine and version provided
-- **Engine only**: `/setup-engine unity` — engine provided, version will be looked up
-- **No args**: `/setup-engine` — fully guided mode (engine recommendation + version)
-- **Refresh**: `/setup-engine refresh` — update reference docs (see Section 10)
-- **Upgrade**: `/setup-engine upgrade [old-version] [new-version]` — migrate to a new engine version (see Section 11)
+- **完整规格**：`/setup-engine godot 4.6` — 提供了引擎和版本
+- **仅引擎**：`/setup-engine unity` — 提供了引擎，版本将被查找
+- **无参数**：`/setup-engine` — 完全引导模式（引擎推荐 + 版本）
+- **刷新**：`/setup-engine refresh` — 更新参考文档（见第 10 节）
+- **升级**：`/setup-engine upgrade [旧版本] [新版本]` — 迁移到新引擎版本（见第 11 节）
 
 ---
 
-## 2. Guided Mode (No Arguments)
+## 2. 引导模式（无参数）
 
-If no engine is specified, run an interactive engine selection process:
+如果未指定引擎，运行交互式引擎选择过程：
 
-### Check for existing game concept
-- Read `design/gdd/game-concept.md` if it exists — extract genre, scope, platform
-  targets, art style, team size, and any engine recommendation from `/brainstorm`
-- If no concept exists, inform the user:
-  > "No game concept found. Consider running `/brainstorm` first to discover what
-  > you want to build — it will also recommend an engine. Or tell me about your
-  > game and I can help you pick."
+### 检查现有游戏概念
+- 如果存在，读取 `design/gdd/game-concept.md` — 提取类型、范围、平台
+  目标、艺术风格、团队规模以及来自 `/brainstorm` 的任何引擎推荐
+- 如果概念不存在，告知用户：
+  > "未找到游戏概念。考虑先运行 `/brainstorm` 发现你想
+  > 构建什么 — 它也会推荐一个引擎。或者告诉我你的
+  > 游戏，我可以帮助你选择。"
 
-### If the user wants to pick without a concept, ask in this order:
+### 如果用户想在没有概念的情况下选择，按以下顺序询问：
 
-**Question 1 — Prior experience** (ask this first, always, via `AskUserQuestion`):
-- Prompt: "Have you worked in any of these engines before?"
-- Options: `Godot` / `Unity` / `Unreal Engine 5` / `Multiple — I'll explain` / `None of them`
-- If they pick a specific engine → recommend that engine. Prior experience outweighs all other factors. Confirm with them and skip the matrix.
-- If "None" or "Multiple" → continue to the questions below.
+**问题 1 — 先前经验**（始终首先通过 `AskUserQuestion` 询问）：
+- 提示："你之前在这些引擎中工作过吗？"
+- 选项：`Godot` / `Unity` / `Unreal Engine 5` / `多个 — 我会解释` / `都没有`
+- 如果他们选择了特定引擎 → 推荐该引擎。先前经验胜过所有其他因素。与他们确认并跳过矩阵。
+- 如果选择"没有"或"多个" → 继续下面的问题。
 
-**Questions 2-6 — Decision matrix inputs** (only if no prior engine experience):
+**问题 2-6 — 决策矩阵输入**（仅在无先前引擎经验时）：
 
-**Question 2 — Target platform** (ask this second, always, via `AskUserQuestion` — platform eliminates or heavily weights engines before any other factor):
-- Prompt: "What platforms are you targeting for this game?"
-- Options: `PC (Steam / Epic)` / `Mobile (iOS / Android)` / `Console` / `Web / Browser` / `Multiple platforms`
-- Platform rules that feed directly into the recommendation:
-  - Mobile → Unity strongly preferred; Unreal is a poor fit; Godot is viable for simple mobile
-  - Console → Unity or Unreal; Godot console support requires third-party publishers or significant extra work
-  - Web → Godot exports cleanly to web; Unity WebGL is functional; Unreal has poor web support
-  - PC only → all engines viable; other factors decide
-  - Multiple → Unity is the most portable across PC/mobile/console
+**问题 2 — 目标平台**（始终第二个通过 `AskUserQuestion` 询问 — 平台在任何其他因素之前消除或严重加权引擎）：
+- 提示："你这款游戏的目标平台是什么？"
+- 选项：`PC (Steam / Epic)` / `Mobile (iOS / Android)` / `Console` / `Web / Browser` / `多个平台`
+- 直接输入推荐的平规则：
+  - Mobile → 强烈推荐 Unity；Unreal 不适合；Godot 对简单移动游戏可行
+  - Console → Unity 或 Unreal；Godot 主机支持需要第三方发行商或大量额外工作
+  - Web → Godot 干净地导出到 web；Unity WebGL 功能正常；Unreal 网络支持差
+  - 仅 PC → 所有引擎可行；其他因素决定
+  - 多个 → Unity 在 PC/移动/主机之间最具可移植性
 
-1. **What kind of game?** (2D, 3D, or both?)
-2. **Primary input method?** (keyboard/mouse, gamepad, touch, or mixed?)
-3. **Team size and experience?** (solo beginner, solo experienced, small team?)
-4. **Any strong language preferences?** (GDScript, C#, C++, visual scripting?)
-5. **Budget for engine licensing?** (free only, or commercial licenses OK?)
+1. **什么类型的游戏？**（2D、3D 或两者都有？）
+2. **主要输入方式？**（键盘/鼠标、手柄、触摸或混合？）
+3. **团队规模和经验？**（独立初学者、独立有经验、小团队？）
+4. **任何强烈的语言偏好？**（GDScript、C#、C++、可视化脚本？）
+5. **引擎许可预算？**（仅免费，还是可以商业许可？）
 
-### Produce a recommendation
+### 产生推荐
 
-Do NOT use a simple scoring matrix that eliminates engines. Instead, reason through the user's profile against the honest tradeoffs below, then present 1-2 recommendations with full context. Always end with the user choosing — never force a verdict.
+不要使用消除引擎的简单评分矩阵。相反，根据用户的配置文件与下面的诚实权衡进行推理，然后呈现 1-2 个带有完整上下文的推荐。始终以用户选择结束 — 永远不要强制判定。
 
-**Engine honest tradeoffs:**
+**引擎诚实权衡：**
 
 **Godot 4**
-- Genuine strengths: 2D (best in class), stylized/indie 3D, rapid iteration, free forever (MIT), open source, gentlest learning curve, best for solo devs who want full control
-- Real limitations: 3D ecosystem is thin compared to Unity/Unreal (fewer tutorials, assets, community answers for 3D-specific problems); large open-world 3D is very hard and largely untested in Godot; console export requires third-party publishers or significant extra work; smaller professional job market
-- Licensing reality: Truly free with no revenue thresholds ever. MIT license means you own everything.
-- Best fit: 2D games of any scope; stylized/atmospheric 3D; contained 3D worlds (not open-world); first game projects where learning curve matters; projects where budget is a hard constraint at any scale
+- 真正的优势：2D（同类最佳）、风格化/独立 3D、快速迭代、永远免费（MIT）、开源、最平缓的学习曲线、最适合想要完全控制的独立开发者
+- 真正的限制：3D 生态系统与 Unity/Unreal 相比薄弱（3D 特定问题的教程、资源、社区答案较少）；大型开放世界 3D 非常困难，在 Godot 中基本未经测试；主机导出需要第三方发行商或大量额外工作；较小的专业就业市场
+- 许可现实：真正免费，永远无收入门槛。MIT 许可意味着你拥有一切。
+- 最适合：任何范围的 2D 游戏；风格化/氛围 3D；封闭的 3D 世界（非开放世界）；学习曲线重要的第一个游戏项目；预算在任何规模都是硬性约束的项目
 
 **Unity**
-- Genuine strengths: Industry standard for mid-scope 3D and mobile; massive asset store and tutorial ecosystem; C# is a professional language; best console certification support for indie; strong community for almost every genre
-- Real limitations: Licensing controversy in 2023 damaged trust (runtime fee was proposed then walked back — the risk of policy changes remains real); C# has a steeper initial curve than GDScript; heavier editor than Godot for simple projects
-- Licensing reality: Free under $200K revenue AND 200K installs (Unity Personal/Plus). Only becomes costly if the game is genuinely successful — most indie games never hit this threshold. The 2023 controversy is worth knowing about but the actual current terms are reasonable for most indie developers.
-- Best fit: Mobile games; mid-scope 3D; games targeting console; developers with C# background; projects needing large asset store; teams of 2-5
+- 真正的优势：中档 3D 和移动的行业标准；庞大的资产商店和教程生态系统；C# 是专业语言；独立游戏最佳主机认证支持；几乎每种类型的强大社区
+- 真正的限制：2023 年的许可争议损害了信任（运行时费用被提出然后撤回 — 政策变更的风险仍然存在）；C# 比 GDScript 有更陡的初始曲线；对于简单项目编辑器比 Godot 重
+- 许可现实：在 200K 收入 AND 200K 安装以下免费（Unity Personal/Plus）。只有游戏真正成功时才变得昂贵 — 大多数独立游戏永远达不到这个门槛。2023 年的争议值得了解，但实际当前条款对大多数独立开发者来说是合理的。
+- 最适合：移动游戏；中档 3D；目标主机的游戏；有 C# 背景的开发者；需要大型资产商店的项目；2-5 人团队
 
 **Unreal Engine 5**
-- Genuine strengths: Best-in-class 3D visuals (Lumen, Nanite, Chaos physics); industry standard for AAA and photorealistic 3D; large open-world support is mature and production-tested; Blueprint visual scripting lowers C++ barrier; strong for games targeting high-end PC or console
-- Real limitations: Steepest learning curve; heaviest editor (slow compile times, large project sizes); overkill for stylized/2D/small-scope games; C++ is genuinely hard; not suitable for mobile or web; 5% royalty past $1M gross revenue
-- Licensing reality: 5% royalty only applies AFTER $1M gross revenue per title. For a first game or any game that doesn't reach $1M, it costs nothing. This threshold is high enough that most indie developers will never pay it.
-- Best fit: AAA-quality 3D; large open-world games; photorealistic visuals; developers with C++ experience or willing to use Blueprint; games targeting high-end PC/console where visual fidelity is a core selling point
+- 真正的优势：同类最佳的 3D 视觉效果（Lumen、Nanite、混沌物理）；AAA 和照片级逼真 3D 的行业标准；大型开放世界支持成熟且经过生产测试；Blueprint 可视化脚本降低 C++ 障碍；非常适合目标高端 PC 或主机的游戏
+- 真正的限制：最陡的学习曲线；最重的编辑器（编译时间长、项目规模大）；对风格化/2D/小范围游戏过度杀伤；C++ 真的很难；不适合移动或网络；超过 100 万美元总收入后 5% 版税
+- 许可现实：5% 版税仅适用于每个标题超过 100 万美元总收入之后。对于第一款游戏或任何未达到 100 万美元的游戏，它不花钱。这个门槛足够高，大多数独立开发者永远不会支付。
+- 最适合：AAA 质量 3D；大型开放世界游戏；照片级逼真视觉效果；有 C# 经验或愿意使用 Blueprint 的开发者；目标高端 PC/主机的游戏，视觉保真度是核心卖点
 
-**Genre-specific guidance** (factor this into the recommendation):
-- 2D any style → Godot strongly preferred
-- 3D stylized / atmospheric / contained world → Godot viable, Unity solid alternative
-- 3D open world (large, seamless) → Unity or Unreal; Godot is not production-proven for this
-- 3D photorealistic / AAA-quality → Unreal
-- Mobile-first → Unity strongly preferred
-- Console-first → Unity or Unreal; Godot console support requires extra work
-- Horror / narrative / walking sim → any engine; match to art style and team experience
-- Action RPG / Soulslike → Unity or Unreal for 3D; community support and assets matter here
-- Platformer 2D → Godot
-- Strategy / top-down / RTS → Godot or Unity depending on 2D vs 3D
+**类型特定指引**（将此纳入推荐）：
+- 2D 任何风格 → 强烈推荐 Godot
+- 3D 风格化 / 氛围 / 封闭世界 → Godot 可行，Unity 可靠替代
+- 3D 开放世界（大型、无缝）→ Unity 或 Unreal；Godot 对此未经生产验证
+- 3D 照片级逼真 / AAA 质量 → Unreal
+- 移动优先 → 强烈推荐 Unity
+- 主机优先 → Unity 或 Unreal；Godot 主机支持需要额外工作
+- 恐怖 / 叙事 / 步行模拟 → 任何引擎；匹配艺术风格和团队经验
+- 动作 RPG / 魂类 → 3D 用 Unity 或 Unreal；社区支持和资源在这里很重要
+- 2D 平台游戏 → Godot
+- 策略 / 俯视 / RTS → Godot 或 Unity 取决于 2D vs 3D
 
-**Recommendation format:**
-1. Show a comparison table with the user's specific factors as rows
-2. Give a primary recommendation with honest reasoning
-3. Name the best alternative and when to choose it instead
-4. Explicitly state: "This is a starting point, not a verdict — you can always migrate engines, and many developers switch between projects."
-5. Use `AskUserQuestion` to confirm: "Does this recommendation feel right, or would you like to explore a different engine?"
-   - Options: `[Primary engine] (Recommended)` / `[Alternative engine]` / `[Third engine]` / `Explore further` / `Type something`
+**推荐格式：**
+1. 显示一个比较表，以用户的特定因素为行
+2. 给出带有诚实推理的主要推荐
+3. 命名最佳替代方案以及何时选择它
+4. 明确声明："这是一个起点，不是判定 — 你总是可以迁移引擎，许多开发者在项目之间切换。"
+5. 使用 `AskUserQuestion` 确认："这个推荐感觉对吗，还是你想探索不同的引擎？"
+   - 选项：`[主要引擎] (推荐)` / `[替代引擎]` / `[第三引擎]` / `进一步探索` / `输入其他`
 
-**If the user picks "Explore further":**
-Use `AskUserQuestion` with concept-specific deep-dive topics. Always generate these options from the user's actual concept — do not use generic options. Always include at minimum:
-- The primary engine's specific limitations for this concept (e.g., "How far can Godot 3D actually go for [genre]?")
-- The alternative engine's specific tradeoffs for this concept
-- Language choice impact on this concept's technical challenges
-- Any concept-specific technical concern (e.g., adaptive audio, open-world streaming, multiplayer netcode)
+**如果用户选择"进一步探索"：**
+使用 `AskUserQuestion` 提供概念特定的深入主题。始终从用户的实际概念生成这些选项 — 不要使用通用选项。始终至少包括：
+- 主要引擎对此概念的具体限制（例如，"Godot 3D 对 [类型] 实际上能走多远？"）
+- 替代引擎对此概念的具体权衡
+- 语言选择对此概念技术挑战的影响
+- 任何概念特定的技术关注点（例如，自适应音频、开放世界流式传输、多人网络代码）
 
-The user can select multiple topics. Answer each selected topic in depth before returning to the engine confirmation question.
-
----
-
-## 3. Look Up Current Version
-
-Once the engine is chosen:
-
-- If version was provided, use it
-- If no version provided, use WebSearch to find the latest stable release:
-  - Search: `"[engine] latest stable version [current year]"`
-  - Confirm with the user: "The latest stable [engine] is [version]. Use this?"
+用户可以选择多个主题。在返回引擎确认问题之前，深入回答每个选定的主题。
 
 ---
 
-## 4. Update CLAUDE.md Technology Stack
+## 3. 查找当前版本
 
-### Language Selection (Godot only)
+一旦选择了引擎：
 
-If Godot was chosen, ask the user which language to use **before** showing the proposed Technology Stack:
+- 如果提供了版本，使用它
+- 如果未提供版本，使用 WebSearch 查找最新稳定版本：
+  - 搜索：`"[引擎] 最新稳定版本 [当前年份]"`
+  - 与用户确认："最新的稳定 [引擎] 是 [版本]。使用这个吗？"
 
-> "Godot supports two primary languages:
+---
+
+## 4. 更新 CLAUDE.md 技术栈
+
+### 语言选择（仅 Godot）
+
+如果选择了 Godot，在显示提议的技术栈之前询问用户要使用哪种语言：
+
+> "Godot 支持两种主要语言：
 >
->   **A) GDScript** — Python-like, Godot-native, fastest iteration. Best for beginners, solo devs, and teams coming from Python or Lua.
->   **B) C#** — .NET 8+, familiar to Unity developers, stronger IDE tooling (Rider / Visual Studio), slight performance advantage on heavy logic.
->   **C) Both** — GDScript for gameplay/UI scripting, C# for performance-critical systems. Advanced setup — requires .NET SDK alongside Godot.
+>   **A) GDScript** — 类似 Python，Godot 原生，最快迭代。最适合初学者、独立开发者和来自 Python 或 Lua 的团队。
+>   **B) C#** — .NET 8+，Unity 开发者熟悉，更强的 IDE 工具（Rider / Visual Studio），在重逻辑上有轻微性能优势。
+>   **C) 两者** — GDScript 用于游戏/UI 脚本，C# 用于性能关键系统。高级设置 — 需要 .NET SDK 与 Godot 一起。
 >
-> Which will this project primarily use?"
+> 这个项目主要使用哪种？"
 
-Record the choice. It determines the CLAUDE.md template, naming conventions, specialist routing, and which agent is spawned for code files throughout the project.
+记录选择。它决定了 CLAUDE.md 模板、命名约定、专家路由以及整个项目中为代码文件 spawn 哪个 agent。
 
 ---
 
-Read `CLAUDE.md` and show the user the proposed Technology Stack changes.
-Ask: "May I write these engine settings to `CLAUDE.md`?"
+读取 `CLAUDE.md` 并向用户展示提议的技术栈更改。
+询问："我可以将这些引擎设置写入 `CLAUDE.md` 吗？"
 
-Wait for confirmation before making any edits.
+在进行任何编辑之前等待确认。
 
-Update the Technology Stack section, replacing the `[CHOOSE]` placeholders with the actual values:
+更新技术栈部分，将 `[CHOOSE]` 占位符替换为实际值：
 
-**For Godot** — use the template matching the language chosen above. See **Appendix A** at the bottom of this skill for all three variants (GDScript, C#, Both).
+**对于 Godot** — 使用与上面选择的语言匹配的模板。见本 skill 底部的 **附录 A** 获取所有三种变体（GDScript、C#、两者）。
 
-**For Unity:**
+**对于 Unity：**
 ```markdown
-- **Engine**: Unity [version]
-- **Language**: C#
-- **Build System**: Unity Build Pipeline
-- **Asset Pipeline**: Unity Asset Import Pipeline + Addressables
+- **引擎**: Unity [版本]
+- **语言**: C#
+- **构建系统**: Unity Build Pipeline
+- **资源管线**: Unity Asset Import Pipeline + Addressables
 ```
 
-**For Unreal:**
+**对于 Unreal：**
 ```markdown
-- **Engine**: Unreal Engine [version]
-- **Language**: C++ (primary), Blueprint (gameplay prototyping)
-- **Build System**: Unreal Build Tool (UBT)
-- **Asset Pipeline**: Unreal Content Pipeline
+- **引擎**: Unreal Engine [版本]
+- **语言**: C++（主要），Blueprint（游戏原型）
+- **构建系统**: Unreal Build Tool (UBT)
+- **资源管线**: Unreal Content Pipeline
 ```
 
 ---
 
-## 5. Populate Technical Preferences
+## 5. 填充技术偏好
 
-After updating CLAUDE.md, create or update `.claude/docs/technical-preferences.md` with
-engine-appropriate defaults. Read the existing template first, then fill in:
+更新 CLAUDE.md 后，创建或更新 `.claude/docs/technical-preferences.md`，使用适合引擎的默认值。首先读取现有模板，然后填写：
 
-### Engine & Language Section
-- Fill from the engine choice made in step 4
+### 引擎和语言部分
+- 从步骤 4 的引擎选择中填写
 
-### Naming Conventions (engine defaults)
+### 命名约定（引擎默认值）
 
-**For Godot** — see **Appendix A** for GDScript, C#, and Both variants.
+**对于 Godot** — 见 **附录 A** 获取 GDScript、C# 和两者变体。
 
-**For Unity (C#):**
-- Classes: PascalCase (e.g., `PlayerController`)
-- Public fields/properties: PascalCase (e.g., `MoveSpeed`)
-- Private fields: _camelCase (e.g., `_moveSpeed`)
-- Methods: PascalCase (e.g., `TakeDamage()`)
-- Files: PascalCase matching class (e.g., `PlayerController.cs`)
-- Constants: PascalCase or UPPER_SNAKE_CASE
+**对于 Unity (C#)：**
+- 类：PascalCase（例如，`PlayerController`）
+- 公共字段/属性：PascalCase（例如，`MoveSpeed`）
+- 私有字段：_camelCase（例如，`_moveSpeed`）
+- 方法：PascalCase（例如，`TakeDamage()`）
+- 文件：PascalCase 匹配类（例如，`PlayerController.cs`）
+- 常量：PascalCase 或 UPPER_SNAKE_CASE
 
-**For Unreal (C++):**
-- Classes: Prefixed PascalCase (`A` for Actor, `U` for UObject, `F` for struct)
-- Variables: PascalCase (e.g., `MoveSpeed`)
-- Functions: PascalCase (e.g., `TakeDamage()`)
-- Booleans: `b` prefix (e.g., `bIsAlive`)
-- Files: Match class without prefix (e.g., `PlayerController.h`)
+**对于 Unreal (C++)：**
+- 类：前缀 PascalCase（`A` 表示 Actor，`U` 表示 UObject，`F` 表示 struct）
+- 变量：PascalCase（例如，`MoveSpeed`）
+- 函数：PascalCase（例如，`TakeDamage()`）
+- 布尔值：`b` 前缀（例如，`bIsAlive`）
+- 文件：匹配不带前缀的类（例如，`PlayerController.h`）
 
-### Input & Platform Section
+### 输入和平台部分
 
-Populate `## Input & Platform` using the answers gathered in Section 2 (or extracted
-from the game concept). Derive the values using this mapping:
+使用第 2 节中收集的答案（或从游戏概念中提取）填充 `## Input & Platform`。使用此映射推导值：
 
-| Platform target | Gamepad Support | Touch Support |
+| 平台目标 | 手柄支持 | 触摸支持 |
 |-----------------|-----------------|---------------|
-| PC only | Partial (recommended) | None |
-| Console | Full | None |
-| Mobile | None | Full |
-| PC + Console | Full | None |
-| PC + Mobile | Partial | Full |
-| Web | Partial | Partial |
+| 仅 PC | 部分（推荐） | 无 |
+| 主机 | 完整 | 无 |
+| 移动 | 无 | 完整 |
+| PC + 主机 | 完整 | 无 |
+| PC + 移动 | 部分 | 完整 |
+| Web | 部分 | 部分 |
 
-For **Primary Input**, use the dominant input for the game genre:
-- Action/RPG/platformer targeting console → Gamepad
-- Strategy/point-and-click/RTS → Keyboard/Mouse
-- Mobile game → Touch
-- Cross-platform → ask the user
+对于 **Primary Input**，使用游戏类型的主导输入：
+- 目标主机的动作/RPG/平台游戏 → 手柄
+- 策略/点击/RTS → 键盘/鼠标
+- 移动游戏 → 触摸
+- 跨平台 → 询问用户
 
-Present the derived values and ask the user to confirm or adjust before writing.
+展示推导出的值并要求用户在写入之前确认或调整。
 
-Example filled section:
+填充部分示例：
 ```markdown
 ## Input & Platform
-- **Target Platforms**: PC, Console
-- **Input Methods**: Keyboard/Mouse, Gamepad
-- **Primary Input**: Gamepad
-- **Gamepad Support**: Full
-- **Touch Support**: None
-- **Platform Notes**: All UI must support d-pad navigation. No hover-only interactions.
+- **目标平台**: PC, Console
+- **输入方式**: 键盘/鼠标, 手柄
+- **主要输入**: 手柄
+- **手柄支持**: 完整
+- **触摸支持**: 无
+- **平台备注**: 所有 UI 必须支持 d-pad 导航。无仅悬停交互。
 ```
 
-### Remaining Sections
-- **Performance Budgets**: Use `AskUserQuestion`:
-  - Prompt: "Should I set default performance budgets now, or leave them for later?"
-  - Options: `[A] Set defaults now (60fps, 16.6ms frame budget, engine-appropriate draw call limit)` / `[B] Leave as [TO BE CONFIGURED] — I'll set these when I know my target hardware`
-  - If [A]: populate with the suggested defaults. If [B]: leave as placeholder.
-- **Testing**: Suggest engine-appropriate framework (GUT for Godot, NUnit for Unity, etc.) — ask before adding.
-- **Forbidden Patterns**: Leave as placeholder — do NOT pre-populate.
-- **Allowed Libraries**: Leave as placeholder — do NOT pre-populate dependencies the project does not currently need. Only add a library here when it is actively being integrated, not speculatively.
+### 剩余部分
+- **性能预算**：使用 `AskUserQuestion`：
+  - 提示："我现在应该设置默认性能预算，还是留到以后？"
+  - 选项：`[A] 现在设置默认值（60fps、16.6ms 帧预算、引擎适当的 draw call 限制）` / `[B] 留为 [待配置] — 我了解目标硬件后会设置这些`
+  - 如果选择 [A]：用建议的默认值填充。如果选择 [B]：留为占位符。
+- **测试**：建议引擎适当的框架（Godot 用 GUT，Unity 用 NUnit 等）— 在添加前询问。
+- **禁止的模式**：留为占位符 — 不要预填充。
+- **允许的库**：留为占位符 — 不要预填充项目当前不需要的依赖。仅在此处主动集成库时添加，不要投机性地添加。
 
-> **Guardrail**: Never add speculative dependencies to Allowed Libraries. For example, do NOT add GodotSteam unless Steam integration is actively beginning in this session. Post-launch integrations should be added to Allowed Libraries when that work begins, not during engine setup.
+> **护栏**：永远不要向 Allowed Libraries 添加投机性依赖。例如，除非 Steam 集成正在本会话中积极开始，否则不要添加 GodotSteam。发布后集成应在工作开始时添加到 Allowed Libraries，而不是在引擎设置期间。
 
-### Engine Specialists Routing
+### 引擎专家路由
 
-Also populate the `## Engine Specialists` section in `technical-preferences.md` with the correct routing for the chosen engine:
+还要填充 `technical-preferences.md` 中的 `## Engine Specialists` 部分，使用所选引擎的正确路由：
 
-**For Godot** — see **Appendix A** for the routing table matching the language chosen.
+**对于 Godot** — 见 **附录 A** 获取与所选语言匹配的路由表。
 
-**For Unity:**
+**对于 Unity：**
 ```markdown
 ## Engine Specialists
-- **Primary**: unity-specialist
-- **Language/Code Specialist**: unity-specialist (C# review — primary covers it)
-- **Shader Specialist**: unity-shader-specialist (Shader Graph, HLSL, URP/HDRP materials)
-- **UI Specialist**: unity-ui-specialist (UI Toolkit UXML/USS, UGUI Canvas, runtime UI)
-- **Additional Specialists**: unity-dots-specialist (ECS, Jobs system, Burst compiler), unity-addressables-specialist (asset loading, memory management, content catalogs)
-- **Routing Notes**: Invoke primary for architecture and general C# code review. Invoke DOTS specialist for any ECS/Jobs/Burst code. Invoke shader specialist for rendering and visual effects. Invoke UI specialist for all interface implementation. Invoke Addressables specialist for asset management systems.
+- **主要**: unity-specialist
+- **语言/代码专家**: unity-specialist（C# 审查 — 主要的涵盖）
+- **Shader 专家**: unity-shader-specialist（Shader Graph、HLSL、URP/HDRP 材质）
+- **UI 专家**: unity-ui-specialist（UI Toolkit UXML/USS、UGUI Canvas、运行时 UI）
+- **额外专家**: unity-dots-specialist（ECS、Jobs 系统、Burst 编译器）、unity-addressables-specialist（资源加载、内存管理、内容目录）
+- **路由备注**: 调用主要进行架构和通用 C# 代码审查。调用 DOTS 专家进行任何 ECS/Jobs/Burst 代码。调用 shader 专家进行渲染和视觉效果。调用 UI 专家进行所有界面实现。调用 Addressables 专家进行资源管理系统。
 
-### File Extension Routing
+### 文件扩展名路由
 
-| File Extension / Type | Specialist to Spawn |
+| 文件扩展名 / 类型 | 要 Spawn 的专家 |
 |-----------------------|---------------------|
-| Game code (.cs files) | unity-specialist |
-| Shader / material files (.shader, .shadergraph, .mat) | unity-shader-specialist |
-| UI / screen files (.uxml, .uss, Canvas prefabs) | unity-ui-specialist |
-| Scene / prefab / level files (.unity, .prefab) | unity-specialist |
-| Native extension / plugin files (.dll, native plugins) | unity-specialist |
-| General architecture review | unity-specialist |
+| 游戏代码（.cs 文件） | unity-specialist |
+| Shader / 材质文件（.shader、.shadergraph、.mat） | unity-shader-specialist |
+| UI / 屏幕文件（.uxml、.uss、Canvas prefab） | unity-ui-specialist |
+| 场景 / prefab / 关卡文件（.unity、.prefab） | unity-specialist |
+| 原生扩展 / 插件文件（.dll、原生插件） | unity-specialist |
+| 通用架构审查 | unity-specialist |
 ```
 
-**For Unreal:**
+**对于 Unreal：**
 ```markdown
 ## Engine Specialists
-- **Primary**: unreal-specialist
-- **Language/Code Specialist**: ue-blueprint-specialist (Blueprint graphs) or unreal-specialist (C++)
-- **Shader Specialist**: unreal-specialist (no dedicated shader specialist — primary covers materials)
-- **UI Specialist**: ue-umg-specialist (UMG widgets, CommonUI, input routing, widget styling)
-- **Additional Specialists**: ue-gas-specialist (Gameplay Ability System, attributes, gameplay effects), ue-replication-specialist (property replication, RPCs, client prediction, netcode)
-- **Routing Notes**: Invoke primary for C++ architecture and broad engine decisions. Invoke Blueprint specialist for Blueprint graph architecture and BP/C++ boundary design. Invoke GAS specialist for all ability and attribute code. Invoke replication specialist for any multiplayer or networked systems. Invoke UMG specialist for all UI implementation.
+- **主要**: unreal-specialist
+- **语言/代码专家**: ue-blueprint-specialist（Blueprint 图）或 unreal-specialist（C++）
+- **Shader 专家**: unreal-specialist（无专门 shader 专家 — 主要的涵盖材质）
+- **UI 专家**: ue-umg-specialist（UMG 小部件、CommonUI、输入路由、小部件样式）
+- **额外专家**: ue-gas-specialist（Gameplay Ability System、属性、游戏效果）、ue-replication-specialist（属性复制、RPC、客户端预测、网络代码）
+- **路由备注**: 调用主要进行 C++ 架构和广泛的引擎决策。调用 Blueprint 专家进行 Blueprint 图架构和 BP/C++ 边界设计。调用 GAS 专家进行所有能力和属性代码。调用复制专家进行任何多人或网络系统。调用 UMG 专家进行所有 UI 实现。
 
-### File Extension Routing
+### 文件扩展名路由
 
-| File Extension / Type | Specialist to Spawn |
+| 文件扩展名 / 类型 | 要 Spawn 的专家 |
 |-----------------------|---------------------|
-| Game code (.cpp, .h files) | unreal-specialist |
-| Shader / material files (.usf, .ush, Material assets) | unreal-specialist |
-| UI / screen files (.umg, UMG Widget Blueprints) | ue-umg-specialist |
-| Scene / prefab / level files (.umap, .uasset) | unreal-specialist |
-| Native extension / plugin files (Plugin .uplugin, modules) | unreal-specialist |
-| Blueprint graphs (.uasset BP classes) | ue-blueprint-specialist |
-| General architecture review | unreal-specialist |
+| 游戏代码（.cpp、.h 文件） | unreal-specialist |
+| Shader / 材质文件（.usf、.ush、材质资源） | unreal-specialist |
+| UI / 屏幕文件（.umg、UMG Widget Blueprint） | ue-umg-specialist |
+| 场景 / prefab / 关卡文件（.umap、.uasset） | unreal-specialist |
+| 原生扩展 / 插件文件（Plugin .uplugin、模块） | unreal-specialist |
+| Blueprint 图（.uasset BP 类） | ue-blueprint-specialist |
+| 通用架构审查 | unreal-specialist |
 ```
 
-### Collaborative Step
-Present the filled-in preferences to the user. For Godot, include the chosen language and note where the full naming conventions and routing tables live:
-> "Here are the default technical preferences for [engine] ([language if Godot]). The naming conventions and specialist routing are in Appendix A of this skill — I'll apply the [GDScript/C#/Both] variant. Want to customize any of these, or shall I save the defaults?"
+### 协作步骤
+向用户展示填充后的偏好。对于 Godot，包括所选语言并注明完整命名约定和路由表的位置：
+> "这是 [引擎]（[如果是 Godot 则注明语言]）的默认技术偏好。命名约定和专家路由在本 skill 的附录 A 中 — 我将应用 [GDScript/C#/两者] 变体。想自定义其中任何一个，还是保存默认值？"
 
-For all other engines, present the defaults directly without referencing the appendix.
+对于所有其他引擎，直接展示默认值而不引用附录。
 
-Wait for approval before writing the file.
+在写入文件之前等待批准。
 
 ---
 
-## 6. Determine Knowledge Gap
+## 6. 确定知识缺口
 
-Check whether the engine version is likely beyond the LLM's training data.
+检查引擎版本是否可能超出 LLM 的训练数据。
 
-**Known approximate coverage** (update this as models change):
-- LLM knowledge cutoff: **May 2025**
-- Godot: training data likely covers up to ~4.3
-- Unity: training data likely covers up to ~2023.x / early 6000.x
-- Unreal: training data likely covers up to ~5.3 / early 5.4
+**已知大致覆盖范围**（随模型变化更新）：
+- LLM 知识截止日期：**2025 年 5 月**
+- Godot：训练数据可能覆盖到 ~4.3
+- Unity：训练数据可能覆盖到 ~2023.x / 早期 6000.x
+- Unreal：训练数据可能覆盖到 ~5.3 / 早期 5.4
 
-Compare the user's chosen version against these baselines:
+将用户选择的版本与这些基线进行比较：
 
-- **Within training data** → `LOW RISK` — reference docs optional but recommended
-- **Near the edge** → `MEDIUM RISK` — reference docs recommended
-- **Beyond training data** → `HIGH RISK` — reference docs required
+- **在训练数据内** → `低风险` — 参考文档可选但推荐
+- **接近边缘** → `中风险` — 推荐参考文档
+- **超出训练数据** → `高风险` — 需要参考文档
 
-Inform the user which category they're in and why.
+告知用户他们属于哪个类别以及为什么。
 
 ---
 
-## 7. Populate Engine Reference Docs
+## 7. 填充引擎参考文档
 
-### If WITHIN training data (LOW RISK):
+### 如果在训练数据内（低风险）：
 
-Create a minimal `docs/engine-reference/<engine>/VERSION.md`:
+创建最小的 `docs/engine-reference/<引擎>/VERSION.md`：
 
 ```markdown
-# [Engine] — Version Reference
+# [引擎] — 版本参考
 
-| Field | Value |
+| 字段 | 值 |
 |-------|-------|
-| **Engine Version** | [version] |
-| **Project Pinned** | [today's date] |
-| **LLM Knowledge Cutoff** | May 2025 |
-| **Risk Level** | LOW — version is within LLM training data |
+| **引擎版本** | [版本] |
+| **项目固定** | [今天的日期] |
+| **LLM 知识截止日期** | 2025 年 5 月 |
+| **风险级别** | 低 — 版本在 LLM 训练数据内 |
 
-## Note
+## 注意
 
-This engine version is within the LLM's training data. Engine reference
-docs are optional but can be added later if agents suggest incorrect APIs.
+此引擎版本在 LLM 的训练数据内。引擎参考
+文档是可选的，但如果 agent 建议错误的 API，以后可以添加。
 
-Run `/setup-engine refresh` to populate full reference docs at any time.
+随时运行 `/setup-engine refresh` 以填充完整参考文档。
 ```
 
-Do NOT create breaking-changes.md, deprecated-apis.md, etc. — they would
-add context cost with minimal value.
+不要创建 breaking-changes.md、deprecated-apis.md 等 — 它们会增加上下文成本而价值很小。
 
-### If BEYOND training data (MEDIUM or HIGH RISK):
+### 如果超出训练数据（中或高风险）：
 
-Create the full reference doc set by searching the web:
+通过搜索网络创建完整的参考文档集：
 
-1. **Search for the official migration/upgrade guide**:
-   - `"[engine] [old version] to [new version] migration guide"`
-   - `"[engine] [version] breaking changes"`
-   - `"[engine] [version] changelog"`
-   - `"[engine] [version] deprecated API"`
+1. **搜索官方迁移/升级指南**：
+   - `"[引擎] [旧版本] 到 [新版本] 迁移指南"`
+   - `"[引擎] [版本] 破坏性变更"`
+   - `"[引擎] [版本] 变更日志"`
+   - `"[引擎] [版本] 已弃用 API"`
 
-2. **Fetch and extract** from official documentation:
-   - Breaking changes between each version from the training cutoff to current
-   - Deprecated APIs with replacements
-   - New features and best practices
+2. **从官方文档获取并提取**：
+   - 从训练截止日期到当前版本之间的每个版本的破坏性变更
+   - 带替代方案的已弃用 API
+   - 新功能和最佳实践
 
-Ask: "May I create the engine reference docs under `docs/engine-reference/<engine>/`?"
+询问："我可以在 `docs/engine-reference/<引擎>/` 下创建引擎参考文档吗？"
 
-Wait for confirmation before writing any files.
+在写入任何文件之前等待确认。
 
-3. **Create the full reference directory**:
+3. **创建完整的参考目录**：
    ```
-   docs/engine-reference/<engine>/
-   ├── VERSION.md              # Version pin + knowledge gap analysis
-   ├── breaking-changes.md     # Version-by-version breaking changes
-   ├── deprecated-apis.md      # "Don't use X → Use Y" tables
-   ├── current-best-practices.md  # New practices since training cutoff
-   └── modules/                # Per-subsystem references (create as needed)
+   docs/engine-reference/<引擎>/
+   ├── VERSION.md              # 版本固定 + 知识缺口分析
+   ├── breaking-changes.md     # 逐版本破坏性变更
+   ├── deprecated-apis.md      # "不要使用 X → 使用 Y" 表格
+   ├── current-best-practices.md  # 训练截止日期以来的新实践
+   └── modules/                # 按子系统参考（按需创建）
    ```
 
-4. **Populate each file** using real data from the web searches, following
-   the format established in existing reference docs. Every file must have
-   a "Last verified: [date]" header.
+4. **使用网络搜索的真实数据填充每个文件**，遵循现有参考文档中建立的格式。每个文件必须有"Last verified: [日期]"标题。
 
-5. **For module files**: Only create modules for subsystems where significant
-   changes occurred. Don't create empty or minimal module files.
+5. **对于模块文件**：仅为发生重大变化的子系统创建模块。不要创建空的最小模块文件。
 
 ---
 
-## 8. Update CLAUDE.md Import
+## 8. 更新 CLAUDE.md 导入
 
-Ask: "May I update the `@` import in `CLAUDE.md` to point to the new engine reference?"
+询问："我可以更新 `CLAUDE.md` 中的 `@` 导入以指向新的引擎参考吗？"
 
-Wait for confirmation, then update the `@` import under "Engine Version Reference" to point to the
-correct engine:
+等待确认，然后更新"Engine Version Reference"下的 `@` 导入以指向正确的引擎：
 
 ```markdown
 ## Engine Version Reference
 
-@docs/engine-reference/<engine>/VERSION.md
+@docs/engine-reference/<引擎>/VERSION.md
 ```
 
-If the previous import pointed to a different engine (e.g., switching from
-Godot to Unity), update it.
+如果之前的导入指向不同的引擎（例如，从 Godot 切换到 Unity），更新它。
 
 ---
 
-## 9. Update Agent Instructions
+## 9. 更新 Agent 指令
 
-Ask: "May I add a Version Awareness section to the engine specialist agent files?" before making any edits.
+在进行任何编辑之前询问："我可以在引擎专家 agent 文件中添加 Version Awareness 部分吗？"
 
-For the chosen engine's specialist agents, verify they have a
-"Version Awareness" section. If not, add one following the pattern in
-the existing Godot specialist agents.
+对于所选引擎的专家 agent，验证它们是否有"Version Awareness"部分。如果没有，按照现有 Godot 专家 agent 中的模式添加一个。
 
-The section should instruct the agent to:
-1. Read `docs/engine-reference/<engine>/VERSION.md`
-2. Check deprecated APIs before suggesting code
-3. Check breaking changes for relevant version transitions
-4. Use WebSearch to verify uncertain APIs
+该部分应指示 agent：
+1. 读取 `docs/engine-reference/<引擎>/VERSION.md`
+2. 在建议代码之前检查已弃用 API
+3. 检查相关版本转换的破坏性变更
+4. 使用 WebSearch 验证不确定的 API
 
 ---
 
-## 10. Refresh Subcommand
+## 10. Refresh 子命令
 
-If invoked as `/setup-engine refresh`:
+如果作为 `/setup-engine refresh` 调用：
 
-1. Read the existing `docs/engine-reference/<engine>/VERSION.md` to get
-   the current engine and version
-2. Use WebSearch to check for:
-   - New engine releases since last verification
-   - Updated migration guides
-   - Newly deprecated APIs
-3. Update all reference docs with new findings
-4. Update "Last verified" dates on all modified files
-5. Report what changed
+1. 读取现有的 `docs/engine-reference/<引擎>/VERSION.md` 以获取当前引擎和版本
+2. 使用 WebSearch 检查：
+   - 自上次验证以来的新引擎版本
+   - 更新的迁移指南
+   - 新近弃用的 API
+3. 用新发现更新所有参考文档
+4. 更新所有修改文件的"Last verified"日期
+5. 报告变更内容
 
 ---
 
-## 11. Upgrade Subcommand
+## 11. Upgrade 子命令
 
-If invoked as `/setup-engine upgrade [old-version] [new-version]`:
+如果作为 `/setup-engine upgrade [旧版本] [新版本]` 调用：
 
-### Step 1 — Read Current Version State
+### 步骤 1 — 读取当前版本状态
 
-Read `docs/engine-reference/<engine>/VERSION.md` to confirm the current pinned
-version, risk level, and any migration note URLs already recorded. If
-`old-version` was not provided as an argument, use the pinned version from this
-file.
+读取 `docs/engine-reference/<引擎>/VERSION.md` 以确认当前固定的版本、风险级别和已记录的任何迁移笔记 URL。如果参数中未提供 `旧版本`，使用此文件中的固定版本。
 
-### Step 2 — Fetch Migration Guide
+### 步骤 2 — 获取迁移指南
 
-Use WebSearch and WebFetch to locate the official migration guide between
-`old-version` and `new-version`:
+使用 WebSearch 和 WebFetch 定位 `旧版本` 和 `新版本` 之间的官方迁移指南：
 
-- Search: `"[engine] [old-version] to [new-version] migration guide"`
-- Search: `"[engine] [new-version] breaking changes changelog"`
-- Fetch the migration guide URL from VERSION.md if one is already recorded,
-  or use the URL found via search.
+- 搜索：`"[引擎] [旧版本] 到 [新版本] 迁移指南"`
+- 搜索：`"[引擎] [新版本] 破坏性变更变更日志"`
+- 如果已记录，从 VERSION.md 获取迁移指南 URL，或使用通过搜索找到的 URL。
 
-Extract: renamed APIs, removed APIs, changed defaults, behavior changes, and
-any "must migrate" items.
+提取：重命名的 API、删除的 API、更改的默认值、行为变更以及任何"必须迁移"项。
 
-### Step 3 — Pre-Upgrade Audit
+### 步骤 3 — 升级前审计
 
-Scan `src/` for code that uses APIs known to be deprecated or changed in the
-target version:
+扫描 `src/` 中使用了目标版本中已知已弃用或更改的 API 的代码：
 
-- Use Grep to search for deprecated API names extracted from the migration
-  guide (e.g., old function names, removed node types, changed property names)
-- List each file that matches, with the specific API reference found
+- 使用 Grep 搜索从迁移指南中提取的已弃用 API 名称（例如，旧函数名、删除的节点类型、更改的属性名）
+- 列出每个匹配的文件以及找到的具体 API 引用
 
-Present the audit results as a table:
+将审计结果展示为表格：
 
 ```
-Pre-Upgrade Audit: [engine] [old-version] → [new-version]
+升级前审计: [引擎] [旧版本] → [新版本]
 ==========================================================
 
-Files requiring changes:
-  File                              | Deprecated API Found       | Effort
+需要更改的文件:
+  文件                              | 找到的已弃用 API       | 工作量
   --------------------------------- | -------------------------- | ------
-  src/gameplay/player_movement.gd   | old_api_name               | Low
-  src/ui/hud.gd                     | removed_node_type          | Medium
+  src/gameplay/player_movement.gd   | old_api_name               | 低
+  src/ui/hud.gd                     | removed_node_type          | 中
 
-Breaking changes to watch for:
-  - [change description from migration guide]
-  - [change description from migration guide]
+需要注意的破坏性变更:
+  - [迁移指南中的变更描述]
+  - [迁移指南中的变更描述]
 
-Recommended migration order (dependency-sorted):
-  1. [system/layer with fewest dependencies first]
-  2. [next system]
+推荐的迁移顺序（按依赖关系排序）:
+  1. [依赖最少的系统/层级优先]
+  2. [下一个系统]
   ...
 ```
 
-If no deprecated APIs are found in `src/`, report: "No deprecated API usage
-found in src/ — upgrade may be low-risk."
+如果在 `src/` 中未找到已弃用的 API，报告："在 src/ 中未找到已弃用的 API 使用 — 升级可能是低风险的。"
 
-### Step 4 — Confirm Before Updating
+### 步骤 4 — 更新前确认
 
-Ask the user before making any changes:
+在进行任何更改之前询问用户：
 
-> "Pre-upgrade audit complete. Found [N] files using deprecated APIs.
-> Proceed with upgrading VERSION.md to [new-version]?
-> (This will update the pinned version and add migration notes — it does NOT
-> change any source files. Source migration is done manually or via stories.)"
+> "升级前审计完成。发现 [N] 个文件使用已弃用的 API。
+> 继续将 VERSION.md 升级到 [新版本] 吗？
+> （这将更新固定版本并添加迁移笔记 — 它不会
+> 更改任何源文件。源迁移是手动或通过故事完成的。）"
 
-Wait for explicit confirmation before continuing.
+在继续之前等待明确确认。
 
-### Step 5 — Update VERSION.md
+### 步骤 5 — 更新 VERSION.md
 
-After confirmation:
+确认后：
 
-1. Update `docs/engine-reference/<engine>/VERSION.md`:
-   - `Engine Version` → `[new-version]`
-   - `Project Pinned` → today's date
-   - `Last Docs Verified` → today's date
-   - Re-evaluate and update the `Risk Level` and `Post-Cutoff Version Timeline`
-     table if the new version falls beyond the LLM knowledge cutoff
-   - Add a `## Migration Notes — [old-version] → [new-version]` section
-     containing: migration guide URL, key breaking changes, deprecated APIs
-     found in this project, and recommended migration order from the audit
+1. 更新 `docs/engine-reference/<引擎>/VERSION.md`：
+   - `Engine Version` → `[新版本]`
+   - `Project Pinned` → 今天的日期
+   - `Last Docs Verified` → 今天的日期
+   - 如果新版本超出 LLM 知识截止日期，重新评估并更新 `Risk Level` 和 `Post-Cutoff Version Timeline` 表格
+   - 添加 `## Migration Notes — [旧版本] → [新版本]` 部分，包含：迁移指南 URL、关键破坏性变更、此项目中发现的已弃用 API 以及审计中的推荐迁移顺序
 
-2. If `breaking-changes.md` or `deprecated-apis.md` exist in the engine
-   reference directory, append the new version's changes to those files.
+2. 如果引擎参考目录中存在 `breaking-changes.md` 或 `deprecated-apis.md`，将新版本的更改追加到这些文件中。
 
-### Step 6 — Post-Upgrade Reminder
+### 步骤 6 — 升级后提醒
 
-After updating VERSION.md, output:
+更新 VERSION.md 后，输出：
 
 ```
-VERSION.md updated: [engine] [old-version] → [new-version]
+VERSION.md 已更新: [引擎] [旧版本] → [新版本]
 
-Next steps:
-1. Migrate deprecated API usages in the [N] files listed above
-2. Run /setup-engine refresh after upgrading the actual engine binary to
-   verify no new deprecations were missed
-3. Run /architecture-review — the engine upgrade may invalidate ADRs that
-   reference specific APIs or engine capabilities
-4. If any ADRs are invalidated, run /propagate-design-change to update
-   downstream stories
+后续步骤:
+1. 迁移上面列出的 [N] 个文件中的已弃用 API 使用
+2. 在实际升级引擎二进制文件后运行 /setup-engine refresh 以验证没有遗漏新的弃用
+3. 运行 /architecture-review — 引擎升级可能使引用特定 API 或引擎功能的 ADR 失效
+4. 如果任何 ADR 失效，运行 /propagate-design-change 以更新下游故事
 ```
 
 ---
 
-## 12. Output Summary
+## 12. 输出摘要
 
-After setup is complete, output:
+设置完成后，输出：
 
 ```
-Engine Setup Complete
+引擎设置完成
 =====================
-Engine:          [name] [version]
-Language:        [GDScript | C# | GDScript + C# | C# | C++ + Blueprint]
-Knowledge Risk:  [LOW/MEDIUM/HIGH]
-Reference Docs:  [created/skipped]
-CLAUDE.md:       [updated]
-Tech Prefs:      [created/updated]
-Agent Config:    [verified]
+引擎:          [名称] [版本]
+语言:        [GDScript | C# | GDScript + C# | C# | C++ + Blueprint]
+知识风险:  [低/中/高]
+参考文档:  [已创建/已跳过]
+CLAUDE.md:       [已更新]
+技术偏好:      [已创建/已更新]
+Agent 配置:    [已验证]
 
-Next Steps:
-1. Review docs/engine-reference/<engine>/VERSION.md
-2. [If from /brainstorm] Run /map-systems to decompose your concept into individual systems
-3. [If from /brainstorm] Run /design-system to author per-system GDDs (guided, section-by-section)
-4. [If from /brainstorm] Run /prototype [core-mechanic] to validate the core idea before writing GDDs
-5. [If fresh start] Run /brainstorm to discover your game concept
-6. Create your first milestone: /sprint-plan new
+后续步骤:
+1. 审查 docs/engine-reference/<引擎>/VERSION.md
+2. [如果来自 /brainstorm] 运行 /map-systems 将你的概念分解为各个系统
+3. [如果来自 /brainstorm] 运行 /design-system 编写每系统 GDD（引导式，逐节）
+4. [如果来自 /brainstorm] 运行 /prototype [核心机制] 在编写 GDD 之前验证核心想法
+5. [如果是全新开始] 运行 /brainstorm 发现你的游戏概念
+6. 创建你的第一个里程碑: /sprint-plan new
 ```
 
 ---
 
-Verdict: **COMPLETE** — engine configured and reference docs populated.
+判定：**COMPLETE** — 引擎已配置且参考文档已填充。
 
-## Guardrails
+## 护栏
 
-- NEVER guess an engine version — always verify via WebSearch or user confirmation
-- NEVER overwrite existing reference docs without asking — append or update
-- If reference docs already exist for a different engine, ask before replacing
-- Always show the user what you're about to change before making CLAUDE.md edits
-- If WebSearch returns ambiguous results, show the user and let them decide
-- When the user chose **GDScript**: copy the GDScript CLAUDE.md template from Appendix A1 exactly. NEVER add "C++ via GDExtension" to the Language field. GDScript projects may use GDExtension, but it is not a primary project language. The `godot-gdextension-specialist` in the routing table is available for when native extensions are needed — it does not make C++ a project language.
-
----
-
-## Appendix A — Godot Language Configuration
-
-All Godot-specific variants for language-dependent configuration. Referenced from Sections 4 and 5 — only relevant when Godot is the chosen engine. Use the subsection matching the language chosen in Section 4.
+- 永远不要猜测引擎版本 — 始终通过 WebSearch 或用户确认验证
+- 永远不要未经询问就覆盖现有参考文档 — 追加或更新
+- 如果参考文档已存在于不同引擎，在替换前询问
+- 在进行 CLAUDE.md 编辑之前始终向用户展示你将要更改的内容
+- 如果 WebSearch 返回模糊结果，向用户展示并让他们决定
+- 当用户选择 **GDScript** 时：从附录 A1 精确复制 GDScript CLAUDE.md 模板。永远不要在 Language 字段中添加"C++ via GDExtension"。GDScript 项目可能使用 GDExtension，但它不是主要项目语言。路由表中的 `godot-gdextension-specialist` 在需要原生扩展时可用 — 它不会使 C++ 成为项目语言。
 
 ---
 
-### A1. CLAUDE.md Technology Stack Templates
+## 附录 A — Godot 语言配置
 
-**GDScript:**
+所有语言依赖配置的 Godot 特定变体。从第 4 和第 5 节引用 — 仅在 Godot 是所选引擎时相关。使用与第 4 节中选择的语言匹配的子部分。
+
+---
+
+### A1. CLAUDE.md 技术栈模板
+
+**GDScript：**
 ```markdown
-- **Engine**: Godot [version]
-- **Language**: GDScript
-- **Build System**: SCons (engine), Godot Export Templates
-- **Asset Pipeline**: Godot Import System + custom resource pipeline
+- **引擎**: Godot [版本]
+- **语言**: GDScript
+- **构建系统**: SCons（引擎），Godot Export Templates
+- **资源管线**: Godot Import System + 自定义资源管线
 ```
 
-> **Guardrail**: When using this GDScript template, write the Language field as exactly "`GDScript`" — no additions. Do NOT append "C++ via GDExtension" or any other language. The C# template below includes GDExtension because C# projects commonly wrap native code; GDScript projects do not.
+> **护栏**：使用此 GDScript 模板时，将 Language 字段写为精确的 "`GDScript`" — 无添加。不要追加"C++ via GDExtension"或任何其他语言。下面的 C# 模板包含 GDExtension，因为 C# 项目通常包装原生代码；GDScript 项目不这样做。
 
-**C#:**
+**C#：**
 ```markdown
-- **Engine**: Godot [version]
-- **Language**: C# (.NET 8+, primary), C++ via GDExtension (native plugins only)
-- **Build System**: .NET SDK + Godot Export Templates
-- **Asset Pipeline**: Godot Import System + custom resource pipeline
+- **引擎**: Godot [版本]
+- **语言**: C#（.NET 8+，主要），C++ via GDExtension（仅原生插件）
+- **构建系统**: .NET SDK + Godot Export Templates
+- **资源管线**: Godot Import System + 自定义资源管线
 ```
 
-**Both — GDScript + C#:**
+**两者 — GDScript + C#：**
 ```markdown
-- **Engine**: Godot [version]
-- **Language**: GDScript (gameplay/UI scripting), C# (performance-critical systems), C++ via GDExtension (native only)
-- **Build System**: .NET SDK + Godot Export Templates
-- **Asset Pipeline**: Godot Import System + custom resource pipeline
+- **引擎**: Godot [版本]
+- **语言**: GDScript（游戏/UI 脚本），C#（性能关键系统），C++ via GDExtension（仅原生）
+- **构建系统**: .NET SDK + Godot Export Templates
+- **资源管线**: Godot Import System + 自定义资源管线
 ```
 
 ---
 
-### A2. Naming Conventions
+### A2. 命名约定
 
-**GDScript:**
-- Classes: PascalCase (e.g., `PlayerController`)
-- Variables/functions: snake_case (e.g., `move_speed`)
-- Signals: snake_case past tense (e.g., `health_changed`)
-- Files: snake_case matching class (e.g., `player_controller.gd`)
-- Scenes: PascalCase matching root node (e.g., `PlayerController.tscn`)
-- Constants: UPPER_SNAKE_CASE (e.g., `MAX_HEALTH`)
+**GDScript：**
+- 类：PascalCase（例如，`PlayerController`）
+- 变量/函数：snake_case（例如，`move_speed`）
+- 信号：snake_case 过去时（例如，`health_changed`）
+- 文件：snake_case 匹配类（例如，`player_controller.gd`）
+- 场景：PascalCase 匹配根节点（例如，`PlayerController.tscn`）
+- 常量：UPPER_SNAKE_CASE（例如，`MAX_HEALTH`）
 
-**C#:**
-- Classes: PascalCase (`PlayerController`) — must also be `partial`
-- Public properties/fields: PascalCase (`MoveSpeed`, `JumpVelocity`)
-- Private fields: `_camelCase` (`_currentHealth`, `_isGrounded`)
-- Methods: PascalCase (`TakeDamage()`, `GetCurrentHealth()`)
-- Signal delegates: PascalCase + `EventHandler` suffix (`HealthChangedEventHandler`)
-- Files: PascalCase matching class (`PlayerController.cs`)
-- Scenes: PascalCase matching root node (`PlayerController.tscn`)
-- Constants: PascalCase (`MaxHealth`, `DefaultMoveSpeed`)
+**C#：**
+- 类：PascalCase（`PlayerController`）— 还必须为 `partial`
+- 公共属性/字段：PascalCase（`MoveSpeed`、`JumpVelocity`）
+- 私有字段：`_camelCase`（`_currentHealth`、`_isGrounded`）
+- 方法：PascalCase（`TakeDamage()`、`GetCurrentHealth()`）
+- 信号委托：PascalCase + `EventHandler` 后缀（`HealthChangedEventHandler`）
+- 文件：PascalCase 匹配类（`PlayerController.cs`）
+- 场景：PascalCase 匹配根节点（`PlayerController.tscn`）
+- 常量：PascalCase（`MaxHealth`、`DefaultMoveSpeed`）
 
-**Both — GDScript + C#:**
-Use GDScript conventions for `.gd` files and C# conventions for `.cs` files. Mixed-language files do not exist — the boundary is per-file. When in doubt about which language a new system should use, ask the user and record the decision in `technical-preferences.md`.
+**两者 — GDScript + C#：**
+对 `.gd` 文件使用 GDScript 约定，对 `.cs` 文件使用 C# 约定。混合语言文件不存在 — 边界是按文件的。当不确定新系统应使用哪种语言时询问用户并将决定记录在 `technical-preferences.md` 中。
 
 ---
 
-### A3. Engine Specialists Routing
+### A3. 引擎专家路由
 
-**GDScript:**
+**GDScript：**
 ```markdown
 ## Engine Specialists
-- **Primary**: godot-specialist
-- **Language/Code Specialist**: godot-gdscript-specialist (all .gd files)
-- **Shader Specialist**: godot-shader-specialist (.gdshader files, VisualShader resources)
-- **UI Specialist**: godot-specialist (no dedicated UI specialist — primary covers all UI)
-- **Additional Specialists**: godot-gdextension-specialist (GDExtension / native C++ bindings only)
-- **Routing Notes**: Invoke primary for architecture decisions, ADR validation, and cross-cutting code review. Invoke GDScript specialist for code quality, signal architecture, static typing enforcement, and GDScript idioms. Invoke shader specialist for material design and shader code. Invoke GDExtension specialist only when native extensions are involved.
+- **主要**: godot-specialist
+- **语言/代码专家**: godot-gdscript-specialist（所有 .gd 文件）
+- **Shader 专家**: godot-shader-specialist（.gdshader 文件，VisualShader 资源）
+- **UI 专家**: godot-specialist（无专门 UI 专家 — 主要的涵盖所有 UI）
+- **额外专家**: godot-gdextension-specialist（GDExtension / 仅原生 C++ 绑定）
+- **路由备注**: 调用主要进行架构决策、ADR 验证和跨领域代码审查。调用 GDScript 专家进行代码质量、信号架构、静态类型强制和 GDScript 习惯用法。调用 shader 专家进行材质设计和 shader 代码。仅在涉及原生扩展时调用 GDExtension 专家。
 
-### File Extension Routing
+### 文件扩展名路由
 
-| File Extension / Type | Specialist to Spawn |
+| 文件扩展名 / 类型 | 要 Spawn 的专家 |
 |-----------------------|---------------------|
-| Game code (.gd files) | godot-gdscript-specialist |
-| Shader / material files (.gdshader, VisualShader) | godot-shader-specialist |
-| UI / screen files (Control nodes, CanvasLayer) | godot-specialist |
-| Scene / prefab / level files (.tscn, .tres) | godot-specialist |
-| Native extension / plugin files (.gdextension, C++) | godot-gdextension-specialist |
-| General architecture review | godot-specialist |
+| 游戏代码（.gd 文件） | godot-gdscript-specialist |
+| Shader / 材质文件（.gdshader、VisualShader） | godot-shader-specialist |
+| UI / 屏幕文件（Control 节点、CanvasLayer） | godot-specialist |
+| 场景 / prefab / 关卡文件（.tscn、.tres） | godot-specialist |
+| 原生扩展 / 插件文件（.gdextension、C++） | godot-gdextension-specialist |
+| 通用架构审查 | godot-specialist |
 ```
 
-**C#:**
+**C#：**
 ```markdown
 ## Engine Specialists
-- **Primary**: godot-specialist
-- **Language/Code Specialist**: godot-csharp-specialist (all .cs files)
-- **Shader Specialist**: godot-shader-specialist (.gdshader files, VisualShader resources)
-- **UI Specialist**: godot-specialist (no dedicated UI specialist — primary covers all UI)
-- **Additional Specialists**: godot-gdextension-specialist (GDExtension / native C++ bindings only)
-- **Routing Notes**: Invoke primary for architecture decisions, ADR validation, and cross-cutting code review. Invoke C# specialist for code quality, [Signal] delegate patterns, [Export] attributes, .csproj management, and C#-specific Godot idioms. Invoke shader specialist for material design and shader code. Invoke GDExtension specialist only when native C++ plugins are involved.
+- **主要**: godot-specialist
+- **语言/代码专家**: godot-csharp-specialist（所有 .cs 文件）
+- **Shader 专家**: godot-shader-specialist（.gdshader 文件，VisualShader 资源）
+- **UI 专家**: godot-specialist（无专门 UI 专家 — 主要的涵盖所有 UI）
+- **额外专家**: godot-gdextension-specialist（GDExtension / 仅原生 C++ 绑定）
+- **路由备注**: 调用主要进行架构决策、ADR 验证和跨领域代码审查。调用 C# 专家进行代码质量、[Signal] 委托模式、[Export] 属性、.csproj 管理和 C# 特定的 Godot 习惯用法。调用 shader 专家进行材质设计和 shader 代码。仅在涉及原生 C++ 插件时调用 GDExtension 专家。
 
-### File Extension Routing
+### 文件扩展名路由
 
-| File Extension / Type | Specialist to Spawn |
+| 文件扩展名 / 类型 | 要 Spawn 的专家 |
 |-----------------------|---------------------|
-| Game code (.cs files) | godot-csharp-specialist |
-| Shader / material files (.gdshader, VisualShader) | godot-shader-specialist |
-| UI / screen files (Control nodes, CanvasLayer) | godot-specialist |
-| Scene / prefab / level files (.tscn, .tres) | godot-specialist |
-| Project config (.csproj, NuGet) | godot-csharp-specialist |
-| Native extension / plugin files (.gdextension, C++) | godot-gdextension-specialist |
-| General architecture review | godot-specialist |
+| 游戏代码（.cs 文件） | godot-csharp-specialist |
+| Shader / 材质文件（.gdshader、VisualShader） | godot-shader-specialist |
+| UI / 屏幕文件（Control 节点、CanvasLayer） | godot-specialist |
+| 场景 / prefab / 关卡文件（.tscn、.tres） | godot-specialist |
+| 项目配置（.csproj、NuGet） | godot-csharp-specialist |
+| 原生扩展 / 插件文件（.gdextension、C++） | godot-gdextension-specialist |
+| 通用架构审查 | godot-specialist |
 ```
 
-**Both — GDScript + C#:**
+**两者 — GDScript + C#：**
 ```markdown
 ## Engine Specialists
-- **Primary**: godot-specialist
-- **GDScript Specialist**: godot-gdscript-specialist (.gd files — gameplay/UI scripts)
-- **C# Specialist**: godot-csharp-specialist (.cs files — performance-critical systems)
-- **Shader Specialist**: godot-shader-specialist (.gdshader files, VisualShader resources)
-- **UI Specialist**: godot-specialist (no dedicated UI specialist — primary covers all UI)
-- **Additional Specialists**: godot-gdextension-specialist (GDExtension / native C++ bindings only)
-- **Routing Notes**: Invoke primary for cross-language architecture decisions and which systems belong in which language. Invoke GDScript specialist for .gd files. Invoke C# specialist for .cs files and .csproj management. Prefer signals over direct cross-language method calls at the boundary.
+- **主要**: godot-specialist
+- **GDScript 专家**: godot-gdscript-specialist（.gd 文件 — 游戏/UI 脚本）
+- **C# 专家**: godot-csharp-specialist（.cs 文件 — 性能关键系统）
+- **Shader 专家**: godot-shader-specialist（.gdshader 文件，VisualShader 资源）
+- **UI 专家**: godot-specialist（无专门 UI 专家 — 主要的涵盖所有 UI）
+- **额外专家**: godot-gdextension-specialist（GDExtension / 仅原生 C++ 绑定）
+- **路由备注**: 调用主要进行跨语言架构决策以及哪些系统属于哪种语言。调用 GDScript 专家处理 .gd 文件。调用 C# 专家处理 .cs 文件和 .csproj 管理。在边界处优先使用信号而不是直接的跨语言方法调用。
 
-### File Extension Routing
+### 文件扩展名路由
 
-| File Extension / Type | Specialist to Spawn |
+| 文件扩展名 / 类型 | 要 Spawn 的专家 |
 |-----------------------|---------------------|
-| Game code (.gd files) | godot-gdscript-specialist |
-| Game code (.cs files) | godot-csharp-specialist |
-| Cross-language boundary decisions | godot-specialist |
-| Shader / material files (.gdshader, VisualShader) | godot-shader-specialist |
-| UI / screen files (Control nodes, CanvasLayer) | godot-specialist |
-| Scene / prefab / level files (.tscn, .tres) | godot-specialist |
-| Project config (.csproj, NuGet) | godot-csharp-specialist |
-| Native extension / plugin files (.gdextension, C++) | godot-gdextension-specialist |
-| General architecture review | godot-specialist |
+| 游戏代码（.gd 文件） | godot-gdscript-specialist |
+| 游戏代码（.cs 文件） | godot-csharp-specialist |
+| 跨语言边界决策 | godot-specialist |
+| Shader / 材质文件（.gdshader、VisualShader） | godot-shader-specialist |
+| UI / 屏幕文件（Control 节点、CanvasLayer） | godot-specialist |
+| 场景 / prefab / 关卡文件（.tscn、.tres） | godot-specialist |
+| 项目配置（.csproj、NuGet） | godot-csharp-specialist |
+| 原生扩展 / 插件文件（.gdextension、C++） | godot-gdextension-specialist |
+| 通用架构审查 | godot-specialist |
 ```

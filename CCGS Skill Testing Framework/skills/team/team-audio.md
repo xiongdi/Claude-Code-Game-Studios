@@ -2,16 +2,7 @@
 
 ## Skill Summary
 
-Orchestrates the audio team through a four-step pipeline: audio direction
-(audio-director) → sound design + accessibility review in parallel (sound-designer
-+ accessibility-specialist) → technical implementation + engine validation in
-parallel (technical-artist + primary engine specialist) → code integration
-(gameplay-programmer). Reads relevant GDDs, the sound bible (if present), and
-existing audio asset lists before spawning agents. Compiles all outputs into an
-audio design document saved to `design/gdd/audio-[feature].md`. Uses
-`AskUserQuestion` at each step transition. Verdict is COMPLETE when the audio
-design document is produced. Skips the engine specialist spawn gracefully when no
-engine is configured.
+协调音频团队完成一个四步流程：audio direction（audio-director）→ sound design + accessibility review 并行（sound-designer + accessibility-specialist）→ technical implementation + engine validation 并行（technical-artist + 主要引擎专家）→ code integration（gameplay-programmer）。在派生 agent 之前读取相关 GDD、sound bible（如存在）和现有音频资源列表。将所有输出编译为一份音频设计文档，保存到 `design/gdd/audio-[feature].md`。在每个步骤转换时使用 `AskUserQuestion`。当音频设计文档生成后裁决为 COMPLETE。当未配置引擎时优雅地跳过引擎专家派生。
 
 ---
 

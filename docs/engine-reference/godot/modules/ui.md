@@ -1,82 +1,81 @@
-# Godot UI — Quick Reference
+# Godot UI — 快速参考
 
 Last verified: 2026-02-12 | Engine: Godot 4.6
 
-## What Changed Since ~4.3 (LLM Cutoff)
+## 自 ~4.3 版本（LLM 截止）以来的变更
 
-### 4.6 Changes
-- **Dual-focus system**: Mouse/touch focus is now SEPARATE from keyboard/gamepad focus
-  - Visual feedback differs by input method
-  - Custom focus implementations may need updating
-- **TabContainer**: Tab properties editable directly in Inspector
-- **TileMapLayer scene tile rotation**: Scene tiles can be rotated like atlas tiles
+### 4.6 变更
+- **双焦点系统**: 鼠标/触摸焦点现在与键盘/手柄焦点分离
+  - 视觉反馈因输入方式而异
+  - 自定义焦点实现可能需要更新
+- **TabContainer**: Tab 属性可直接在 Inspector 中编辑
+- **TileMapLayer 场景 tile 旋转**: 场景 tile 可以像 atlas tile 一样旋转
 
-### 4.5 Changes
-- **FoldableContainer**: New accordion-style UI node for collapsible sections
-- **Recursive Control behavior**: Disable mouse/focus for entire node hierarchies
-  with a single property
-- **Screen reader support**: Control nodes work with AccessKit
-- **Live translation preview**: Test different locales in-editor
-- **`RichTextLabel.push_meta`**: Added optional `tooltip` parameter (from 4.4)
+### 4.5 变更
+- **FoldableContainer**: 新的手风琴式 UI 节点，用于可折叠部分
+- **递归 Control 行为**: 单个属性禁用整个节点层级的鼠标/焦点
+- **Screen reader 支持**: Control 节点与 AccessKit 配合工作
+- **实时翻译预览**: 在编辑器中测试不同区域设置
+- **`RichTextLabel.push_meta`**: 添加了可选的 `tooltip` 参数（自 4.4 起）
 
-### 4.4 Changes
-- **`GraphEdit.connect_node`**: Added optional `keep_alive` parameter
+### 4.4 变更
+- **`GraphEdit.connect_node`**: 添加了可选的 `keep_alive` 参数
 
-## Current API Patterns
+## 当前 API 模式
 
-### Theme and Style (4.6)
+### 主题和样式（4.6）
 ```gdscript
-# Editor uses new "Modern" theme by default
-# For game UI, use custom themes as before:
+# 编辑器默认使用新的 "Modern" 主题
+# 对于游戏 UI，像以前一样使用自定义主题：
 var theme := Theme.new()
 theme.set_color(&"font_color", &"Label", Color.WHITE)
 theme.set_font_size(&"font_size", &"Label", 24)
 ```
 
-### Focus Management (4.6 — CHANGED)
+### 焦点管理（4.6 — 已变更）
 ```gdscript
-# Keyboard/gamepad focus (grab_focus still works)
+# 键盘/手柄焦点（grab_focus 仍然有效）
 func _ready() -> void:
     %StartButton.grab_focus()
 
-# IMPORTANT: In 4.6, mouse hover is separate from keyboard focus
-# Both can be active simultaneously on different controls
-# Test your UI with BOTH mouse and keyboard/gamepad
+# 重要：在 4.6 中，鼠标悬停与键盘焦点分离
+# 两者可以同时在不同控件上激活
+# 使用鼠标和键盘/手柄两种方式测试你的 UI
 
-# Focus neighbors (unchanged)
+# 焦点邻居（未变更）
 %Button1.focus_neighbor_bottom = %Button2.get_path()
 %Button1.focus_neighbor_right = %Button3.get_path()
 ```
 
-### FoldableContainer (4.5 — NEW)
+### FoldableContainer（4.5 — 新增）
 ```gdscript
-# Accordion-style collapsible container
-# Add as parent of content you want to make collapsible
-# Children show/hide when header is clicked
-# Configure via editor properties or code
+# 手风琴式可折叠容器
+# 添加为要折叠内容的父节点
+# 点击标题时子节点显示/隐藏
+# 通过编辑器属性或代码配置
 ```
 
-### Recursive Disable (4.5 — NEW)
+### 递归禁用（4.5 — 新增）
 ```gdscript
-# Disable all mouse/focus interactions for a hierarchy
-# Useful for disabling entire menu sections
+# 禁用层级的所有鼠标/焦点交互
+# 用于禁用整个菜单部分
 %SettingsPanel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-# In 4.5+, this can propagate recursively to children
+# 在 4.5+ 中，这可以递归传播到子节点
 ```
 
-### Localization-Ready UI (best practice)
+### 本地化就绪的 UI（最佳实践）
 ```gdscript
-# Use tr() for all visible strings
+# 对所有可见字符串使用 tr()
 label.text = tr("MENU_START_GAME")
 
-# Use auto-wrap for labels (text length varies by language)
+# 对标签使用自动换行（文本长度因语言而异）
 label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
-# Test with live translation preview in editor (4.5+)
+# 在编辑器中使用实时翻译预览测试（4.5+）
 ```
 
-## Common Mistakes
-- Assuming `grab_focus()` affects mouse focus (keyboard/gamepad only in 4.6)
-- Not testing UI with both mouse and gamepad after upgrading to 4.6
-- Hardcoding strings instead of using `tr()` for localization
-- Not using `FoldableContainer` for collapsible UI (new in 4.5, cleaner than custom)
+## 常见错误
+- 假设 `grab_focus()` 影响鼠标焦点（在 4.6 中仅影响键盘/手柄）
+- 升级到 4.6 后未使用鼠标和手柄两种方式测试 UI
+- 硬编码字符串而非使用 `tr()` 进行本地化
+- 对可折叠 UI 未使用 `FoldableContainer`（4.5 中新增，比自定义更简洁）

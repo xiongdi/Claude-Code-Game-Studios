@@ -2,35 +2,27 @@
 
 ## Skill Summary
 
-`/hotfix` manages an emergency fix workflow: it creates a hotfix branch from
-main, applies a targeted fix to the identified file(s), runs `/smoke-check` to
-validate the fix doesn't introduce regressions, and prompts the user to confirm
-merge back to main. Each code change requires a "May I write to [filepath]?" ask.
-Git operations (branch creation, merge) are presented as Bash commands for user
-confirmation before execution.
+`/hotfix` 管理紧急修复工作流：它从 main 创建 hotfix 分支，对识别的文件应用有针对性的修复，运行 `/smoke-check` 验证修复不会引入回退，并提示用户确认合并回 main。每次代码更改都需要 "May I write to [filepath]?" 询问。Git 操作（分支创建、合并）作为 Bash 命令呈现给用户确认后再执行。
 
-The skill is time-sensitive — director review is optional post-hoc, not a
-blocking gate. Verdicts: HOTFIX COMPLETE (fix applied, smoke check passed, merged)
-or HOTFIX BLOCKED (fix introduced regression or user declined).
+该技能对时间敏感——director 审查是可选的事后步骤，不是阻塞 gate。裁决：HOTFIX COMPLETE（修复已应用，smoke check 通过，已合并）或 HOTFIX BLOCKED（修复引入回退或用户拒绝）。
 
 ---
 
 ## Static Assertions (Structural)
 
-Verified automatically by `/skill-test static` — no fixture needed.
+由 `/skill-test static` 自动验证——不需要 fixture。
 
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings
-- [ ] Contains verdict keywords: HOTFIX COMPLETE, HOTFIX BLOCKED
-- [ ] Contains "May I write" language for code changes
-- [ ] Has a next-step handoff (e.g., `/bug-report` to document the issue, or version bump)
+- [ ] 具有必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 具有 ≥2 个 phase 标题
+- [ ] 包含裁决关键词：HOTFIX COMPLETE、HOTFIX BLOCKED
+- [ ] 对代码更改包含 "May I write" 语言
+- [ ] 具有下一步交接（例如，`/bug-report` 以记录问题，或版本升级）
 
 ---
 
 ## Director Gate Checks
 
-None. Hotfixes are time-critical. Director review may follow separately as a
-post-hoc step. No gate is invoked within this skill.
+无。Hotfix 对时间要求严格。Director 审查可能作为事后步骤单独进行。此技能中不调用任何 gate。
 
 ---
 
@@ -39,135 +31,131 @@ post-hoc step. No gate is invoked within this skill.
 ### Case 1: Happy Path — Critical crash bug fixed, smoke check passes
 
 **Fixture:**
-- `main` branch is clean
-- Bug is identified in `src/gameplay/arena.gd` (crash on boss arena entry)
-- Repro steps are provided by user
+- `main` 分支是干净的
+- 在 `src/gameplay/arena.gd` 中识别出 Bug（进入 boss 竞技场时崩溃）
+- 用户提供复现步骤
 
-**Input:** `/hotfix` (user describes the crash and affected file)
+**Input:** `/hotfix`（用户描述崩溃和受影响的文件）
 
 **Expected behavior:**
-1. Skill proposes creating a hotfix branch: `hotfix/boss-arena-crash`
-2. User confirms; Bash command for branch creation is shown and confirmed
-3. Skill identifies the fix location in `arena.gd` and drafts the change
-4. Skill asks "May I write to `src/gameplay/arena.gd`?" and applies fix on approval
-5. Skill runs `/smoke-check` — PASS
-6. Skill presents the merge command and asks user to confirm merge to `main`
-7. User confirms; merge executes; verdict is HOTFIX COMPLETE
+1. Skill 提议创建 hotfix 分支：`hotfix/boss-arena-crash`
+2. 用户确认；显示分支创建的 Bash 命令并确认
+3. Skill 识别 `arena.gd` 中的修复位置并起草更改
+4. Skill 询问 "May I write to `src/gameplay/arena.gd`?" 并在批准后应用修复
+5. Skill 运行 `/smoke-check`——PASS
+6. Skill 展示合并命令并询问用户确认合并到 `main`
+7. 用户确认；执行合并；裁决为 HOTFIX COMPLETE
 
 **Assertions:**
-- [ ] Hotfix branch is created before any code changes
-- [ ] "May I write" is asked before modifying any source file
-- [ ] `/smoke-check` runs after the fix is applied
-- [ ] Merge requires explicit user confirmation (not automatic)
-- [ ] Verdict is HOTFIX COMPLETE after successful merge
+- [ ] 在任何代码更改之前创建 hotfix 分支
+- [ ] 在修改任何源文件之前询问 "May I write"
+- [ ] 修复应用后运行 `/smoke-check`
+- [ ] 合并需要明确的用户确认（不是自动的）
+- [ ] 成功合并后裁决为 HOTFIX COMPLETE
 
 ---
 
 ### Case 2: Smoke Check Fails — HOTFIX BLOCKED
 
 **Fixture:**
-- Fix has been applied to `src/gameplay/arena.gd`
-- `/smoke-check` returns FAIL: "Player health clamping regression detected"
+- 修复已应用于 `src/gameplay/arena.gd`
+- `/smoke-check` 返回 FAIL："Player health clamping regression detected"
 
 **Input:** `/hotfix`
 
 **Expected behavior:**
-1. Skill applies the fix and runs `/smoke-check`
-2. Smoke check returns FAIL with specific regression identified
-3. Skill reports: "HOTFIX BLOCKED — smoke check failed: [regression detail]"
-4. Skill presents options: attempt revised fix, revert changes, or merge with
-   known regression (user acknowledges risk)
-5. No automatic merge occurs when smoke check fails
+1. Skill 应用修复并运行 `/smoke-check`
+2. Smoke check 返回 FAIL 并识别具体回退
+3. Skill 报告："HOTFIX BLOCKED — smoke check failed: [regression detail]"
+4. Skill 展示选项：尝试修订修复、更改，或合并已知回退（用户确认风险）
+5. Smoke check 失败时不发生自动合并
 
 **Assertions:**
-- [ ] Verdict is HOTFIX BLOCKED
-- [ ] Smoke check failure is shown verbatim to user
-- [ ] Merge is NOT performed automatically when smoke check fails
-- [ ] User is given explicit options for how to proceed
+- [ ] 裁决为 HOTFIX BLOCKED
+- [ ] Smoke check 失败逐字显示给用户
+- [ ] Smoke check 失败时不自动执行合并
+- [ ] 用户获得明确的后续操作选项
 
 ---
 
 ### Case 3: Fix to Already-Released Build — Version tag noted, patch bump prompted
 
 **Fixture:**
-- Latest git tag is `v1.2.0`
-- Hotfix targets a bug in the v1.2.0 release
+- 最新的 git 标签是 `v1.2.0`
+- Hotfix 针对 v1.2.0 发布中的 bug
 
 **Input:** `/hotfix`
 
 **Expected behavior:**
-1. Skill detects that the current HEAD is a tagged release (v1.2.0)
-2. Skill notes: "Hotfix targeting tagged release v1.2.0"
-3. After smoke check passes, skill prompts: "Should version be bumped to v1.2.1?"
-4. If user confirms version bump: skill asks "May I write to VERSION or equivalent?"
-5. After version update and merge: verdict is HOTFIX COMPLETE with version noted
+1. Skill 检测到当前 HEAD 是标记的发布（v1.2.0）
+2. Skill 注明："Hotfix targeting tagged release v1.2.0"
+3. Smoke check 通过后，skill 提示："Should version be bumped to v1.2.1?"
+4. 如果用户确认版本升级：skill 询问 "May I write to VERSION or equivalent?"
+5. 版本更新和合并后：裁决为 HOTFIX COMPLETE 并注明版本
 
 **Assertions:**
-- [ ] Version tag context is detected and surfaced to user
-- [ ] Patch version bump is suggested (not required) after merge
-- [ ] Version bump requires its own "May I write" confirmation
-- [ ] Verdict is HOTFIX COMPLETE
+- [ ] 检测版本标签上下文并向用户呈现
+- [ ] 合并后建议补丁版本升级（不要求）
+- [ ] 版本升级需要自己的 "May I write" 确认
+- [ ] 裁决为 HOTFIX COMPLETE
 
 ---
 
 ### Case 4: No Repro Steps — Skill Asks Before Applying Fix
 
 **Fixture:**
-- User invokes `/hotfix` with a vague description: "something is broken on level 3"
-- No repro steps provided
+- 用户使用模糊描述调用 `/hotfix`："something is broken on level 3"
+- 未提供复现步骤
 
-**Input:** `/hotfix` (vague description)
+**Input:** `/hotfix`（模糊描述）
 
 **Expected behavior:**
-1. Skill detects insufficient information to identify the fix location
-2. Skill asks: "Please provide reproduction steps and the affected file or system"
-3. Skill does NOT create a branch or modify any file until repro steps are provided
-4. After user provides repro steps: normal hotfix flow begins
+1. Skill 检测到信息不足以识别修复位置
+2. Skill 询问："Please provide reproduction steps and the affected file or system"
+3. Skill 在提供复现步骤之前不会创建分支或修改任何文件
+4. 用户提供复现步骤后：正常的 hotfix 流程开始
 
 **Assertions:**
-- [ ] No branch is created without repro steps
-- [ ] No code changes are made without a clearly identified fix location
-- [ ] Repro step request is specific (not a generic "please provide more info")
-- [ ] Normal hotfix flow resumes after user provides repro steps
+- [ ] 没有复现步骤时不创建分支
+- [ ] 没有明确识别的修复位置时不进行代码更改
+- [ ] 复现步骤请求是具体的（不是通用的 "please provide more info"）
+- [ ] 用户提供复现步骤后正常 hotfix 流程恢复
 
 ---
 
 ### Case 5: Director Gate Check — No gate; hotfixes are time-critical
 
 **Fixture:**
-- Critical bug with repro steps identified
+- 已识别出具有复现步骤的关键 bug
 
 **Input:** `/hotfix`
 
 **Expected behavior:**
-1. Skill completes the hotfix workflow
-2. No director agents are spawned during execution
-3. No gate IDs appear in output
-4. Post-hoc director review (if needed) is a manual follow-up, not invoked here
+1. Skill 完成 hotfix 工作流
+2. 执行期间不派生 director agent
+3. 输出中不出现 gate ID
+4. 事后 director 审查（如果需要）是手动后续操作，不在此调用
 
 **Assertions:**
-- [ ] No director gate is invoked
-- [ ] No gate skip messages appear
-- [ ] Verdict is HOTFIX COMPLETE or HOTFIX BLOCKED — no gate verdict
+- [ ] 未调用 director gate
+- [ ] 不出现 gate 跳过消息
+- [ ] 裁决为 HOTFIX COMPLETE 或 HOTFIX BLOCKED——无 gate 裁决
 
 ---
 
 ## Protocol Compliance
 
-- [ ] Creates hotfix branch before making any code changes
-- [ ] Asks "May I write" before modifying any source files
-- [ ] Runs `/smoke-check` after applying the fix
-- [ ] Requires explicit user confirmation before merging
-- [ ] HOTFIX BLOCKED when smoke check fails — no automatic merge
-- [ ] Verdict is HOTFIX COMPLETE or HOTFIX BLOCKED
+- [ ] 在进行任何代码更改之前创建 hotfix 分支
+- [ ] 在修改任何源文件之前询问 "May I write"
+- [ ] 应用修复后运行 `/smoke-check`
+- [ ] 合并前需要明确的用户确认
+- [ ] Smoke check 失败时 HOTFIX BLOCKED——不自动合并
+- [ ] 裁决为 HOTFIX COMPLETE 或 HOTFIX BLOCKED
 
 ---
 
 ## Coverage Notes
 
-- The case where multiple files need to be modified for one fix follows the same
-  "May I write" per-file pattern and is not separately tested.
-- The post-hotfix steps (create bug report, update changelog) are suggested in
-  the handoff but not tested as part of this skill's execution.
-- Conflict resolution during the merge (if main has diverged) is not tested;
-  the skill would surface the conflict and ask the user to resolve it manually.
+- 一次修复需要修改多个文件的情况遵循相同的每个文件 "May I write" 模式，未单独测试。
+- Hotfix 后的步骤（创建 bug 报告、更新 changelog）在交接中建议，但不作为此技能执行的一部分进行测试。
+- 合并期间的冲突解决（如果 main 已分叉）未测试；skill 会呈现冲突并要求用户手动解决。

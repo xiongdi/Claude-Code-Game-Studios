@@ -1,29 +1,29 @@
-# Godot Animation — Quick Reference
+# Godot Animation — 快速参考
 
 Last verified: 2026-02-12 | Engine: Godot 4.6
 
-## What Changed Since ~4.3 (LLM Cutoff)
+## 自 ~4.3 版本（LLM 截止）以来的变更
 
-### 4.6 Changes
-- **IK system fully restored**: Complete inverse kinematics for 3D skeletons
-  - CCDIK, FABRIK, Jacobian IK, Spline IK, TwoBoneIK
-  - Applied via `SkeletonModifier3D` nodes (not the old IK approach)
-- **Animation editor QoL**: Solo/hide/lock/delete for Bezier node groups; draggable timeline
+### 4.6 变更
+- **IK 系统完全恢复**: 3D 骨架的完整逆向运动学
+  - CCDIK、FABRIK、Jacobian IK、Spline IK、TwoBoneIK
+  - 通过 `SkeletonModifier3D` 节点应用（而非旧的 IK 方法）
+- **Animation editor 质量改进**: Bezier 节点组的独奏/隐藏/锁定/删除；可拖动时间轴
 
-### 4.5 Changes
-- **BoneConstraint3D**: Bind bones to other bones with modifiers
-  - `AimModifier3D`, `CopyTransformModifier3D`, `ConvertTransformModifier3D`
+### 4.5 变更
+- **BoneConstraint3D**: 使用修改器将骨骼绑定到其他骨骼
+  - `AimModifier3D`、`CopyTransformModifier3D`、`ConvertTransformModifier3D`
 
-### 4.3 Changes (in training data)
-- **AnimationMixer**: Base class for both AnimationPlayer and AnimationTree
+### 4.3 变更（在训练数据中）
+- **AnimationMixer**: AnimationPlayer 和 AnimationTree 的基类
   - `method_call_mode` → `callback_mode_method`
   - `playback_active` → `active`
   - `bone_pose_updated` signal → `skeleton_updated`
-- **`Skeleton3D.add_bone()`**: Now returns `int32` (was `void`)
+- **`Skeleton3D.add_bone()`**: 现在返回 `int32`（之前为 `void`）
 
-## Current API Patterns
+## 当前 API 模式
 
-### AnimationPlayer (unchanged API, new base class)
+### AnimationPlayer（API 未变，新基类）
 ```gdscript
 @onready var anim_player: AnimationPlayer = %AnimationPlayer
 
@@ -32,45 +32,45 @@ func play_attack() -> void:
     await anim_player.animation_finished
 ```
 
-### IK Setup (4.6 — NEW)
+### IK 设置（4.6 — 新增）
 ```gdscript
-# Add SkeletonModifier3D-based IK nodes as children of Skeleton3D
-# Available types:
-# - SkeletonModifier3D (base)
-# - TwoBoneIK (arms, legs)
-# - FABRIK (chains, tentacles)
-# - CCDIK (tails, spines)
-# - Jacobian IK (complex multi-joint)
-# - Spline IK (along curves)
+# 将基于 SkeletonModifier3D 的 IK 节点添加为 Skeleton3D 的子节点
+# 可用类型：
+# - SkeletonModifier3D（基类）
+# - TwoBoneIK（手臂、腿部）
+# - FABRIK（链条、触手）
+# - CCDIK（尾巴、脊柱）
+# - Jacobian IK（复杂多关节）
+# - Spline IK（沿曲线）
 
-# Configure in editor or code:
-# 1. Add IK modifier node as child of Skeleton3D
-# 2. Set target bone and tip bone
-# 3. Add a Marker3D as the IK target
-# 4. IK solver runs automatically each frame
+# 在编辑器或代码中配置：
+# 1. 将 IK 修饰器节点添加为 Skeleton3D 的子节点
+# 2. 设置目标骨骼和末端骨骼
+# 3. 添加一个 Marker3D 作为 IK 目标
+# 4. IK 解算器每帧自动运行
 ```
 
-### BoneConstraint3D (4.5 — NEW)
+### BoneConstraint3D（4.5 — 新增）
 ```gdscript
-# Add as child of Skeleton3D
-# Types:
-# - AimModifier3D: Point bone at target
-# - CopyTransformModifier3D: Mirror another bone's transform
-# - ConvertTransformModifier3D: Remap transform values
+# 添加为 Skeleton3D 的子节点
+# 类型：
+# - AimModifier3D: 使骨骼指向目标
+# - CopyTransformModifier3D: 镜像另一个骨骼的变换
+# - ConvertTransformModifier3D: 重映射变换值
 ```
 
-### AnimationTree (base class changed in 4.3)
+### AnimationTree（4.3 中基类变更）
 ```gdscript
-# AnimationTree now extends AnimationMixer (not Node directly)
-# Use AnimationMixer properties:
+# AnimationTree 现在继承 AnimationMixer（而非直接继承 Node）
+# 使用 AnimationMixer 属性：
 @onready var anim_tree: AnimationTree = %AnimationTree
 
 func _ready() -> void:
-    anim_tree.active = true  # NOT playback_active (deprecated 4.3)
+    anim_tree.active = true  # 不是 playback_active（4.3 中已弃用）
 ```
 
-## Common Mistakes
-- Using `playback_active` instead of `active` (deprecated since 4.3)
-- Using `bone_pose_updated` signal instead of `skeleton_updated` (renamed in 4.3)
-- Using old IK approach instead of SkeletonModifier3D system (restored in 4.6)
-- Not checking `is AnimationMixer` when type-checking animation nodes
+## 常见错误
+- 使用 `playback_active` 而非 `active`（自 4.3 起已弃用）
+- 使用 `bone_pose_updated` signal 而非 `skeleton_updated`（4.3 中重命名）
+- 使用旧的 IK 方法而非 SkeletonModifier3D 系统（4.6 中恢复）
+- 在类型检查动画节点时未检查 `is AnimationMixer`

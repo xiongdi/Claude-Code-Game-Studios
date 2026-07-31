@@ -8,116 +8,116 @@ model: sonnet
 agent: economy-designer
 ---
 
-## Phase 1: Identify Balance Domain
+## 阶段 1：识别平衡域
 
-Determine the balance domain from `$ARGUMENTS[0]`:
+从 `$ARGUMENTS[0]` 确定平衡域：
 
-- **Combat** → weapon/ability DPS, time-to-kill, damage type interactions
-- **Economy** → resource faucets/sinks, acquisition rates, item pricing
-- **Progression** → XP/power curves, dead zones, power spikes
-- **Loot** → rarity distribution, pity timers, inventory pressure
-- **File path given** → load that file directly and infer domain from content
+- **Combat** → 武器/能力 DPS、击杀时间、伤害类型交互
+- **Economy** → 资源 faucet/sink、获取率、物品定价
+- **Progression** → XP/力量曲线、死区、力量峰值
+- **Loot** → 稀有度分布、保底计时器、库存压力
+- **给定文件路径** → 直接加载该文件并从内容推断域
 
-If no argument, ask the user which system to check.
-
----
-
-## Phase 2: Read Data Files
-
-Read relevant files from `assets/data/` and `design/balance/` for the identified domain.
-Note every file read — they will appear in the Data Sources section of the report.
+如果没有参数，询问用户要检查哪个系统。
 
 ---
 
-## Phase 3: Read Design Document
+## 阶段 2：读取数据文件
 
-Read the GDD for the system from `design/gdd/` to understand intended design targets,
-tuning knobs, and expected value ranges. This is the baseline for "correct" behaviour.
-
----
-
-## Phase 4: Perform Analysis
-
-Run domain-specific checks:
-
-**Combat balance:**
-- Calculate DPS for all weapons/abilities at each power tier
-- Check time-to-kill at each tier
-- Identify any options that dominate all others (strictly better)
-- Check if defensive options can create unkillable states
-- Verify damage type/resistance interactions are balanced
-
-**Economy balance:**
-- Map all resource faucets and sinks with flow rates
-- Project resource accumulation over time
-- Check for infinite resource loops
-- Verify gold sinks scale with gold generation
-- Check if any items are never worth purchasing
-
-**Progression balance:**
-- Plot the XP curve and power curve
-- Check for dead zones (no meaningful progression for too long)
-- Check for power spikes (sudden jumps in capability)
-- Verify content gates align with expected player power
-- Check if skip/grind strategies break intended pacing
-
-**Loot balance:**
-- Calculate expected time to acquire each rarity tier
-- Check pity timer math
-- Verify no loot is strictly useless at any stage
-- Check inventory pressure vs acquisition rate
+从 `assets/data/` 和 `design/balance/` 读取识别到的域的相关文件。
+记录读取的每个文件 —— 它们将出现在报告的 Data Sources 部分。
 
 ---
 
-## Phase 5: Output the Analysis
+## 阶段 3：读取设计文档
+
+从 `design/gdd/` 读取系统的 GDD 以了解预期的设计目标、
+tuning knobs 和预期值范围。这是"正确"行为的基线。
+
+---
+
+## 阶段 4：执行分析
+
+运行域特定的检查：
+
+**战斗平衡：**
+- 计算每个能力层级下所有武器/能力的 DPS
+- 检查每个层级的击杀时间
+- 识别任何支配所有其他选项的选项（严格更好）
+- 检查防御选项是否会产生无法击杀的状态
+- 验证伤害类型/抗性交互是否平衡
+
+**经济平衡：**
+- 映射所有资源 faucet/sink 及其流速
+- 预测随时间推移的资源积累
+- 检查无限资源循环
+- 验证金币 sink 是否随金币生成扩展
+- 检查是否有任何物品永远不值得购买
+
+**进程平衡：**
+- 绘制 XP 曲线和力量曲线
+- 检查死区（没有有意义进程的时间过长）
+- 检查力量峰值（能力的突然跳跃）
+- 验证内容门控是否与玩家预期力量对齐
+- 检查跳过/刷取策略是否破坏预期节奏
+
+**战利品平衡：**
+- 计算获取每个稀有度层级的预期时间
+- 检查保底计时器数学
+- 验证没有任何战利品在任何阶段严格无用
+- 检查库存压力与获取率
+
+---
+
+## 阶段 5：输出分析
 
 ```
 ## Balance Check: [System Name]
 
-### Data Sources Analyzed
-- [List of files read]
+### 分析的数据源
+- [读取的文件列表]
 
-### Health Summary: [HEALTHY / CONCERNS / CRITICAL ISSUES]
+### 健康摘要: [HEALTHY / CONCERNS / CRITICAL ISSUES]
 
-### Outliers Detected
-| Item/Value | Expected Range | Actual | Issue |
+### 检测到的异常值
+| 项目/值 | 预期范围 | 实际值 | 问题 |
 |-----------|---------------|--------|-------|
 
-### Degenerate Strategies Found
-- [Strategy description and why it is problematic]
+### 发现的退化策略
+- [策略描述及其为何有问题]
 
-### Progression Analysis
-[Graph description or table showing progression curve health]
+### 进程分析
+[显示进程曲线健康状况的图表描述或表格]
 
-### Recommendations
-| Priority | Issue | Suggested Fix | Impact |
+### 建议
+| 优先级 | 问题 | 建议修复 | 影响 |
 |----------|-------|--------------|--------|
 
-### Values That Need Attention
-[Specific values with suggested adjustments and rationale]
+### 需要关注的值
+[带有建议调整理由的具体值]
 ```
 
 ---
 
-## Phase 6: Fix & Verify Cycle
+## 阶段 6：修复与验证循环
 
-After presenting the report, use `AskUserQuestion`:
-- Prompt: "Balance check complete. What would you like to do next?"
-- Options:
-  - `[A] Fix highest-priority issue now — walk me through it`
-  - `[B] Save report to design/balance/balance-check-[system]-[date].md`
-  - `[C] Stop here — I'll review the findings manually`
+展示报告后，使用 `AskUserQuestion`：
+- 提示："平衡检查完成。你希望下一步做什么？"
+- 选项：
+  - `[A] 现在修复最高优先级问题 —— 带我过一遍`
+  - `[B] 将报告保存到 design/balance/balance-check-[system]-[date].md`
+  - `[C] 在这里停止 —— 我会手动审查发现`
 
-If [A]:
-- Ask which issue to address first (refer to the Recommendations table by priority row)
-- Guide the user to update the relevant data file in `assets/data/` or formula in `design/balance/`
-- After each fix, offer to re-run the relevant balance checks to verify no new outliers were introduced
-- If the fix changes a tuning knob defined in a GDD or referenced by an ADR, remind the user:
-  > "This value is defined in a design document. Run `/propagate-design-change [path]` on the affected GDD to find downstream impacts before committing."
+如果 [A]：
+- 询问首先解决哪个问题（按优先级行参考建议表）
+- 引导用户更新 `assets/data/` 中的相关数据文件或 `design/balance/` 中的公式
+- 每次修复后，提供重新运行相关平衡检查以验证没有引入新的异常值
+- 如果修复更改了 GDD 中定义的 tuning knob 或被 ADR 引用，提醒用户：
+  > "此值在设计文档中定义。在提交前对受影响的 GDD 运行 `/propagate-design-change [path]` 以查找下游影响。"
 
-If [B]:
-- Write the report to `design/balance/balance-check-[system]-[date].md` (create the directory if needed). Use the current date for [date] in YYYY-MM-DD format.
-- Confirm the file was written, then end with: "Re-run `/balance-check` after fixes to verify."
+如果 [B]：
+- 将报告写入 `design/balance/balance-check-[system]-[date].md`（如果需要创建目录）。对 [date] 使用 YYYY-MM-DD 格式的当前日期。
+- 确认文件已写入，然后以："修复后重新运行 `/balance-check` 进行验证。"结束
 
-If [C]:
-- Summarize open issues and end with: "Re-run `/balance-check` after fixes to verify."
+如果 [C]：
+- 总结未解决的问题并以："修复后重新运行 `/balance-check` 进行验证。"结束

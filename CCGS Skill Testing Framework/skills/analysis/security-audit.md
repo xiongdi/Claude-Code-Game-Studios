@@ -2,166 +2,158 @@
 
 ## Skill Summary
 
-`/security-audit` audits the game for security risks including save data
-integrity, network communication, anti-cheat exposure, and data privacy. It
-reads source files in `src/` for security patterns and checks whether sensitive
-data is handled correctly. No director gates are invoked. The skill does not
-write files (findings report only). Verdicts: SECURE, CONCERNS, or
-VULNERABILITIES FOUND.
+`/security-audit` 审计游戏的安全风险，包括存档数据完整性、网络通信、反作弊暴露和数据隐私。它读取 `src/` 中的源文件查找安全模式，并检查敏感数据是否正确处理。不触发任何 director gate。Skill 不写入文件（仅结果报告）。判定结果：SECURE、CONCERNS 或 VULNERABILITIES FOUND。
 
 ---
 
-## Static Assertions (Structural)
+## Static Assertions（结构性）
 
-Verified automatically by `/skill-test static` — no fixture needed.
+由 `/skill-test static` 自动验证 — 无需 fixture。
 
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings
-- [ ] Contains verdict keywords: SECURE, CONCERNS, VULNERABILITIES FOUND
-- [ ] Does NOT require "May I write" language (read-only; findings report only)
-- [ ] Has a next-step handoff (what to do with findings)
+- [ ] 具有必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 具有 ≥2 个 phase 标题
+- [ ] 包含判定关键词：SECURE、CONCERNS、VULNERABILITIES FOUND
+- [ ] 不要求 "May I write" 语言（只读；仅结果报告）
+- [ ] 具有下一步交接说明（如何处理结果）
 
 ---
 
 ## Director Gate Checks
 
-None. Security audit is a read-only advisory skill; no gates are invoked.
+无。安全审计是只读建议性技能；不触发任何 gate。
 
 ---
 
 ## Test Cases
 
-### Case 1: Happy Path — Save data encrypted, no hardcoded credentials
+### Case 1: Happy Path — 存档数据加密，无硬编码凭证
 
 **Fixture:**
-- `src/core/save_system.gd` uses `Crypto` class to encrypt save data before writing
-- No hardcoded API keys, passwords, or credentials in any `src/` file
-- No version numbers or internal build IDs exposed in client-facing output
+- `src/core/save_system.gd` 使用 `Crypto` 类在写入前加密存档数据
+- 任何 `src/` 文件中无硬编码 API 密钥、密码或凭证
+- 客户端可见输出版本号或内部构建 ID
 
 **Input:** `/security-audit`
 
 **Expected behavior:**
-1. Skill scans `src/` for security patterns: encryption usage, hardcoded credentials, exposed internals
-2. All checks pass: save data encrypted, no credentials found, no exposed internals
-3. Findings report shows all checks PASS
-4. Verdict is SECURE
+1. Skill 扫描 `src/` 查找安全模式：加密使用、硬编码凭证、暴露的内部信息
+2. 所有检查通过：存档数据加密、未找到凭证、无暴露的内部信息
+3. 结果报告显示所有检查 PASS
+4. 判定为 SECURE
 
 **Assertions:**
-- [ ] Skill checks save data handling for encryption usage
-- [ ] Skill scans for hardcoded credentials (API keys, passwords, tokens)
-- [ ] Skill checks for version/build numbers exposed to players
-- [ ] All checks shown in findings report
-- [ ] Verdict is SECURE when all checks pass
+- [ ] Skill 检查存档数据处理的加密使用
+- [ ] Skill 扫描硬编码凭证（API 密钥、密码、令牌）
+- [ ] Skill 检查暴露给玩家的版本/构建号
+- [ ] 所有检查显示在结果报告中
+- [ ] 所有检查通过时判定为 SECURE
 
 ---
 
-### Case 2: Vulnerabilities Found — Unencrypted save data and exposed version
+### Case 2: Vulnerabilities Found — 未加密的存档数据和暴露的版本
 
 **Fixture:**
-- `src/core/save_system.gd` writes save data as plain JSON (no encryption)
-- `src/ui/debug_overlay.gd` contains: `label.text = "Build: " + ProjectSettings.get("application/config/version")`
-  (exposes internal build version to player)
+- `src/core/save_system.gd` 以纯 JSON 写入存档数据（无加密）
+- `src/ui/debug_overlay.gd` 包含：`label.text = "Build: " + ProjectSettings.get("application/config/version")`
+  （向玩家暴露内部构建版本）
 
 **Input:** `/security-audit`
 
 **Expected behavior:**
-1. Skill scans `src/` — finds unencrypted save write in `save_system.gd`
-2. Skill finds exposed version string in `debug_overlay.gd`
-3. Both findings are flagged as VULNERABILITIES
-4. Verdict is VULNERABILITIES FOUND
-5. Skill provides remediation recommendations for each vulnerability
+1. Skill 扫描 `src/` — 发现 `save_system.gd` 中未加密的存档写入
+2. Skill 发现 `debug_overlay.gd` 中暴露的版本字符串
+3. 两个结果都标记为 VULNERABILITIES
+4. 判定为 VULNERABILITIES FOUND
+5. Skill 为每个漏洞提供修复建议
 
 **Assertions:**
-- [ ] Unencrypted save data is flagged as a vulnerability with file and approximate line
-- [ ] Exposed version string is flagged as a vulnerability
-- [ ] Remediation suggestion is given for each vulnerability
-- [ ] Verdict is VULNERABILITIES FOUND when any vulnerability is detected
-- [ ] No files are written or modified
+- [ ] 未加密存档数据标记为漏洞，附带文件和近似行号
+- [ ] 暴露的版本字符串标记为漏洞
+- [ ] 每个漏洞给出修复建议
+- [ ] 检测到任何漏洞时判定为 VULNERABILITIES FOUND
+- [ ] 不写入或修改任何文件
 
 ---
 
 ### Case 3: Online Features Without Authentication — CONCERNS
 
 **Fixture:**
-- `src/networking/lobby.gd` exists with functions: `join_lobby()`, `send_chat()`
-- No authentication check is found before `send_chat()` — players can call it without being verified
-- Game has online multiplayer features (inferred from file presence)
+- `src/networking/lobby.gd` 存在，包含函数：`join_lobby()`、`send_chat()`
+- `send_chat()` 前未找到身份验证检查 — 玩家无需验证即可调用
+- 游戏具有在线多人功能（从文件存在推断）
 
 **Input:** `/security-audit`
 
 **Expected behavior:**
-1. Skill scans `src/networking/` — detects online feature code
-2. Skill checks for authentication guard before network calls — finds none on `send_chat()`
-3. Flags: "Online feature without authentication check — CONCERNS"
-4. Verdict is CONCERNS (not VULNERABILITIES FOUND, as this is a missing control, not an exploit)
+1. Skill 扫描 `src/networking/` — 检测到在线功能代码
+2. Skill 检查网络调用前的身份验证守卫 — 在 `send_chat()` 上未找到
+3. 标记："Online feature without authentication check — CONCERNS"
+4. 判定为 CONCERNS（非 VULNERABILITIES FOUND，因为这是缺失的控制，非漏洞利用）
 
 **Assertions:**
-- [ ] Skill detects online features by scanning for networking source files
-- [ ] Missing authentication checks before network operations are flagged
-- [ ] Verdict is CONCERNS (advisory severity) for missing authentication guards
-- [ ] Output recommends adding authentication before network calls
+- [ ] Skill 通过扫描网络源文件检测在线功能
+- [ ] 网络操作前缺失的身份验证检查被标记
+- [ ] 缺失身份验证守卫判定为 CONCERNS（建议性严重级别）
+- [ ] 输出建议在网络调用前添加身份验证
 
 ---
 
-### Case 4: Edge Case — No Source Files to Analyze
+### Case 4: Edge Case — 没有源文件可分析
 
 **Fixture:**
-- `src/` directory does not exist or is completely empty
+- `src/` 目录不存在或完全为空
 
 **Input:** `/security-audit`
 
 **Expected behavior:**
-1. Skill attempts to scan `src/` — no files found
-2. Skill outputs an error: "No source files found in `src/` — nothing to audit"
-3. No findings report is generated
-4. No verdict is emitted
+1. Skill 尝试扫描 `src/` — 未找到文件
+2. Skill 输出错误："No source files found in `src/` — nothing to audit"
+3. 不生成结果报告
+4. 不输出判定
 
 **Assertions:**
-- [ ] Skill does not crash when `src/` is empty or absent
-- [ ] Output clearly states that no source files were found
-- [ ] No verdict is emitted (there is nothing to assess)
-- [ ] Skill suggests verifying the `src/` directory path
+- [ ] `src/` 为空或不存在时 Skill 不崩溃
+- [ ] 输出清楚说明未找到源文件
+- [ ] 不输出判定（无内容可评估）
+- [ ] Skill 建议验证 `src/` 目录路径
 
 ---
 
-### Case 5: Gate Compliance — No gate; security-engineer invoked separately
+### Case 5: Gate Compliance — 无 gate；security-engineer 单独调用
 
 **Fixture:**
-- Source files exist; 1 CONCERNS-level finding detected (debug logging enabled in release build)
-- `review-mode.txt` contains `full`
+- 源文件存在；检测到 1 个 CONCERNS 级别结果（发布构建中启用调试日志）
+- `review-mode.txt` 内容为 `full`
 
 **Input:** `/security-audit`
 
 **Expected behavior:**
-1. Skill scans source; finds debug logging active in release path
-2. No director gate is invoked regardless of review mode
-3. Verdict is CONCERNS
-4. Output notes: "For formal security review, consider engaging a security-engineer agent"
-5. Findings are presented as a read-only report; no files written
+1. Skill 扫描源；在发布路径中找到活动调试日志
+2. 无论审查模式如何，不触发任何 director gate
+3. 判定为 CONCERNS
+4. 输出注明："For formal security review, consider engaging a security-engineer agent"
+5. 结果以只读报告呈现；不写入文件
 
 **Assertions:**
-- [ ] No director gate is invoked in any review mode
-- [ ] Security-engineer consultation is suggested (not mandated)
-- [ ] No files are written
-- [ ] Verdict is CONCERNS for advisory-level security findings
+- [ ] 任何审查模式下都不触发 director gate
+- [ ] 建议（非强制）咨询 security-engineer
+- [ ] 不写入任何文件
+- [ ] 建议性级别安全结果判定为 CONCERNS
 
 ---
 
 ## Protocol Compliance
 
-- [ ] Reads source files in `src/` before auditing
-- [ ] Checks save data encryption, hardcoded credentials, exposed internals, auth guards
-- [ ] Provides remediation recommendations for each finding
-- [ ] Does not write any files (read-only skill)
-- [ ] No director gates are invoked
-- [ ] Verdict is one of: SECURE, CONCERNS, VULNERABILITIES FOUND
+- [ ] 审计前读取 `src/` 中的源文件
+- [ ] 检查存档数据加密、硬编码凭证、暴露的内部信息、身份验证守卫
+- [ ] 为每个结果提供修复建议
+- [ ] 不写入任何文件（只读技能）
+- [ ] 不触发任何 director gate
+- [ ] 判定为以下之一：SECURE、CONCERNS、VULNERABILITIES FOUND
 
 ---
 
 ## Coverage Notes
 
-- Anti-cheat analysis (client-side value validation, server authority) is not
-  explicitly tested here; it follows the CONCERNS or VULNERABILITIES pattern
-  depending on severity.
-- Data privacy compliance (GDPR, COPPA) is out of scope for this spec; those
-  require legal review beyond code scanning.
+- 反作弊分析（客户端值验证、服务器权威）此处未显式测试；根据严重级别遵循 CONCERNS 或 VULNERABILITIES 模式。
+- 数据隐私合规（GDPR、COPPA）超出此 spec 范围；这些需要法律审查，超出代码扫描范围。

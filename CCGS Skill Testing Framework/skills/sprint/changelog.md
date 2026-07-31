@@ -1,169 +1,169 @@
-# Skill Test Spec: /changelog
+# Skill 测试规格：/changelog
 
-## Skill Summary
+## Skill 摘要
 
-`/changelog` is a Haiku-tier skill that auto-generates a developer-facing
-changelog by reading git commit history and closed sprint stories since the
-last release tag. It organizes entries into features, fixes, and known issues.
-No director gates are used. The skill asks "May I write to `docs/CHANGELOG.md`?"
-before persisting. Verdict is always COMPLETE.
-
----
-
-## Static Assertions (Structural)
-
-Verified automatically by `/skill-test static` — no fixture needed.
-
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings
-- [ ] Contains verdict keyword: COMPLETE
-- [ ] Contains "May I write" language (skill writes changelog)
-- [ ] Has a next-step handoff (e.g., run /patch-notes for player-facing version)
+`/changelog` 是 Haiku 层级的 skill，通过读取自上一个发布标签以来的 git 提交历史
+和已关闭的 sprint story 来自动生成面向开发者的 changelog。
+它将条目组织为 features、fixes 和 known issues。不使用 director 关卡。
+该 skill 在持久化前询问"可以写入 `docs/CHANGELOG.md` 吗？"。
+判定结果始终是 COMPLETE。
 
 ---
 
-## Director Gate Checks
+## 静态断言（结构性）
 
-None. Changelog generation is a fast compilation task; no gates are invoked.
+由 `/skill-test static` 自动验证——不需要 fixture。
 
----
-
-## Test Cases
-
-### Case 1: Happy Path — Multiple sprints since last release tag
-
-**Fixture:**
-- Git history has a tag `v0.3.0` three sprints ago
-- Since that tag: 12 commits across sprints 006, 007, 008
-- Sprint story files reference task IDs matching commit messages
-- `docs/CHANGELOG.md` does not yet exist
-
-**Input:** `/changelog`
-
-**Expected behavior:**
-1. Skill reads git log since `v0.3.0` tag
-2. Skill reads sprint stories to cross-reference task IDs
-3. Skill compiles entries into Features, Fixes, and Known Issues sections
-4. Skill presents draft to user
-5. Skill asks "May I write to `docs/CHANGELOG.md`?"
-6. User approves; file written; verdict COMPLETE
-
-**Assertions:**
-- [ ] Changelog covers commits since the most recent git tag
-- [ ] Entries are organized into Features / Fixes / Known Issues sections
-- [ ] Sprint story references are used to enrich commit descriptions
-- [ ] "May I write" prompt appears before file write
-- [ ] Verdict is COMPLETE after write
+- [ ] 具备必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 有 ≥2 个阶段标题
+- [ ] 包含判定关键词：COMPLETE
+- [ ] 包含"可以写入吗"语言（skill 写入 changelog）
+- [ ] 有下一步交接（例如，运行 /patch-notes 生成面向玩家的版本）
 
 ---
 
-### Case 2: No Git Tags Found — All commits used, version baseline noted
+## Director 关卡检查
 
-**Fixture:**
-- Git repository has commits but no tags exist
-- 20 commits in history across 3 sprints
-
-**Input:** `/changelog`
-
-**Expected behavior:**
-1. Skill checks for git tags — finds none
-2. Skill uses all commits in history as the baseline
-3. Skill notes in the output: "No version tag found — using full commit history; version baseline is unset"
-4. Skill still compiles organized changelog from available commits
-5. Skill asks "May I write" and writes on approval
-
-**Assertions:**
-- [ ] Skill does not error when no git tags exist
-- [ ] Output explicitly notes that no version baseline was found
-- [ ] Full commit history is used as the source
-- [ ] Changelog is still organized into sections despite missing tag
+无。Changelog 生成是快速编译任务；不调用关卡。
 
 ---
 
-### Case 3: Commit Messages Without Task IDs — Grouped by date with note
+## 测试用例
 
-**Fixture:**
-- Git log since last tag has 8 commits
-- 5 commits have no task ID in the message (e.g., "fix typo", "tweak values")
-- 3 commits reference task IDs matching sprint stories
+### 用例 1：正常路径——自上一个发布标签以来有多个 sprint
 
-**Input:** `/changelog`
+**Fixture：**
+- Git 历史在三个 sprint 前有标签 `v0.3.0`
+- 自该标签以来：跨 sprint 006、007、008 有 12 个提交
+- Sprint story 文件引用与提交消息匹配的任务 ID
+- `docs/CHANGELOG.md` 尚不存在
 
-**Expected behavior:**
-1. Skill reads commits and sprint stories
-2. 3 commits are matched to sprint stories and placed in appropriate sections
-3. 5 untagged commits are grouped by date under a "Misc" or "Other Changes" section
-4. Output notes: "5 commits without task IDs — grouped by date"
-5. Skill writes changelog on approval
+**输入：** `/changelog`
 
-**Assertions:**
-- [ ] Commits with task IDs are placed in appropriate sections (Features or Fixes)
-- [ ] Commits without task IDs are grouped separately with a note
-- [ ] Output flags the number of commits missing task references
-- [ ] No commits are silently dropped from the changelog
+**预期行为：**
+1. Skill 读取自 `v0.3.0` 标签以来的 git log
+2. Skill 读取 sprint story 以交叉引用任务 ID
+3. Skill 将条目编译为 Features、Fixes 和 Known Issues 部分
+4. Skill 向用户展示草稿
+5. Skill 询问"可以写入 `docs/CHANGELOG.md` 吗？"
+6. 用户批准；文件写入；判定 COMPLETE
 
----
-
-### Case 4: Existing CHANGELOG.md — New section prepended, old entries preserved
-
-**Fixture:**
-- `docs/CHANGELOG.md` already exists with sections for `v0.2.0` and `v0.3.0`
-- New commits exist since `v0.3.0` tag
-
-**Input:** `/changelog`
-
-**Expected behavior:**
-1. Skill detects that `docs/CHANGELOG.md` already exists
-2. Skill compiles new entries for the period since `v0.3.0`
-3. Skill presents draft with new section prepended above existing content
-4. Skill asks "May I write to `docs/CHANGELOG.md`?" (confirming prepend strategy)
-5. User approves; new content is prepended, old entries intact; verdict COMPLETE
-
-**Assertions:**
-- [ ] Skill reads existing changelog before writing to detect prior content
-- [ ] New section is prepended (not appended or overwriting) existing entries
-- [ ] Old changelog entries for v0.2.0 and v0.3.0 are preserved in the written file
-- [ ] "May I write" prompt reflects the prepend operation
+**断言：**
+- [ ] Changelog 涵盖自最近 git 标签以来的提交
+- [ ] 条目组织为 Features / Fixes / Known Issues 部分
+- [ ] Sprint story 引用用于丰富提交描述
+- [ ] 文件写入前出现"可以写入吗"提示
+- [ ] 写入后判定为 COMPLETE
 
 ---
 
-### Case 5: Gate Compliance — No gate; read-then-write with approval
+### 用例 2：未找到 Git 标签——使用所有提交，注明版本基线
 
-**Fixture:**
-- Git history has commits since last tag
-- `review-mode.txt` contains `full`
+**Fixture：**
+- Git 仓库有提交但无标签
+- 历史中有跨 3 个 sprint 的 20 个提交
 
-**Input:** `/changelog`
+**输入：** `/changelog`
 
-**Expected behavior:**
-1. Skill compiles changelog in full mode
-2. No director gate is invoked (changelog generation is compilation, not a delivery gate)
-3. Skill runs on Haiku model — fast compilation
-4. Skill asks user for approval and writes file on confirmation
+**预期行为：**
+1. Skill 检查 git 标签——未找到
+2. Skill 使用历史中的所有提交作为基线
+3. Skill 在输出中注明："No version tag found——using full commit history; version baseline is unset"
+4. Skill 仍从可用提交编译有组织的 changelog
+5. Skill 询问"可以写入吗"并在批准后写入
 
-**Assertions:**
-- [ ] No director gate is invoked regardless of review mode
-- [ ] Output does not reference any gate result
-- [ ] Skill proceeds directly from compilation to "May I write" prompt
-- [ ] Verdict is COMPLETE
-
----
-
-## Protocol Compliance
-
-- [ ] Reads git log and sprint story files before compiling
-- [ ] Always asks "May I write" before writing changelog
-- [ ] No director gates are invoked
-- [ ] Verdict is always COMPLETE
-- [ ] Runs on Haiku model tier (fast, low-cost)
+**断言：**
+- [ ] 当无 git 标签存在时 skill 不会报错
+- [ ] 输出明确注明未找到版本基线
+- [ ] 使用完整的提交历史作为源
+- [ ] 尽管缺少标签，changelog 仍组织为多个部分
 
 ---
 
-## Coverage Notes
+### 用例 3：无任务 ID 的提交消息——按日期分组并注明
 
-- The case where git is not initialized in the repository is not tested;
-  behavior would depend on git command failure handling.
-- Merge commits vs. squash commits are not explicitly differentiated in
-  these tests; implementation detail of the git log parsing phase.
-- The `/patch-notes` skill should be run after `/changelog` for player-facing
-  output; that handoff is verified in the patch-notes spec.
+**Fixture：**
+- 自上一个标签以来的 git log 有 8 个提交
+- 5 个提交在消息中没有任务 ID（例如，"fix typo"、"tweak values"）
+- 3 个提交引用与 sprint story 匹配的任务 ID
+
+**输入：** `/changelog`
+
+**预期行为：**
+1. Skill 读取提交和 sprint story
+2. 3 个提交匹配到 sprint story 并放入适当部分
+3. 5 个未标记的提交按日期分组在 "Misc" 或 "Other Changes" 部分下
+4. 输出注明："5 commits without task IDs——grouped by date"
+5. Skill 在批准后写入 changelog
+
+**断言：**
+- [ ] 有任务 ID 的提交放入适当部分（Features 或 Fixes）
+- [ ] 无任务 ID 的提交单独分组并注明
+- [ ] 输出标记缺少任务引用的提交数量
+- [ ] 没有提交被静默丢弃
+
+---
+
+### 用例 4：现有 CHANGELOG.md——新部分前置，旧条目保留
+
+**Fixture：**
+- `docs/CHANGELOG.md` 已存在，包含 `v0.2.0` 和 `v0.3.0` 部分
+- 自 `v0.3.0` 标签以来有新提交
+
+**输入：** `/changelog`
+
+**预期行为：**
+1. Skill 检测到 `docs/CHANGELOG.md` 已存在
+2. Skill 编译自 `v0.3.0` 以来期间的新条目
+3. Skill 展示草稿，新部分前置于现有内容之上
+4. Skill 询问"可以写入 `docs/CHANGELOG.md` 吗？"（确认前置策略）
+5. 用户批准；新内容前置，旧条目完好；判定 COMPLETE
+
+**断言：**
+- [ ] Skill 在写入前读取现有 changelog 以检测先前内容
+- [ ] 新部分前置（不是追加或覆盖）现有条目
+- [ ] v0.2.0 和 v0.3.0 的旧 changelog 条目在写入文件中保留
+- [ ] "可以写入吗"提示反映前置操作
+
+---
+
+### 用例 5：关卡合规性——无关卡；读取后写入并需批准
+
+**Fixture：**
+- Git 历史自上一个标签以来有提交
+- `review-mode.txt` 包含 `full`
+
+**输入：** `/changelog`
+
+**预期行为：**
+1. Skill 在 full 模式下编译 changelog
+2. 不调用 director 关卡（changelog 生成是编译，不是交付关卡）
+3. Skill 在 Haiku 模型上运行——快速编译
+4. Skill 询问用户批准并在确认后写入文件
+
+**断言：**
+- [ ] 无论审查模式如何，不调用 director 关卡
+- [ ] 输出不引用任何关卡结果
+- [ ] Skill 直接从编译进入"可以写入吗"提示
+- [ ] 判定为 COMPLETE
+
+---
+
+## 协议合规性
+
+- [ ] 编译前读取 git log 和 sprint story 文件
+- [ ] 写入 changelog 前始终询问"可以写入吗"
+- [ ] 不调用 director 关卡
+- [ ] 判定始终是 COMPLETE
+- [ ] 在 Haiku 模型层级运行（快速、低成本）
+
+---
+
+## 覆盖说明
+
+- 仓库中未初始化 git 的情况未测试；
+  行为取决于 git 命令失败处理。
+- 这些测试中未明确区分 merge commits vs. squash commits；
+  这是 git log 解析阶段的实现细节。
+- `/patch-notes` skill 应在 `/changelog` 之后运行以生成面向玩家的
+  输出；该交接在 patch-notes 规格中验证。

@@ -7,126 +7,126 @@ allowed-tools: Read, Glob, Grep
 model: sonnet
 ---
 
-## Phase 1: Understand the Task
+## 第 1 阶段：理解任务
 
-Read the task description from the argument. If the description is too vague to estimate meaningfully, ask for clarification before proceeding.
+从参数读取任务描述。如果描述太模糊而无法有意义地估算，在继续之前要求澄清。
 
-Read CLAUDE.md for project context: tech stack, coding standards, architectural patterns, and any estimation guidelines.
+读取 CLAUDE.md 获取项目上下文：技术栈、编码标准、架构模式和任何估算指南。
 
-Read relevant design documents from `design/gdd/` if the task relates to a documented feature or system.
-
----
-
-## Phase 2: Scan Affected Code
-
-Identify files and modules that would need to change:
-
-- Assess complexity (size, dependency count, cyclomatic complexity)
-- Identify integration points with other systems
-- Check for existing test coverage in the affected areas
-- Read past sprint data from `production/sprints/` for similar completed tasks and historical velocity
+如果任务与已记录的功能或系统相关，从 `design/gdd/` 读取相关设计文档。
 
 ---
 
-## Phase 3: Analyze Complexity Factors
+## 第 2 阶段：扫描受影响的代码
 
-**Code Complexity:**
-- Lines of code in affected files
-- Number of dependencies and coupling level
-- Whether this touches core/engine code vs leaf/feature code
-- Whether existing patterns can be followed or new patterns are needed
+确定需要更改的文件和模块：
 
-**Scope:**
-- Number of systems touched
-- New code vs modification of existing code
-- Amount of new test coverage required
-- Data migration or configuration changes needed
-
-**Risk:**
-- New technology or unfamiliar libraries
-- Unclear or ambiguous requirements
-- Dependencies on unfinished work
-- Cross-system integration complexity
-- Performance sensitivity
+- 评估复杂度（大小、依赖关系数量、圈复杂度）
+- 识别与其他系统的集成点
+- 检查受影响区域的现有测试覆盖
+- 从 `production/sprints/` 读取过去 sprint 数据，了解类似已完成任务和历史速度
 
 ---
 
-## Phase 4: Generate the Estimate
+## 第 3 阶段：分析复杂度因素
+
+**代码复杂度：**
+- 受影响文件中的代码行数
+- 依赖关系数量和耦合级别
+- 这是触及核心/引擎代码与叶子/功能代码
+- 是否可以遵循现有模式或需要新模式
+
+**范围：**
+- 触及的系统数量
+- 新代码与现有代码的修改
+- 需要的新测试覆盖量
+- 需要的数据迁移或配置更改
+
+**风险：**
+- 新技术或不熟悉的库
+- 不明确或模糊的需求
+- 对未完成工作的依赖
+- 跨系统集成复杂度
+- 性能敏感性
+
+---
+
+## 第 4 阶段：生成估算
 
 ```markdown
-## Task Estimate: [Task Name]
-Generated: [Date]
+## 任务估算：[任务名称]
+生成日期：[日期]
 
-### Task Description
-[Restate the task clearly in 1-2 sentences]
+### 任务描述
+[用 1-2 句话清楚地重述任务]
 
-### Complexity Assessment
+### 复杂度评估
 
-| Factor | Assessment | Notes |
+| 因素 | 评估 | 备注 |
 |--------|-----------|-------|
-| Systems affected | [List] | [Core, gameplay, UI, etc.] |
-| Files likely modified | [Count] | [Key files listed below] |
-| New code vs modification | [Ratio] | |
-| Integration points | [Count] | [Which systems interact] |
-| Test coverage needed | [Low / Medium / High] | |
-| Existing patterns available | [Yes / Partial / No] | |
+| 受影响的系统 | [列表] | [核心、游戏、UI 等] |
+| 可能修改的文件 | [数量] | [关键文件列在下面] |
+| 新代码与修改 | [比率] | |
+| 集成点 | [数量] | [哪些系统交互] |
+| 需要的测试覆盖 | [低 / 中 / 高] | |
+| 可用现有模式 | [是 / 部分 / 否] | |
 
-**Key files likely affected:**
-- `[path/to/file1]` -- [what changes here]
+**可能受影响的关键文件：**
+- `[path/to/file1]`——[这里更改什么]
 
-### Effort Estimate
+### 工作量估算
 
-| Scenario | Days | Assumption |
+| 场景 | 天数 | 假设 |
 |----------|------|------------|
-| Optimistic | [X] | Everything goes right, no surprises |
-| Expected | [Y] | Normal pace, minor issues, one round of review |
-| Pessimistic | [Z] | Significant unknowns surface, blocked for a day |
+| 乐观 | [X] | 一切顺利，无意外 |
+| 预期 | [Y] | 正常速度，小问题，一轮审查 |
+| 悲观 | [Z] | 出现重大未知，被阻塞一天 |
 
-**Recommended budget: [Y days]**
+**推荐预算：[Y 天]**
 
-### Confidence: [High / Medium / Low]
+### 置信度：[高 / 中 / 低]
 
-[Explain which factors drive the confidence level for this specific task.]
+[解释哪些因素驱动此特定任务的置信度水平。]
 
-### Risk Factors
+### 风险因素
 
-| Risk | Likelihood | Impact | Mitigation |
+| 风险 | 可能性 | 影响 | 缓解 |
 |------|-----------|--------|------------|
 
-### Dependencies
+### 依赖关系
 
-| Dependency | Status | Impact if Delayed |
+| 依赖关系 | 状态 | 如果延迟的影响 |
 |-----------|--------|-------------------|
 
-### Suggested Breakdown
+### 建议分解
 
-| # | Sub-task | Estimate | Notes |
+| # | 子任务 | 估算 | 备注 |
 |---|----------|----------|-------|
-| 1 | [Research / spike] | [X days] | |
-| 2 | [Core implementation] | [X days] | |
-| 3 | [Testing and validation] | [X days] | |
-| | **Total** | **[Y days]** | |
+| 1 | [研究 / spike] | [X 天] | |
+| 2 | [核心实现] | [X 天] | |
+| 3 | [测试和验证] | [X 天] | |
+| | **总计** | **[Y 天]** | |
 
-### Notes and Assumptions
-- [Key assumption that affects the estimate]
-- [Any caveats about scope boundaries]
+### 备注和假设
+- [影响估算的关键假设]
+- [关于范围边界的任何注意事项]
 ```
 
-Output the estimate with a brief summary: recommended budget, confidence level, and the single biggest risk factor.
+输出估算并附带简要摘要：推荐预算、置信度和单一最大风险因素。
 
-This skill is read-only — no files are written. Verdict: **COMPLETE** — estimate generated.
+此技能是只读的——不写入文件。裁决：**COMPLETE**——估算已生成。
 
 ---
 
-## Phase 5: Next Steps
+## 第 5 阶段：后续步骤
 
-- If confidence is Low: recommend a time-boxed spike (`/prototype`) before committing.
-- If the task is > 10 days: recommend breaking it into smaller stories via `/create-stories`.
-- To schedule the task: run `/sprint-plan update` to add it to the next sprint.
+- 如果置信度低：建议在承诺之前进行时间限制的 spike（`/prototype`）。
+- 如果任务 > 10 天：建议通过 `/create-stories` 将其拆分为更小的 story。
+- 要安排任务：运行 `/sprint-plan update` 将其添加到下一个 sprint。
 
-### Guidelines
+### 指南
 
-- Always give a range (optimistic / expected / pessimistic), never a single number
-- The recommended budget should be the expected estimate, not the optimistic one
-- Round to half-day increments — estimating in hours implies false precision for tasks longer than a day
-- Do not pad estimates silently — call out risk explicitly so the team can decide
+- 始终给出一个范围（乐观 / 预期 / 悲观），永远不要单一数字
+- 推荐预算应该是预期估算，不是乐观的
+- 四舍五入到半天增量——对于超过一天的任务，以小时估算暗示了虚假的精确性
+- 不要默默地增加估算——明确指出风险，以便团队可以决定

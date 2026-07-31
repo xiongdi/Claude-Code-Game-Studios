@@ -2,175 +2,163 @@
 
 ## Skill Summary
 
-`/ux-review` validates an existing UX spec or HUD design document against
-accessibility and interaction standards. It checks for required sections
-(User Flows, Interaction States, Wireframe Description, Accessibility Notes),
-completeness of interaction state definitions (hover, focus, disabled, error),
-accessibility compliance (keyboard navigation, color contrast notes, screen
-reader considerations), and consistency with the art bible or design system
-if those documents exist.
+`/ux-review` 根据可访问性和交互标准验证现有 UX 规格或 HUD 设计文档。它检查必需章节（User Flows、Interaction States、Wireframe Description、Accessibility Notes）、交互状态定义的完整性（hover、focus、disabled、error）、可访问性合规性（键盘导航、颜色对比度说明、屏幕阅读器考虑），以及如果这些文档存在时与 art bible 或 design system 的一致性。
 
-The skill is read-only — it produces no file writes. Verdicts: APPROVED
-(all checks pass), NEEDS REVISION (fixable issues found), or MAJOR REVISION
-NEEDED (structural or accessibility failures). No director gates apply —
-`/ux-review` IS the review gate for UX specs.
+该 skill 是只读的——不产生文件写入。裁定：APPROVED（所有检查通过）、NEEDS REVISION（发现可修复问题）或 MAJOR REVISION NEEDED（结构性或可访问性失败）。不适用 director gate——`/ux-review` 本身就是 UX 规格的审查 gate。
 
 ---
 
-## Static Assertions (Structural)
+## Static Assertions（结构性）
 
-Verified automatically by `/skill-test static` — no fixture needed.
+由 `/skill-test static` 自动验证——不需要 fixture。
 
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings
-- [ ] Contains verdict keywords: APPROVED, NEEDS REVISION, MAJOR REVISION NEEDED
-- [ ] Does NOT contain "May I write" language (skill is read-only)
-- [ ] Has a next-step handoff (e.g., back to `/ux-design` for revision, or proceed to implementation)
+- [ ] 具有必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 具有 ≥2 个 phase 标题
+- [ ] 包含裁定关键词：APPROVED、NEEDS REVISION、MAJOR REVISION NEEDED
+- [ ] 不包含 "May I write" 语言（skill 是只读的）
+- [ ] 具有下一步交接说明（例如，返回 `/ux-design` 进行修改，或继续实现）
 
 ---
 
 ## Director Gate Checks
 
-None. `/ux-review` is itself the review gate for UX specs. No additional director
-gates are invoked within this skill.
+无。`/ux-review` 本身就是 UX 规格的审查 gate。在此 skill 内不调用其他 director gate。
 
 ---
 
 ## Test Cases
 
-### Case 1: Happy Path — Complete UX spec with all required sections, APPROVED
+### Case 1: Happy Path——具有所有必需章节的完整 UX 规格，APPROVED
 
 **Fixture:**
-- `design/ux/hud.md` exists with all required sections populated:
-  - User Flows: complete player flow diagrams
-  - Interaction States: normal, hover, focus, disabled, error all defined
-  - Wireframe Description: layout described
-  - Accessibility Notes: keyboard nav, contrast ratios, screen reader notes
+- `design/ux/hud.md` 存在，所有必需章节已填写：
+  - User Flows：完整的玩家流程图
+  - Interaction States：normal、hover、focus、disabled、error 全部定义
+  - Wireframe Description：布局已描述
+  - Accessibility Notes：键盘导航、对比度比率、屏幕阅读器说明
 
 **Input:** `/ux-review hud`
 
 **Expected behavior:**
-1. Skill reads `design/ux/hud.md`
-2. Skill checks all 4 required sections — all present and non-empty
-3. Skill checks interaction states — all 5 states defined
-4. Skill checks accessibility notes — keyboard, contrast, and screen reader covered
-5. Skill outputs: checklist of all passed checks
-6. Verdict is APPROVED
+1. Skill 读取 `design/ux/hud.md`
+2. Skill 检查所有 4 个必需章节——全部存在且非空
+3. Skill 检查交互状态——全部 5 种状态已定义
+4. Skill 检查可访问性说明——键盘、对比度和屏幕阅读器已覆盖
+5. Skill 输出：所有通过检查的清单
+6. 裁定为 APPROVED
 
 **Assertions:**
-- [ ] All 4 required sections are checked
-- [ ] All 5 interaction states are verified present
-- [ ] Verdict is APPROVED
-- [ ] No files are written
+- [ ] 所有 4 个必需章节都被检查
+- [ ] 所有 5 种交互状态被验证存在
+- [ ] 裁定为 APPROVED
+- [ ] 不写入任何文件
 
 ---
 
-### Case 2: Missing Accessibility Section — NEEDS REVISION
+### Case 2: Missing Accessibility Section——NEEDS REVISION
 
 **Fixture:**
-- `design/ux/hud.md` exists but the Accessibility Notes section is empty
-- All other sections are fully populated
+- `design/ux/hud.md` 存在但 Accessibility Notes 章节为空
+- 其他所有章节完全填写
 
 **Input:** `/ux-review hud`
 
 **Expected behavior:**
-1. Skill reads the file and checks all sections
-2. Accessibility Notes section is empty — check fails
-3. Skill outputs: "NEEDS REVISION — Accessibility Notes section is empty"
-4. Skill lists specific items to add: keyboard navigation, color contrast ratios,
-   screen reader labels
-5. Verdict is NEEDS REVISION
-6. Handoff suggests returning to `/ux-design hud` to fill in the section
+1. Skill 读取文件并检查所有章节
+2. Accessibility Notes 章节为空——检查失败
+3. Skill 输出："NEEDS REVISION — Accessibility Notes section is empty"
+4. Skill 列出要添加的具体项目：键盘导航、颜色对比度比率、
+   屏幕阅读器标签
+5. 裁定为 NEEDS REVISION
+6. 交接说明建议返回 `/ux-design hud` 填写该章节
 
 **Assertions:**
-- [ ] NEEDS REVISION verdict is returned (not APPROVED or MAJOR REVISION NEEDED)
-- [ ] Specific missing content items are listed
-- [ ] Handoff points back to `/ux-design hud` for revision
-- [ ] No files are written
+- [ ] 返回 NEEDS REVISION 裁定（不是 APPROVED 或 MAJOR REVISION NEEDED）
+- [ ] 列出具体缺失的内容项目
+- [ ] 交接说明指向 `/ux-design hud` 进行修改
+- [ ] 不写入任何文件
 
 ---
 
-### Case 3: Interaction States Incomplete — NEEDS REVISION
+### Case 3: Interaction States Incomplete——NEEDS REVISION
 
 **Fixture:**
-- `design/ux/settings-menu.md` exists
-- Interaction States section only defines: normal and hover
-- Missing: focus, disabled, error states
+- `design/ux/settings-menu.md` 存在
+- Interaction States 章节仅定义：normal 和 hover
+- 缺失：focus、disabled、error 状态
 
 **Input:** `/ux-review settings-menu`
 
 **Expected behavior:**
-1. Skill reads the file and checks interaction states
-2. Only 2 of 5 required states are defined
-3. Skill reports: "NEEDS REVISION — Interaction states incomplete: missing focus, disabled, error"
-4. Verdict is NEEDS REVISION with specific missing states named
+1. Skill 读取文件并检查交互状态
+2. 仅定义了 5 种必需状态中的 2 种
+3. Skill 报告："NEEDS REVISION — Interaction states incomplete: missing focus, disabled, error"
+4. 裁定为 NEEDS REVISION，明确命名具体缺失的状态
 
 **Assertions:**
-- [ ] NEEDS REVISION verdict returned
-- [ ] All 3 missing states are named explicitly in the output
-- [ ] Skill does not return MAJOR REVISION NEEDED for a fixable gap
-- [ ] Handoff suggests returning to `/ux-design settings-menu`
+- [ ] 返回 NEEDS REVISION 裁定
+- [ ] 所有 3 种缺失状态在输出中明确命名
+- [ ] Skill 对可修复的差距不返回 MAJOR REVISION NEEDED
+- [ ] 交接说明建议返回 `/ux-design settings-menu`
 
 ---
 
-### Case 4: File Not Found — Error with remediation
+### Case 4: File Not Found——带有修复指导的错误
 
 **Fixture:**
-- `design/ux/inventory-screen.md` does not exist
+- `design/ux/inventory-screen.md` 不存在
 
 **Input:** `/ux-review inventory-screen`
 
 **Expected behavior:**
-1. Skill attempts to read `design/ux/inventory-screen.md` — file not found
-2. Skill outputs: "UX spec not found: design/ux/inventory-screen.md"
-3. Skill suggests running `/ux-design inventory-screen` to create the spec first
-4. No review is performed; no verdict is issued
+1. Skill 尝试读取 `design/ux/inventory-screen.md`——文件未找到
+2. Skill 输出："UX spec not found: design/ux/inventory-screen.md"
+3. Skill 建议运行 `/ux-design inventory-screen` 先创建规格
+4. 不执行审查；不发布裁定
 
 **Assertions:**
-- [ ] Error message names the missing file with full path
-- [ ] `/ux-design inventory-screen` is suggested as the remediation
-- [ ] No review checklist is produced
-- [ ] No verdict is issued (error state, not APPROVED/NEEDS REVISION)
+- [ ] 错误消息以完整路径命名缺失的文件
+- [ ] `/ux-design inventory-screen` 被建议为修复步骤
+- [ ] 不产生审查清单
+- [ ] 不发布裁定（错误状态，不是 APPROVED/NEEDS REVISION）
 
 ---
 
-### Case 5: Director Gate Check — No gate; ux-review is itself the review
+### Case 5: Director Gate Check——无 gate；ux-review 本身就是审查
 
 **Fixture:**
-- Valid UX spec file
+- 有效的 UX 规格文件
 
 **Input:** `/ux-review hud`
 
 **Expected behavior:**
-1. Skill performs the review and issues a verdict
-2. No additional director agents are spawned
-3. No gate IDs appear in output
+1. Skill 执行审查并发布裁定
+2. 不派生其他 director agent
+3. 输出中不出现 gate ID
 
 **Assertions:**
-- [ ] No director gate is invoked
-- [ ] No gate skip messages appear
-- [ ] Verdict is APPROVED, NEEDS REVISION, or MAJOR REVISION NEEDED — no gate verdict
+- [ ] 不调用 director gate
+- [ ] 不出现 gate 跳过消息
+- [ ] 裁定为 APPROVED、NEEDS REVISION 或 MAJOR REVISION NEEDED——无 gate 裁定
 
 ---
 
 ## Protocol Compliance
 
-- [ ] Checks all 4 required sections (User Flows, Interaction States, Wireframe,
-     Accessibility Notes)
-- [ ] Checks all 5 interaction states (normal, hover, focus, disabled, error)
-- [ ] Checks accessibility coverage (keyboard nav, contrast, screen reader)
-- [ ] Does not write any files
-- [ ] Issues specific, actionable feedback when verdict is not APPROVED
-- [ ] Ends with next-step handoff to `/ux-design` for revision or implementation
+- [ ] 检查所有 4 个必需章节（User Flows、Interaction States、Wireframe、
+     Accessibility Notes）
+- [ ] 检查所有 5 种交互状态（normal、hover、focus、disabled、error）
+- [ ] 检查可访问性覆盖（键盘导航、对比度、屏幕阅读器）
+- [ ] 不写入任何文件
+- [ ] 当裁定不是 APPROVED 时发布具体、可操作的反馈
+- [ ] 以到 `/ux-design` 进行修改或实现的下一步交接说明结束
 
 ---
 
 ## Coverage Notes
 
-- MAJOR REVISION NEEDED is triggered when structural sections are entirely
-  absent (not just empty) or when fundamental interaction flows are missing
-  entirely; not tested with a separate fixture here.
-- Art bible / design system consistency check (color palette alignment) is
-  mentioned as a capability but not separately fixture-tested.
-- The case where an existing spec was written for a now-renamed screen is
-  not tested; the skill would review the file by path regardless of the name.
+- MAJOR REVISION NEEDED 在结构性章节完全缺失（不仅仅是空）或基本交互流程完全缺失时触发；
+  不在此使用单独的 fixture 测试。
+- Art bible / design system 一致性检查（颜色调色板对齐）作为能力提及但不单独进行 fixture 测试。
+- 现有规格是为现已重命名的屏幕编写的情况不在此测试；
+  skill 会按路径审查文件，无论名称如何。

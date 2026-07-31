@@ -7,29 +7,28 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Task, AskUserQuestion
 model: sonnet
 ---
 
-If no argument is provided, check whether `design/assets/entity-inventory.md` exists:
-- If it exists: read it, find the first entity or screen with status "Needed" but no spec file yet, and use `AskUserQuestion`:
-  - Prompt: "The next unspecced item is **[name]**. Generate specs for it?"
-  - Options: `[A] Yes — spec [name]` / `[B] Pick a different item` / `[C] Stop here`
-- If no entity inventory: check `design/assets/asset-manifest.md`. If manifest exists, same flow above but reading from manifest.
-- If neither exists: **start the Entity & Screen Inventory flow** (Phase 0b below) rather than failing.
+如果未提供参数，检查 `design/assets/entity-inventory.md` 是否存在：
+- 如果存在：读取它，找到第一个状态为 "Needed" 但没有 spec 文件的实体或屏幕，并使用 `AskUserQuestion`：
+  - 提示："下一个未指定规格的项是 **[name]**。为其生成规格？"
+  - 选项：`[A] Yes — spec [name]` / `[B] Pick a different item` / `[C] Stop here`
+- 如果没有实体清单：检查 `design/assets/asset-manifest.md`。如果清单存在，同上但从清单读取。
+- 如果两者都不存在：**启动 Entity & Screen Inventory 流程**（下面的阶段 0b）而不是失败。
 
 ---
 
-## Phase 0b: Entity & Screen Inventory (runs when no arguments and no existing inventory)
+## 阶段 0b：Entity & Screen Inventory（当无参数且无现有清单时运行）
 
-This flow produces `design/assets/entity-inventory.md` — the master list of everything
-the game needs visually. Run once before asset spec work begins.
+此流程生成 `design/assets/entity-inventory.md` —— 游戏在视觉上需要的一切的主列表。在资产规格工作开始前运行一次。
 
-### Step 1 — Gather from docs
-Read all available source material in parallel:
-- `design/gdd/systems-index.md` — extract every system listed
-- All GDDs in `design/gdd/` — extract: Visual/Audio Requirements sections, UI elements mentioned, VFX events, any named entities (characters, enemies, buildings, items)
-- `design/art/art-bible.md` — extract: any named visual categories, asset type expectations
-- `design/narrative/` — scan for any character or world entity documents if they exist (optional — not required)
+### 步骤 1 —— 从文档收集
+并行读取所有可用的源材料：
+- `design/gdd/systems-index.md` —— 提取列出的每个系统
+- `design/gdd/` 中的所有 GDD —— 提取：Visual/Audio Requirements 部分、提到的 UI 元素、VFX 事件、任何命名的实体（角色、敌人、建筑、物品）
+- `design/art/art-bible.md` —— 提取：任何命名的视觉类别、资产类型预期
+- `design/narrative/` —— 扫描任何角色或世界实体文档（如果存在）（可选 —— 非必需）
 
-### Step 2 — Build proposed inventory
-Organize everything found into categories:
+### 步骤 2 —— 构建提议的清单
+将找到的所有内容组织成类别：
 
 ```
 Characters / Protagonists
@@ -38,49 +37,49 @@ Buildings / Structures
 Environment / Terrain
 Items / Props
 VFX / Particles
-UI Screens (list each screen by name)
+UI Screens（按名称列出每个屏幕）
 HUD Elements
-Audio (SFX, music — descriptions only, no generation prompts)
+Audio（SFX、音乐 —— 仅描述，无生成提示）
 Other
 ```
 
-For each item, note the source doc it was found in.
+对于每个项目，注明找到它的源文档。
 
-### Step 3 — Present and collaborate
-Present the full proposed inventory to the user in conversation. Then use `AskUserQuestion`:
-- Prompt: "I found **[N] visual entities and [N] UI screens** across your GDDs and art bible. Review the list — what's missing, what's not needed?"
-- Options:
-  - `[A] Looks good — save this inventory`
-  - `[B] Add items I'll describe`
-  - `[C] Remove items that don't apply`
-  - `[D] Both add and remove — let me edit`
+### 步骤 3 —— 展示并协作
+在对话中向用户展示完整的提议清单。然后使用 `AskUserQuestion`：
+- 提示："我在你的 GDD 和艺术圣经中找到了 **[N] 个视觉实体和 [N] 个 UI 屏幕**。审查列表 —— 缺少什么，什么不需要？"
+- 选项：
+  - `[A] 看起来不错 — 保存此清单`
+  - `[B] 添加我要描述的项目`
+  - `[C] 移除不适用项目`
+  - `[D] 同时添加和移除 —— 让我编辑`
 
-If [B] or [D]: ask the user to describe additional items. Accept brief descriptions ("a medieval keep, used as a level background") or detailed ones — either works. Work through them collaboratively until the user is satisfied.
+如果 [B] 或 [D]：要求用户描述其他项目。接受简短描述（"a medieval keep, used as a level background"）或详细描述 —— 都可以。协作处理直到用户满意。
 
-If [C] or [D]: ask which items to remove and why. Remove them from the list.
+如果 [C] 或 [D]：询问要删除哪些项目以及原因。从列表中删除它们。
 
-### Step 4 — Write inventory
-After user approval, ask: "May I write the entity inventory to `design/assets/entity-inventory.md`?"
+### 步骤 4 —— 写入清单
+用户批准后，询问："我可以将实体清单写入 `design/assets/entity-inventory.md` 吗？"
 
-Write the file:
+写入文件：
 
 ```markdown
 # Visual Entity & Screen Inventory
 
 > Generated: [date]
-> Sources: [list of source docs read]
+> Sources: [读取的源文档列表]
 
 ## Entities
 
 | # | Name | Type | Description | Source | Status |
 |---|------|------|-------------|--------|--------|
-| 1 | [name] | Character / Enemy / Building / Environment / Item / Other | [brief description] | [source doc] | Needed |
+| 1 | [name] | Character / Enemy / Building / Environment / Item / Other | [简短描述] | [源文档] | Needed |
 
 ## UI Screens
 
 | # | Screen Name | Description | Source | Status |
 |---|-------------|-------------|--------|--------|
-| 1 | Main Menu | [description] | [source] | Needed |
+| 1 | Main Menu | [描述] | [源] | Needed |
 
 ## HUD Elements
 
@@ -93,115 +92,115 @@ Write the file:
 |---|------|------------------------------|-------------|--------|--------|
 ```
 
-After writing, tell the user:
-> "Entity inventory saved. Next steps:
-> - Run `/ux-design [screen name]` for each UI screen in the inventory
-> - Run `/asset-spec entity:[name]` to spec each visual entity
-> - Or run `/asset-spec` again to work through the inventory one item at a time"
+写入后，告诉用户：
+> "实体清单已保存。下一步：
+> - 为清单中的每个 UI 屏幕运行 `/ux-design [screen name]`
+> - 运行 `/asset-spec entity:[name]` 为每个视觉实体指定规格
+> - 或再次运行 `/asset-spec` 逐项处理清单"
 
 ---
 
-## Phase 0: Parse Arguments
+## 阶段 0：解析参数
 
-Extract:
-- **Target type**: `system`, `level`, or `character`
-- **Target name**: the name after the colon (normalize to kebab-case)
-- **Review mode**: `--review [full|lean|solo]` if present
+提取：
+- **目标类型**：`system`、`level` 或 `character`
+- **目标名称**：冒号后的名称（规范化为 kebab-case）
+- **审查模式**：如果存在 `--review [full|lean|solo]`
 
-**Mode behavior:**
-- `full` (default): spawn both `art-director` and `technical-artist` in parallel
-- `lean`: spawn `art-director` only — faster, skips technical constraint pass
-- `solo`: no agent spawning — main session writes specs from art bible rules alone. Use for simple asset categories or when speed matters more than depth.
+**模式行为：**
+- `full`（默认）：并行派生 `art-director` 和 `technical-artist`
+- `lean`：仅派生 `art-director` —— 更快，跳过技术约束传递
+- `solo`：不派生 agent —— 主会话仅从艺术圣经规则编写规格。用于简单资产类别或速度比深度更重要时。
 
 ---
 
-## Phase 1: Gather Context
+## 阶段 1：收集上下文
 
-Read all source material **before** asking the user anything.
+在询问用户任何内容之前**读取所有源材料**。
 
-### Required reads:
-- **Art bible**: Read `design/art/art-bible.md` — fail if missing:
-  > "No art bible found. Run `/art-bible` first — asset specs are anchored to the art bible's visual rules and asset standards."
-  Extract: Visual Identity Statement, Color System (semantic colors), Shape Language, Asset Standards (Section 8 — dimensions, formats, polycount budgets, texture resolution tiers).
+### 必需读取：
+- **艺术圣经**：读取 `design/art/art-bible.md` —— 如果缺失则失败：
+  > "未找到艺术圣经。先运行 `/art-bible` —— 资产规格锚定在艺术圣经的视觉规则和资产标准上。"
+  提取：Visual Identity Statement、Color System（语义颜色）、Shape Language、Asset Standards（第 8 部分 —— 尺寸、格式、多边形预算、纹理分辨率层级）。
 
-- **Technical preferences**: Read `.claude/docs/technical-preferences.md` — extract performance budgets and naming conventions.
+- **技术偏好**：读取 `.claude/docs/technical-preferences.md` —— 提取性能预算和命名约定。
 
-### Source doc reads (by target type):
-- **system**: Read `design/gdd/[target-name].md`. Extract the **Visual/Audio Requirements** section. If it doesn't exist or reads `[To be designed]`:
-  > "The Visual/Audio section of `design/gdd/[target-name].md` is empty. Either run `/design-system [target-name]` to complete the GDD, or describe the visual needs manually."
-  Use `AskUserQuestion`: `[A] Describe needs manually` / `[B] Stop — complete the GDD first`
-- **level**: Read `design/levels/[target-name].md`. Extract art requirements, asset list, VFX needs, and the art-director's production concept specs from Step 4.
-- **character** or **entity**: Read `design/narrative/characters/[target-name].md` or search `design/narrative/` and `design/assets/entity-inventory.md` for a matching entry. Extract visual description, role, and any specified distinguishing features.
-  - **If no source doc exists**: do not fail. Instead, use `AskUserQuestion`:
-    - Prompt: "No profile found for **[name]**. Describe it briefly — a sentence or two is enough."
-    - Options: `[A] Describe it now` / `[B] Skip this entity` / `[C] Stop here`
-    - If [A]: the user's description becomes the source. Brief answers produce concise specs; detailed answers produce detailed specs. Accept whatever level of detail the user provides and work from it.
+### 源文档读取（按目标类型）：
+- **system**：读取 `design/gdd/[target-name].md`。提取 **Visual/Audio Requirements** 部分。如果不存在或读取 `[To be designed]`：
+  > "`design/gdd/[target-name].md` 的 Visual/Audio 部分为空。要么运行 `/design-system [target-name]` 完成 GDD，要么手动描述视觉需求。"
+  使用 `AskUserQuestion`：`[A] Describe needs manually` / `[B] Stop — complete the GDD first`
+- **level**：读取 `design/levels/[target-name].md`。提取艺术需求、资产列表、VFX 需求和步骤 4 中 art-director 的制作概念规格。
+- **character** 或 **entity**：读取 `design/narrative/characters/[target-name].md` 或在 `design/narrative/` 和 `design/assets/entity-inventory.md` 中搜索匹配条目。提取视觉描述、角色和任何指定的区分特征。
+  - **如果不存在源文档**：不要失败。而是使用 `AskUserQuestion`：
+    - 提示："未找到 **[name]** 的档案。简要描述它 —— 一两句话就够了。"
+    - 选项：`[A] Describe it now` / `[B] Skip this entity` / `[C] Stop here`
+    - 如果 [A]：用户的描述成为源。简短答案产生简洁规格；详细答案产生详细规格。接受用户提供的任何详细程度并据此工作。
 
-### Optional reads:
-- **Existing manifest**: Read `design/assets/asset-manifest.md` if it exists — extract already-specced assets for this target to avoid duplicates.
-- **Related specs**: Glob `design/assets/specs/*.md` — scan for assets that could be shared (e.g., a common UI element specced for one system might apply here too).
+### 可选读取：
+- **现有清单**：如果存在，读取 `design/assets/asset-manifest.md` —— 提取已为此目标指定规格的资产以避免重复。
+- **相关规格**：Glob `design/assets/specs/*.md` —— 扫描可以共享的资产（例如，为一个系统指定规格的通用 UI 元素可能也适用于此处）。
 
-### Present context summary:
+### 展示上下文摘要：
 > **Asset Spec: [Target Type] — [Target Name]**
-> - Source doc: [path] — [N] asset types identified
-> - Art bible: found — Asset Standards at Section 8
-> - Existing specs for this target: [N already specced / none]
-> - Shared assets found in other specs: [list or "none"]
+> - 源文档：[path] —— 识别出 [N] 种资产类型
+> - 艺术圣经：找到 —— Asset Standards 在第 8 部分
+> - 此目标的现有规格：[N 个已指定规格 / 无]
+> - 在其他规格中找到的共享资产：[列表或"无"]
 
 ---
 
-## Phase 2: Asset Identification
+## 阶段 2：资产识别
 
-From the source doc, extract every asset type mentioned — explicit and implied.
+从源文档中提取提到的每种资产类型 —— 显式和隐含的。
 
-**For systems**: look for VFX events, sprite references, UI elements, audio triggers, particle effects, icon needs, and any "visual feedback" language.
+**对于系统**：查找 VFX 事件、精灵引用、UI 元素、音频触发器、粒子效果、图标需求和任何"视觉反馈"语言。
 
-**For levels**: look for unique environment props, atmospheric VFX, lighting setups, ambient audio, skybox/background, and any area-specific materials.
+**对于关卡**：查找独特的环境道具、大气 VFX、灯光设置、环境音频、天空盒/背景和任何区域特定的材质。
 
-**For characters**: look for sprite sheets (idle, walk, attack, death), portrait/avatar, VFX attached to abilities, UI representation (icon, health bar skin).
+**对于角色**：查找精灵表（idle、walk、attack、death）、肖像/头像、附着在能力上的 VFX、UI 表示（图标、血条皮肤）。
 
-Group assets into categories:
-- **Sprite / 2D Art** — character sprites, UI icons, tile sheets
-- **VFX / Particles** — hit effects, ambient particles, screen effects
-- **Environment** — props, tiles, backgrounds, skyboxes
-- **UI** — HUD elements, menu art, fonts (if custom)
-- **Audio** — SFX, music tracks, ambient loops *(note: audio specs are descriptions only — no generation prompts)*
-- **3D Assets** — meshes, materials (if applicable per engine)
+将资产分组为类别：
+- **Sprite / 2D Art** —— 角色精灵、UI 图标、tile 表
+- **VFX / Particles** —— 打击效果、环境粒子、屏幕效果
+- **Environment** —— 道具、tile、背景、天空盒
+- **UI** —— HUD 元素、菜单艺术、字体（如果自定义）
+- **Audio** —— SFX、音乐曲目、环境循环 *（注意：音频规格仅为描述 —— 无生成提示）*
+- **3D Assets** —— 网格、材质（如果适用于引擎）
 
-Present the full identified list to the user. Use `AskUserQuestion`:
-- Prompt: "I identified [N] assets across [N] categories for **[target]**. Review before speccing:"
-- Show the grouped list in conversation text first
-- Options: `[A] Proceed — spec all of these` / `[B] Remove some assets` / `[C] Add assets I didn't catch` / `[D] Adjust categories`
+向用户展示完整的识别列表。使用 `AskUserQuestion`：
+- 提示："我为 **[target]** 在 [N] 个类别中识别出 [N] 个资产。在指定规格前审查："
+- 首先在对话文本中显示分组列表
+- 选项：`[A] 继续 —— 为所有这些指定规格` / `[B] 移除一些资产` / `[C] 添加我遗漏的资产` / `[D] 调整类别`
 
-Do NOT proceed to Phase 3 without user confirmation of the asset list.
-
----
-
-## Phase 3: Spec Generation
-
-Spawn specialist agents based on review mode. **Issue all Task calls simultaneously — do not wait for one before starting the next.**
-
-### Full mode — spawn in parallel:
-
-**`art-director`** via Task:
-- Provide: full asset list from Phase 2, art bible Visual Identity Statement, Color System, Shape Language, the source doc's visual requirements, and any reference games/art mentioned in the art bible Section 9
-- Ask: "For each asset in this list, produce: (1) a 2–3 sentence visual description anchored to the art bible's shape language and color system — be specific enough that two different artists would produce consistent results; (2) a generation prompt ready for use with AI image tools (Midjourney/Stable Diffusion style — include style keywords, composition, color palette anchors, negative prompts); (3) which art bible rules directly govern this asset (cite by section). For audio assets, describe the sonic character instead of a generation prompt."
-
-**`technical-artist`** via Task:
-- Provide: full asset list, art bible Asset Standards (Section 8), technical-preferences.md performance budgets, engine name and version
-- Ask: "For each asset in this list, specify: (1) exact dimensions or polycount (match the art bible Asset Standards tiers — do not invent new sizes); (2) file format and export settings; (3) naming convention (from technical-preferences.md); (4) any engine-specific constraints this asset type must respect; (5) LOD requirements if applicable. Flag any asset type where the art bible's preferred standard conflicts with the engine's constraints."
-
-### Lean mode — spawn art-director only (skip technical-artist).
-
-### Solo mode — skip both. Derive specs from art bible rules alone, noting that technical constraints were not validated.
-
-**Collect both responses before Phase 4.** If any conflict exists between art-director and technical-artist (e.g., art-director specifies 4K textures but technical-artist flags the engine budget requires 512px), surface it explicitly — do NOT silently resolve.
+未经用户确认资产列表，不要继续到阶段 3。
 
 ---
 
-## Phase 4: Compile and Review
+## 阶段 3：规格生成
 
-Combine the agent outputs into a draft spec per asset. Present all specs in conversation text using this format:
+基于审查模式派生专家 agent。**同时发出所有 Task 调用 —— 不要等待一个完成再开始下一个。**
+
+### 完整模式 —— 并行派生：
+
+**`art-director`** 通过 Task：
+- 提供：阶段 2 的完整资产列表、艺术圣经 Visual Identity Statement、Color System、Shape Language、源文档的视觉需求以及艺术圣经第 9 部分中提到的任何参考游戏/艺术
+- 询问："对于此列表中的每个资产，生成：(1) 2-3 句视觉描述，锚定在艺术圣经的形状语言和颜色系统上 —— 足够具体，让两个不同的艺术家能产生一致的结果；(2) 准备用于 AI 图像工具的生成提示（Midjourney/Stable Diffusion 风格 —— 包括风格关键词、构图、调色板锚点、负面提示）；(3) 哪些艺术圣经规则直接管辖此资产（按部分引用）。对于音频资产，描述声音特征而不是生成提示。"
+
+**`technical-artist`** 通过 Task：
+- 提供：完整资产列表、艺术圣经 Asset Standards（第 8 部分）、technical-preferences.md 性能预算、引擎名称和版本
+- 询问："对于此列表中的每个资产，指定：(1) 精确尺寸或多边形数量（匹配艺术圣经 Asset Standards 层级 —— 不要发明新尺寸）；(2) 文件格式和导出设置；(3) 命名约定（来自 technical-preferences.md）；(4) 此资产类型必须尊重的任何引擎特定约束；(5) 如果适用，LOD 需求。标记艺术圣经的首选标准与引擎约束冲突的任何资产类型。"
+
+### 精简模式 —— 仅派生 art-director（跳过 technical-artist）。
+
+### 独奏模式 —— 两者都跳过。仅从艺术圣经规则推导规格，注意技术约束未经验证。
+
+**在阶段 4 之前收集两个响应。** 如果 art-director 和 technical-artist 之间存在任何冲突（例如，art-director 指定 4K 纹理，但 technical-artist 标记引擎预算需要 512px），明确展示它 —— 不要静默解决。
+
+---
+
+## 阶段 4：编译和审查
+
+将 agent 输出组合成每个资产的草稿规格。使用此格式在对话文本中展示所有规格：
 
 ```
 ## ASSET-[NNN] — [Asset Name]
@@ -209,53 +208,53 @@ Combine the agent outputs into a draft spec per asset. Present all specs in conv
 | Field | Value |
 |-------|-------|
 | Category | [Sprite / VFX / Environment / UI / Audio / 3D] |
-| Dimensions | [e.g. 256×256px, 4-frame sprite sheet] |
-| Format | [PNG / SVG / WAV / etc.] |
-| Naming | [e.g. vfx_frost_hit_01.png] |
-| Polycount | [if 3D — e.g. <800 tris] |
-| Texture Res | [e.g. 512px — matches Art Bible §8 Tier 2] |
+| Dimensions | [例如 256×256px, 4-frame sprite sheet] |
+| Format | [PNG / SVG / WAV / 等] |
+| Naming | [例如 vfx_frost_hit_01.png] |
+| Polycount | [如果 3D —— 例如 <800 tris] |
+| Texture Res | [例如 512px — matches Art Bible §8 Tier 2] |
 
 **Visual Description:**
-[2–3 sentences. Specific enough for two artists to produce consistent results.]
+[2-3 句话。足够具体，让两个艺术家能产生一致的结果。]
 
 **Art Bible Anchors:**
-- §3 Shape Language: [relevant rule applied]
-- §4 Color System: [color role — e.g. "uses Threat Blue per semantic color rules"]
+- §3 Shape Language: [应用的相关规则]
+- §4 Color System: [颜色角色 —— 例如 "uses Threat Blue per semantic color rules"]
 
 **Generation Prompt:**
-[Ready-to-use prompt. Include: style keywords, composition notes, color palette anchors, lighting direction, negative prompts.]
+[准备使用的提示。包括：风格关键词、构图笔记、调色板锚点、灯光方向、负面提示。]
 
 **Status:** Needed
 ```
 
-After presenting all specs, use `AskUserQuestion`:
-- Prompt: "Asset specs for **[target]** — [N] assets. Review complete?"
-- Options: `[A] Approve all — write to file` / `[B] Revise a specific asset` / `[C] Regenerate with different direction`
+展示所有规格后，使用 `AskUserQuestion`：
+- 提示："**[target]** 的资产规格 —— [N] 个资产。审查完成？"
+- 选项：`[A] 全部批准 —— 写入文件` / `[B] 修改特定资产` / `[C] 用不同方向重新生成`
 
-If [B]: ask which asset and what to change. Revise inline and re-present. Do NOT re-spawn agents for minor text revisions — only re-spawn if the visual direction itself needs to change.
+如果 [B]：询问哪个资产以及更改什么。在线内联修改并重新呈现。不要为小的文本修改重新派生 agent —— 仅当视觉方向本身需要改变时才重新派生。
 
-If [C]: ask what direction to change. Re-spawn the relevant agent with the updated brief.
+如果 [C]：询问要改变什么方向。用更新的简报重新派生相关 agent。
 
 ---
 
-## Phase 5: Write Spec File
+## 阶段 5：写入规格文件
 
-After approval, ask: "May I write the spec to `design/assets/specs/[target-name]-assets.md`?"
+批准后，询问："我可以将规格写入 `design/assets/specs/[target-name]-assets.md` 吗？"
 
-Write the file with:
+写入文件：
 
 ```markdown
 # Asset Specs — [Target Type]: [Target Name]
 
-> **Source**: [path to source GDD/level/character doc]
+> **Source**: [源 GDD/关卡/角色文档的路径]
 > **Art Bible**: design/art/art-bible.md
 > **Generated**: [date]
 > **Status**: [N] assets specced / [N] approved / [N] in production / [N] done
 
-[all asset specs in ASSET-NNN format]
+[ASSET-NNN 格式的所有资产规格]
 ```
 
-Then update `design/assets/asset-manifest.md`. If it doesn't exist, create it:
+然后更新 `design/assets/asset-manifest.md`。如果不存在，创建它：
 
 ```markdown
 # Asset Manifest
@@ -276,77 +275,77 @@ Then update `design/assets/asset-manifest.md`. If it doesn't exist, create it:
 | ASSET-001 | [name] | [category] | Needed | design/assets/specs/[target]-assets.md |
 ```
 
-If the manifest already exists, append the new context block and update the Progress Summary counts.
+如果清单已存在，追加新上下文块并更新 Progress Summary 计数。
 
-Ask: "May I update `design/assets/asset-manifest.md`?"
+询问："我可以更新 `design/assets/asset-manifest.md` 吗？"
 
 ---
 
-## Phase 6: Close
+## 阶段 6：结束
 
-Use `AskUserQuestion`:
-- Prompt: "Asset specs complete for **[target]**. What's next?"
-- Options:
+使用 `AskUserQuestion`：
+- 提示："**[target]** 的资产规格完成。下一步？"
+- 选项：
   - `[A] Spec another system — /asset-spec system:[next-system]`
   - `[B] Spec a level — /asset-spec level:[level-name]`
   - `[C] Spec a character — /asset-spec character:[character-name]`
-  - `[D] Run /asset-audit — validate delivered assets against specs`
+  - `[D] Run /asset-audit —— 根据规格验证交付的资产`
   - `[E] Stop here`
 
 ---
 
-## Asset ID Assignment
+## 资产 ID 分配
 
-Asset IDs are assigned sequentially across the entire project — not per-context. Read the manifest before assigning IDs to find the current highest number:
+资产 ID 在整个项目中按顺序分配 —— 不是按上下文。在分配 ID 之前读取清单以找到当前最高数字：
 
 ```
 Grep pattern="ASSET-" path="design/assets/asset-manifest.md"
 ```
 
-Start new assets from `ASSET-[highest + 1]`. This ensures IDs are stable and unique across the whole project.
+从 `ASSET-[highest + 1]` 开始新资产。这确保 ID 在整个项目中稳定且唯一。
 
-If no manifest exists yet, start from `ASSET-001`.
-
----
-
-## Shared Asset Protocol
-
-Before speccing an asset, check if an equivalent already exists in another context's spec:
-
-- Common UI elements (health bars, score displays) are often shared across systems
-- Generic environment props may appear in multiple levels
-- Character VFX (hit sparks, death effects) may reuse a base spec with color variants
-
-If a match is found: reference the existing ASSET-ID rather than creating a duplicate. Note the shared usage in the manifest's referenced-by column.
-
-> "ASSET-012 (Generic Hit Spark) already specced for Combat system. Reusing for Tower Defense — adding tower-defense to referenced-by."
+如果尚不存在清单，从 `ASSET-001` 开始。
 
 ---
 
-## Error Recovery Protocol
+## 共享资产协议
 
-If any spawned agent returns BLOCKED or cannot complete:
+在指定资产规格之前，检查等效资产是否已存在于另一个上下文的规格中：
 
-1. Surface immediately: "[AgentName]: BLOCKED — [reason]"
-2. In `lean` mode or if `technical-artist` blocks: proceed with art-director output only — note that technical constraints were not validated
-3. In `solo` mode or if `art-director` blocks: derive descriptions from art bible rules — flag as "Art director not consulted — verify against art bible before production"
-4. Always produce a partial spec — never discard work because one agent blocked
+- 通用 UI 元素（血条、分数显示）通常跨系统共享
+- 通用环境道具可能出现在多个关卡中
+- 角色 VFX（打击火花、死亡效果）可能重用带有颜色变体的基础规格
 
----
+如果找到匹配项：引用现有 ASSET-ID 而不是创建重复项。在清单的 referenced-by 列中注明共享用法。
 
-## Collaborative Protocol
-
-Every phase follows: **Identify → Confirm → Generate → Review → Approve → Write**
-
-- Never spec assets without first confirming the asset list with the user
-- Always anchor specs to the art bible — a spec that contradicts the art bible is wrong
-- Surface all agent disagreements — do not silently pick one
-- Write the spec file only after explicit approval
-- Update the manifest immediately after writing the spec
+> "ASSET-012（Generic Hit Spark）已为 Combat 系统指定规格。为 Tower Defense 重用 —— 将 tower-defense 添加到 referenced-by。"
 
 ---
 
-## Recommended Next Steps
+## 错误恢复协议
 
-- Run `/asset-spec [next-context]` to continue speccing remaining systems, levels, or characters
-- Run `/asset-audit` to validate delivered assets against the written specs and identify gaps or mismatches
+如果任何派生的 agent 返回 BLOCKED 或无法完成：
+
+1. 立即展示："[AgentName]: BLOCKED —— [reason]"
+2. 在 `lean` 模式或如果 `technical-artist` 阻塞：仅使用 art-director 输出继续 —— 注意技术约束未经验证
+3. 在 `solo` 模式或如果 `art-director` 阻塞：从艺术圣经规则推导描述 —— 标记为 "Art director not consulted —— verify against art bible before production"
+4. 始终生成部分规格 —— 永远不要因为一个 agent 阻塞而丢弃工作
+
+---
+
+## 协作协议
+
+每个阶段遵循：**Identify → Confirm → Generate → Review → Approve → Write**
+
+- 永远不要在没有首先与用户确认资产列表的情况下指定资产规格
+- 始终将规格锚定在艺术圣经上 —— 与艺术圣经矛盾的规格是错误的
+- 展示所有 agent 分歧 —— 不要静默选择一方
+- 仅在明确批准后写入规格文件
+- 写入规格后立即更新清单
+
+---
+
+## 推荐的下一步
+
+- 运行 `/asset-spec [next-context]` 继续为剩余系统、关卡或角色指定规格
+- 运行 `/asset-audit` 根据编写的规格验证交付的资产并识别缺口或不匹配

@@ -1,81 +1,81 @@
 # Agent Test Spec: localization-lead
 
 ## Agent Summary
-- **Domain**: Internationalization (i18n) architecture, string extraction workflows and tooling configuration, locale testing methodology, translation pipeline design (extraction → TMS → import), string quality standards, locale-specific formatting rules (plurals, RTL, date/number formats)
-- **Does NOT own**: Game narrative content and dialogue writing (writer), code implementation of i18n calls (gameplay-programmer), translation work itself (external translators)
-- **Model tier**: Sonnet
-- **Gate IDs**: None; escalates pipeline architecture decisions to technical-director when they affect build systems
+- **领域：** 国际化（i18n）架构、字符串提取工作流和工具配置、本地化测试方法、翻译管线设计（提取 → TMS → 导入）、字符串质量标准、特定于区域的格式规则（复数、RTL、日期/数字格式）
+- **不负责：** 游戏叙事内容和对话写作（writer）、i18n 调用的代码实现（gameplay-programmer）、翻译工作本身（外部翻译人员）
+- **模型层级：** Sonnet
+- **Gate ID：** 无；当管线架构决策影响构建系统时升级到 technical-director
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
-- [ ] `description:` field is present and domain-specific (references i18n, string extraction, locale pipeline, localization)
-- [ ] `allowed-tools:` list matches the agent's role (Read/Write for localization config, pipeline docs, string tables; no game source editing or deployment tools)
-- [ ] Model tier is Sonnet (default for specialists)
-- [ ] Agent definition does not claim authority over narrative content, game code implementation, or translation quality
-
----
-
-## Test Cases
-
-### Case 1: In-domain request — string extraction pipeline for a Unity project
-**Input**: "Set up a string extraction pipeline for our Unity game. We need to get all localizable strings into a format translators can work with."
-**Expected behavior**:
-- Produces a concrete extraction configuration covering: which string types to extract (UI labels, dialogue, item descriptions — not debug strings), the tool to use (e.g., Unity Localization package string tables, or a custom extraction script targeting specific component types), and the output format (CSV, XLIFF, or TMX — notes which formats are compatible with common TMS tools like Crowdin or Lokalise)
-- Specifies the folder structure: e.g., `assets/localization/en/` as the source locale, `assets/localization/{locale}/` for translated files
-- Notes that string keys must be stable (do not use index-based keys) — key changes break all existing translations
-- Does NOT produce Unity C# code for the i18n implementation — marks as [TO BE IMPLEMENTED BY PROGRAMMER]
-
-### Case 2: Out-of-domain request — translate game dialogue
-**Input**: "Translate the following English dialogue into French: 'Well met, traveler. The road ahead is treacherous.'"
-**Expected behavior**:
-- Does not produce a French translation
-- States clearly: "localization-lead owns the pipeline, quality standards, and workflow; actual translation work is performed by human translators or approved translation vendors — I am not a translator"
-- Optionally notes what information a translator would need: context (who is speaking, to whom, game genre/tone), character limit constraints if any, glossary terms (e.g., if "traveler" has a game-specific translation)
-
-### Case 3: Domain boundary — missing plural forms in Russian locale
-**Input**: "Our Russian locale files only have a singular form for item quantity strings. Russian requires multiple plural forms (1 item, 2-4 items, 5+ items use different forms)."
-**Expected behavior**:
-- Identifies this as a locale-specific plural form gap: Russian has 3 plural categories (one, few, many) per CLDR/Unicode plural rules — a single string is insufficient
-- Flags it as a localization quality bug, not a minor style issue — incorrect plural forms are grammatically wrong and visible to players
-- Recommends the fix: update the string extraction format to support CLDR plural categories (one/few/many/other), and flag to the translation vendor that Russian strings need all plural forms
-- Notes which other languages in the pipeline also require plural form support (e.g., Polish, Czech, Arabic)
-- Does NOT suggest using a numeric threshold workaround as a substitute for proper CLDR plural support
-
-### Case 4: String key naming conflict between two systems
-**Input**: "Our UI system uses keys like 'button_confirm' and 'button_cancel'. Our dialogue system uses 'confirm' and 'cancel' for the same concepts. Translators are confused about which to use."
-**Expected behavior**:
-- Identifies the conflict: two systems use different key naming conventions for semantically identical strings, creating duplicate translation work and translator confusion
-- Produces a naming convention resolution: domain-prefixed keys with a consistent separator (e.g., `ui.button.confirm`, `ui.button.cancel`) — all systems use the same key for shared concepts
-- Recommends that shared UI primitives (Confirm, Cancel, Back, OK) use a single canonical key in a shared namespace, referenced by both systems
-- Provides a migration path: map old keys to new keys, update all string references in both systems, deprecate old keys after one release cycle
-- Does NOT recommend maintaining two separate keys for the same concept
-
-### Case 5: Context pass — pipeline accommodates RTL languages
-**Input context**: Target locales include English (en), French (fr), German (de), Arabic (ar), and Hebrew (he).
-**Input**: "Design the localization pipeline for this project."
-**Expected behavior**:
-- Identifies Arabic and Hebrew as RTL languages — explicitly calls this out as a pipeline requirement
-- Designs the pipeline to include: RTL text rendering support (flag for programmer: UI must support RTL layout mirroring), bidirectional (bidi) text handling in string tables, locale-specific testing checklist entry for RTL layout
-- Does NOT design a pipeline that only accounts for LTR languages when RTL locales are specified
-- Notes that Arabic also requires a different plural form structure (6 plural categories in CLDR) — flags for translation vendor
-- Output includes all five locales in the pipeline architecture, not just the default (en)
+- [ ] `description:` 字段存在且特定于领域（引用 i18n、字符串提取、区域管线、本地化）
+- [ ] `allowed-tools:` 列表与 agent 角色匹配（对本地化配置、管线文档、字符串表的 Read/Write；无游戏源编辑或部署工具）
+- [ ] 模型层级为 Sonnet（specialist 默认值）
+- [ ] Agent 定义不声称对叙事内容、游戏代码实现或翻译质量拥有权限
 
 ---
 
-## Protocol Compliance
+## 测试用例
 
-- [ ] Stays within declared domain (pipeline, extraction, string quality, locale formats, i18n architecture)
-- [ ] Does not produce translations — redirects translation work to human translators/vendors
-- [ ] Flags locale-specific gaps (plural forms, RTL) as quality bugs requiring pipeline changes
-- [ ] Produces a unified key naming convention when conflicts arise — does not accept dual conventions
-- [ ] Incorporates all provided target locales, including RTL languages, into pipeline design
+### 用例 1：领域内请求 — Unity 项目的字符串提取管线
+**输入：** "为我们的 Unity 游戏设置字符串提取管线。我们需要将所有可本地化为翻译人员可以处理的格式的字符串。"
+**预期行为：**
+- 生成涵盖以下内容的具​​体提取配置：要提取的字符串类型（UI 标签、对话、物品描述 — 非调试字符串）、要使用的工具（例如，Unity Localization 包字符串表，或针对特定组件类型的自定义提取脚本）和输出格式（CSV、XLIFF 或 TMX — 注明哪些格式与 Crowdin 或 Lokalise 等常见 TMS 工具兼容）
+- 指定文件夹结构：例如，`assets/localization/en/` 作为源区域，`assets/localization/{locale}/` 用于翻译文件
+- 注明字符串键必须稳定（不要使用基于索引的键）— 键变更会破坏所有现有翻译
+- 不生成用于 i18n 实现的 Unity C# 代码 — 标记为 [TO BE IMPLEMENTED BY PROGRAMMER]
+
+### 用例 2：领域外请求 — 翻译游戏对话
+**输入：** "将以下英文对话翻译成法文：'Well met, traveler. The road ahead is treacherous.'"
+**预期行为：**
+- 不生成法文翻译
+- 清晰声明："localization-lead 拥有管线、质量和工作流标准；实际翻译工作由人类翻译人员或批准的翻译供应商执行 — 我不是翻译人员"
+- 可选地注明翻译人员需要什么信息：上下文（谁在说话、对谁说话、游戏体裁/语气）、字符限制约束（如果有）、词汇表术语（例如，如果"traveler"有游戏特定的翻译）
+
+### 用例 3：领域边界 — 俄语区域缺少复数形式
+**输入：** "我们的俄语区域文件只有物品数量字符串的单数形式。俄语需要多个复数形式（1 件物品、2-4 件物品、5+ 件物品使用不同形式）。"
+**预期行为：**
+- 将此识别为特定于区域的复数形式缺口：根据 CLDR/Unicode 复数规则，俄语有 3 个复数类别（one、few、many）— 单个字符串不足
+- 将其标记为本地化质量问题 bug，而非小样式问题 — 错误的复数形式在语法上错误且对玩家可见
+- 推荐修复：更新字符串提取格式以支持 CLDR 复数类别（one/few/many/other），并标记翻译供应商俄语字符串需要所有复数形式
+- 注明管线中哪些其他语言也需要复数形式支持（例如，波兰语、捷克语、阿拉伯语）
+- 不建议使用数字阈值变通方案作为适当 CLDR 复数支持的替代
+
+### 用例 4：两个系统之间的字符串键命名冲突
+**输入：** "我们的 UI 系统使用像 'button_confirm' 和 'button_cancel' 这样的键。我们的对话系统对相同概念使用 'confirm' 和 'cancel'。翻译人员对使用哪个感到困惑。"
+**预期行为：**
+- 识别冲突：两个系统对语义相同的字符串使用不同的键命名约定，造成重复翻译工作和翻译人员困惑
+- 生成命名约定解决方案：带有统一分隔符的域前缀键（例如，`ui.button.confirm`、`ui.button.cancel`）— 所有系统对共享概念使用相同键
+- 推荐共享 UI 原语（Confirm、Cancel、Back、OK）在共享命名空间中使用单一规范键，由两个系统引用
+- 提供迁移路径：将旧键映射到新键，更新两个系统中所有字符串引用，在一个发布周期后弃用旧键
+- 不建议为同一概念维护两个单独的键
+
+### 用例 5：上下文传递 — 管线适应 RTL 语言
+**输入上下文：** 目标区域包括英文（en）、法文（fr）、德文（de）、阿拉伯文（ar）和希伯来文（he）。
+**输入：** "为这个项目设计本地化管线。"
+**预期行为：**
+- 将阿拉伯文和希伯来文识别为 RTL 语言 — 明确将其标记为管线要求
+- 设计管线以包括：RTL 文本渲染支持（给程序员的标志：UI 必须支持 RTL 布局镜像）、字符串表中的双向（bidi）文本处理、RTL 布局的区域特定测试清单条目
+- 当指定了 RTL 区域时，不设计仅考虑 LTR 语言的管线
+- 注明阿拉伯语还需要不同的复数形式结构（CLDR 中有 6 个复数类别）— 标记给翻译供应商
+- 输出在管线架构中包括所有五个区域，而不仅仅是默认（en）
 
 ---
 
-## Coverage Notes
-- Case 3 (plural forms) and Case 5 (RTL) are locale-correctness tests — these affect shipping quality in non-English markets
-- Case 4 (key naming conflict) is a pipeline hygiene test — duplicate keys cause ongoing translator confusion and cost
-- Case 5 requires the target locale list to be in context; if not provided, agent should ask before designing the pipeline
-- No automated runner; review manually or via `/skill-test`
+## 协议合规
+
+- [ ] 在声明领域内保持（管线、提取、字符串质量、区域格式、i18n 架构）
+- [ ] 不生成翻译 — 将翻译工作重定向给人类翻译人员/供应商
+- [ ] 将特定于区域的缺口（复数形式、RTL）标记为需要管线变更的质量 bug
+- [ ] 在冲突出现时生成统一的键命名约定 — 不接受双重约定
+- [ ] 将所有提供的目标区域（包括 RTL 语言）纳入管线设计
+
+---
+
+## 覆盖说明
+- 用例 3（复数形式）和用例 5（RTL）是区域正确性测试 — 这些影响非英语市场的发货质量
+- 用例 4（键命名冲突）是管线卫生测试 — 重复键导致持续的翻译人员困惑和成本
+- 用例 5 需要目标区域列表在上下文中；如果未提供，agent 应在设计管线之前询问
+- 无自动化运行器；手动审查或通过 `/skill-test`

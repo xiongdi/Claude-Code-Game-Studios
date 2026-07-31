@@ -1,43 +1,43 @@
-# Unity 6.3 — Navigation Module Reference
+# Unity 6.3 — 导航模块参考
 
-**Last verified:** 2026-02-13
-**Knowledge Gap:** Unity 6 NavMesh improvements
-
----
-
-## Overview
-
-Unity 6 navigation systems:
-- **NavMesh**: Built-in pathfinding for AI agents
-- **NavMeshComponents**: Package for runtime NavMesh building
+**最后验证时间：** 2026-02-13
+**知识缺口：** Unity 6 NavMesh 改进
 
 ---
 
-## NavMesh Basics
+## 概述
 
-### Bake Navigation Mesh
+Unity 6 导航系统：
+- **NavMesh**：AI agent 的内置寻路
+- **NavMeshComponents**：运行时 NavMesh 构建包
 
-1. Mark walkable surfaces:
-   - Select GameObject (floor/terrain)
-   - Inspector > Navigation > Object tab
-   - Check "Navigation Static"
+---
 
-2. Bake NavMesh:
+## NavMesh 基础
+
+### 烘焙导航网格
+
+1. 标记可行走表面：
+   - 选择 GameObject（地面/地形）
+   - Inspector > Navigation > Object 选项卡
+   - 勾选 "Navigation Static"
+
+2. 烘焙 NavMesh：
    - `Window > AI > Navigation`
-   - Bake tab
-   - Click "Bake"
+   - Bake 选项卡
+   - 点击 "Bake"
 
-3. Configure settings:
-   - **Agent Radius**: How wide the agent is (0.5m default)
-   - **Agent Height**: How tall the agent is (2m default)
-   - **Max Slope**: Maximum walkable slope (45° default)
-   - **Step Height**: Maximum climbable step (0.4m default)
+3. 配置设置：
+   - **Agent Radius**：agent 有多宽（默认 0.5m）
+   - **Agent Height**：agent 有多高（默认 2m）
+   - **Max Slope**：最大可行走坡度（默认 45°）
+   - **Step Height**：最大可攀爬台阶（默认 0.4m）
 
 ---
 
-## NavMeshAgent (AI Movement)
+## NavMeshAgent（AI 移动）
 
-### Basic Agent Setup
+### 基本 Agent 设置
 
 ```csharp
 using UnityEngine;
@@ -52,7 +52,7 @@ public class Enemy : MonoBehaviour {
     }
 
     void Update() {
-        // ✅ Move to target
+        // ✅ 移动到目标
         agent.SetDestination(target.position);
     }
 }
@@ -60,41 +60,41 @@ public class Enemy : MonoBehaviour {
 
 ---
 
-### NavMeshAgent Properties
+### NavMeshAgent 属性
 
 ```csharp
 NavMeshAgent agent = GetComponent<NavMeshAgent>();
 
-// Speed
+// 速度
 agent.speed = 3.5f;
 
-// Acceleration
+// 加速度
 agent.acceleration = 8f;
 
-// Stopping distance
-agent.stoppingDistance = 2f; // Stop 2m before destination
+// 停止距离
+agent.stoppingDistance = 2f; // 到达目的地前 2m 停止
 
-// Auto-braking (slow down at destination)
+// 自动制动（到达目的地时减速）
 agent.autoBraking = true;
 
-// Rotation speed
-agent.angularSpeed = 120f; // Degrees per second
+// 旋转速度
+agent.angularSpeed = 120f; // 度/秒
 
-// Obstacle avoidance
+// 障碍物回避
 agent.obstacleAvoidanceType = ObstacleAvoidanceType.HighQualityObstacleAvoidance;
 ```
 
 ---
 
-### Check Path Status
+### 检查路径状态
 
 ```csharp
 void Update() {
     agent.SetDestination(target.position);
 
-    // Check if agent has a path
+    // 检查 agent 是否有路径
     if (agent.hasPath) {
-        // Check if path is complete
+        // 检查路径是否完整
         if (agent.pathStatus == NavMeshPathStatus.PathComplete) {
             Debug.Log("Valid path");
         } else if (agent.pathStatus == NavMeshPathStatus.PathPartial) {
@@ -104,7 +104,7 @@ void Update() {
         }
     }
 
-    // Check if agent reached destination
+    // 检查 agent 是否到达目的地
     if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance) {
         Debug.Log("Reached destination");
     }
@@ -113,79 +113,79 @@ void Update() {
 
 ---
 
-### Calculate Path (Don't Move Yet)
+### 计算路径（暂不移动）
 
 ```csharp
 NavMeshPath path = new NavMeshPath();
 agent.CalculatePath(targetPosition, path);
 
 if (path.status == NavMeshPathStatus.PathComplete) {
-    // Valid path exists
-    agent.SetPath(path); // Apply the path
+    // 存在有效路径
+    agent.SetPath(path); // 应用路径
 }
 ```
 
 ---
 
-## NavMesh Areas (Walkable Costs)
+## NavMesh 区域（可行走成本）
 
-### Define Areas
-`Window > AI > Navigation > Areas tab`
-- **Walkable**: Cost 1 (default)
-- **Not Walkable**: Unwalkable
-- **Jump**: Cost 2 (prefer other routes)
-- **Custom**: Define your own
+### 定义区域
+`Window > AI > Navigation > Areas 选项卡`
+- **Walkable**：成本 1（默认）
+- **Not Walkable**：不可行走
+- **Jump**：成本 2（优先选择其他路线）
+- **Custom**：自定义
 
-### Assign Area Costs
+### 分配区域成本
 
 ```csharp
-// Prefer shorter paths over low-cost paths
-agent.areaMask = NavMesh.AllAreas; // Walk on all areas
+// 优先选择较短路径而非低成本路径
+agent.areaMask = NavMesh.AllAreas; // 在所有区域上行走
 
-// Only walk on "Walkable" area (avoid "Jump")
+// 仅在 "Walkable" 区域上行走（避开 "Jump"）
 agent.areaMask = 1 << NavMesh.GetAreaFromName("Walkable");
 ```
 
 ---
 
-## NavMesh Obstacles (Dynamic Obstacles)
+## NavMesh 障碍物（动态障碍物）
 
-### NavMeshObstacle Component
+### NavMeshObstacle 组件
 
 ```csharp
-// Add: GameObject > Add Component > NavMesh Obstacle
+// 添加：GameObject > Add Component > NavMesh Obstacle
 
-// Carve: Create hole in NavMesh (agents avoid)
-// Don't Carve: Agent pushes through (local avoidance)
+// Carve：在 NavMesh 中创建洞（agent 回避）
+// Don't Carve：agent 推开（局部回避）
 ```
 
-### Dynamic Carving (Moving Obstacles)
+### 动态 Carving（移动障碍物）
 
 ```csharp
 NavMeshObstacle obstacle = GetComponent<NavMeshObstacle>();
-obstacle.carving = true; // Create dynamic hole in NavMesh
+obstacle.carving = true; // 在 NavMesh 中创建动态洞
 ```
 
 ---
 
-## Off-Mesh Links (Jumps, Teleports)
+## Off-Mesh Links（跳跃、传送）
 
-### Create Off-Mesh Link
+### 创建 Off-Mesh Link
 
-1. `GameObject > Create Empty` (at jump start)
-2. Add `Off Mesh Link` component
-3. Set Start/End transforms
-4. Configure:
-   - **Bi-Directional**: Can traverse both ways
-   - **Cost Override**: Path cost for this link
+1. `GameObject > Create Empty`（在跳跃起点）
+2. 添加 `Off Mesh Link` 组件
+3. 设置 Start/End 变换
+4. 配置：
+   - **Bi-Directional**：可以双向穿越
+   - **Cost Override**：此链接的路径成本
 
-### Detect Off-Mesh Link Traversal
+### 检测 Off-Mesh Link 穿越
 
 ```csharp
 void Update() {
-    // Check if agent is on an off-mesh link
+    // 检查 agent 是否在 off-mesh link 上
     if (agent.isOnOffMeshLink) {
-        // Manually traverse (e.g., play jump animation)
+        // 手动穿越（例如，播放跳跃动画）
         StartCoroutine(TraverseOffMeshLink());
     }
 }
@@ -204,19 +204,19 @@ IEnumerator TraverseOffMeshLink() {
         yield return null;
     }
 
-    agent.CompleteOffMeshLink(); // Resume normal pathfinding
+    agent.CompleteOffMeshLink(); // 恢复正常寻路
 }
 ```
 
 ---
 
-## NavMeshComponents Package (Runtime Baking)
+## NavMeshComponents 包（运行时烘焙）
 
-### Installation
+### 安装
 1. `Window > Package Manager`
-2. Add from Git URL: `com.unity.ai.navigation`
+2. 从 Git URL 添加：`com.unity.ai.navigation`
 
-### Runtime NavMesh Baking
+### 运行时 NavMesh 烘焙
 
 ```csharp
 using Unity.AI.Navigation;
@@ -225,12 +225,12 @@ public class NavMeshBuilder : MonoBehaviour {
     public NavMeshSurface surface;
 
     void Start() {
-        // Bake NavMesh at runtime
+        // 运行时烘焙 NavMesh
         surface.BuildNavMesh();
     }
 
     void UpdateNavMesh() {
-        // Update NavMesh after terrain changes
+        // 地形变化后更新 NavMesh
         surface.UpdateNavMesh(surface.navMeshData);
     }
 }
@@ -238,9 +238,9 @@ public class NavMeshBuilder : MonoBehaviour {
 
 ---
 
-## Common Patterns
+## 常见模式
 
-### Patrol Between Waypoints
+### 在路点间巡逻
 
 ```csharp
 public Transform[] waypoints;
@@ -248,14 +248,14 @@ private int currentWaypoint = 0;
 
 void Update() {
     if (!agent.pathPending && agent.remainingDistance < 0.5f) {
-        // Reached waypoint, move to next
+        // 到达路点，移动到下一个
         currentWaypoint = (currentWaypoint + 1) % waypoints.Length;
         agent.SetDestination(waypoints[currentWaypoint].position);
     }
 }
 ```
 
-### Chase Player
+### 追逐玩家
 
 ```csharp
 public Transform player;
@@ -267,12 +267,12 @@ void Update() {
     if (distance <= chaseRange) {
         agent.SetDestination(player.position);
     } else {
-        agent.ResetPath(); // Stop moving
+        agent.ResetPath(); // 停止移动
     }
 }
 ```
 
-### Flee from Player
+### 逃离玩家
 
 ```csharp
 public Transform player;
@@ -282,7 +282,7 @@ void Update() {
     float distance = Vector3.Distance(transform.position, player.position);
 
     if (distance <= fleeRange) {
-        // Run away from player
+        // 逃离玩家
         Vector3 fleeDirection = transform.position - player.position;
         Vector3 fleeTarget = transform.position + fleeDirection.normalized * 10f;
 
@@ -293,13 +293,13 @@ void Update() {
 
 ---
 
-## Debugging
+## 调试
 
-### NavMesh Visualization
-- `Window > AI > Navigation > Bake tab`
-- Check "Show NavMesh" to visualize walkable areas
+### NavMesh 可视化
+- `Window > AI > Navigation > Bake 选项卡`
+- 勾选 "Show NavMesh" 可视化可行走区域
 
-### Agent Path Gizmos
+### Agent 路径 Gizmos
 
 ```csharp
 void OnDrawGizmos() {
@@ -316,15 +316,15 @@ void OnDrawGizmos() {
 
 ---
 
-## Performance Tips
+## 性能提示
 
-- **Limit Obstacle Avoidance Quality**: Use `LowQualityObstacleAvoidance` for distant agents
-- **Update Frequency**: Don't call `SetDestination()` every frame if target hasn't moved
-- **Area Masks**: Limit walkable areas to reduce pathfinding search space
-- **NavMesh Tiles**: Use tiled NavMesh for large worlds (NavMeshComponents package)
+- **限制障碍物回避质量**：对远处 agent 使用 `LowQualityObstacleAvoidance`
+- **更新频率**：如果目标未移动，不要每帧都调用 `SetDestination()`
+- **区域掩码**：限制可行走区域以减少寻路搜索空间
+- **NavMesh 瓦片**：对大型世界使用平铺 NavMesh（NavMeshComponents 包）
 
 ---
 
-## Sources
+## 来源
 - https://docs.unity3d.com/6000.0/Documentation/Manual/Navigation.html
 - https://docs.unity3d.com/Packages/com.unity.ai.navigation@2.0/manual/index.html

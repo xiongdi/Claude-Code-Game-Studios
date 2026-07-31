@@ -9,571 +9,482 @@ agent: prototyper
 isolation: worktree
 ---
 
-## Purpose
+## 用途
 
-This is the **concept prototype** — a fast, throwaway build that answers one question:
-*"Is this core idea actually fun to interact with?"*
+这是**概念原型** — 一个快速、一次性的构建，回答一个问题：
+*"这个核心想法实际上玩起来有趣吗？"*
 
-**Default use** — run right after `/brainstorm` and `/setup-engine`, before writing
-GDDs or architecture docs. Its verdict determines whether the concept is worth the
-investment of full design documentation.
+**默认用法** — 在 `/brainstorm` 和 `/setup-engine` 之后、编写 GDD 或架构文档之前立即运行。它的判定决定了该概念是否值得投入完整设计文档的工作量。
 
-**Mid-production?** You can also run this at any stage to test a specific mechanic,
-design change, or technical question. Pass `--spike` to activate spike mode: a
-lightweight ~4-hour build with no GDD prerequisites and no phase gate implications.
+**制作中期？**你也可以在任何阶段运行此 skill 来测试特定机制、
+设计变更或技术问题。传入 `--spike` 激活 spike 模式：
+一个轻量级的约 4 小时构建，无 GDD 先决条件，无 phase gate 影响。
 
-**Already have GDDs and architecture complete?** To validate the full game loop
-before committing to Production, run `/vertical-slice` instead.
+**已有完整的 GDD 和架构？**要在投入 Production 之前验证完整的游戏循环，
+请改为运行 `/vertical-slice`。
 
 ---
 
-## Phase 1: Define the Question
+## Phase 1: 定义问题
 
-Resolve the review mode (once, store for all gate spawns this run):
-1. If `--review [full|lean|solo]` was passed → use that
-2. Else read `production/review-mode.txt` → use that value
-3. Else → default to `lean`
+解析审查模式（一次，存储供本次运行的所有 gate spawn 使用）：
+1. 如果传入了 `--review [full|lean|solo]` → 使用该值
+2. 否则读取 `production/review-mode.txt` → 使用该值
+3. 否则 → 默认为 `lean`
 
-**Check for spike mode:** If `--spike` was passed, skip to the **Spike Mode** section
-at the bottom of this skill.
+**检查 spike 模式：** 如果传入了 `--spike`，跳至本 skill 底部的 **Spike 模式** 部分。
 
-Otherwise, use `AskUserQuestion` to confirm intent before proceeding:
+否则，使用 `AskUserQuestion` 在继续之前确认意图：
 
-- **Prompt**: "How would you like to use this prototype session?"
-- **Options**:
-  - `Prototype this concept` — build a throwaway build to validate the core idea is fun before writing GDDs (1–3 days)
-  - `Skip — concept already proven` — I have enough evidence this works; log it and proceed directly to design
-  - `Mid-production spike` — I'm already in Production and want to test a specific mechanic or technical question quickly (~4 hours, no phase gate implications)
+- **提示**: "您想如何使用这个原型会话？"
+- **选项**:
+  - `Prototype this concept` — 构建一次性原型以验证核心想法在编写 GDD 之前是有趣的（1-3 天）
+  - `Skip — concept already proven` — 我有足够的证据证明这有效；记录它并直接进入设计
+  - `Mid-production spike` — 我已经在 Production 中，想快速测试特定机制或技术问题（约 4 小时，无 phase gate 影响）
 
-**If "Skip — concept already proven":**
-Ask (plain text, not a widget): "What evidence do you have that the concept works?"
-Record the one-line answer, then stop. Note: "Concept prototype skipped — evidence:
-[answer]." Suggest next step: `/map-systems` or `/design-system [mechanic]`.
+**如果选择"Skip — concept already proven"：**
+询问（纯文本，不是小部件）："你有什么证据证明这个概念有效？"
+记录一行答案，然后停止。注意："概念原型已跳过 — 证据：
+[答案]。" 建议下一步：`/map-systems` 或 `/design-system [机制]`。
 
-**If "Mid-production spike"**: skip to the **Spike Mode** section below.
+**如果选择"Mid-production spike"**：跳至下方的 **Spike 模式** 部分。
 
-**If "Prototype this concept"**: continue with Phase 1 below.
-
----
-
-**A note on prototype strategy:** The research on successful indie development
-is consistent — building 2-3 concept variants and letting the best one win is
-far more likely to succeed than iterating one concept until it works. This is
-your first prototype, not necessarily your only one. If this prototype produces
-a PIVOT verdict, consider whether to refine this concept OR start fresh with a
-different angle on the same game idea and prototype that instead.
-
-**Game jam as a prototype vehicle:** If you're planning a concept prototype anyway,
-consider timing it to a game jam (Ludum Dare, GMTK Game Jam, Global Game Jam). Jams
-provide a forced timebox (48-72 hours), instant distribution to thousands of players
-who rate and review early builds, and a deadline that prevents scope creep by design.
-Many shipped games (Celeste, VVVVVV) began as jam prototypes. Not required — but
-worth considering if the timing is right.
-
-Read the concept description from the argument. Before building anything, define
-the **falsifiable hypothesis** this prototype must answer:
-
-> *"If the player [does X], they will feel [Y] — we will know this is true if [measurable signal Z]."*
-
-Good: "If the player swings on grapple hooks, traversal will feel fluid — we'll know if
-players chain 3+ swings without stopping within 2 minutes of picking it up."
-
-Bad: "Does this feel fun?" ← not testable, not falsifiable.
-
-**If the concept is too vague to form a hypothesis, stop here.** Ask the user to
-narrow the question before proceeding. A prototype without a clear question wastes time.
-
-Also ask: **"What is the riskiest assumption in this concept?"** That is the first
-thing the prototype should test — not the easiest part, the riskiest.
+**如果选择"Prototype this concept"**：继续下面的 Phase 1。
 
 ---
 
-## Phase 2: Load Concept Context
+**关于原型策略的说明：** 关于成功独立开发的研究
+是一致的 — 构建 2-3 个概念变体并让最好的一个胜出，远比迭代一个概念直到它有效更有可能成功。这是
+你的第一个原型，不一定是唯一一个。如果这个原型产生
+PIVOT 判定，考虑是改进这个概念，还是用同一游戏想法的不同角度重新开始并制作原型。
 
-Read `design/gdd/game-concept.md` if it exists. Extract:
-- Core fantasy (what the player is supposed to feel)
-- Core loop (the moment-to-moment action being tested)
+**Game jam 作为原型载体：** 如果你本来就打算制作概念原型，
+考虑将其安排在游戏 jam（Ludum Dare、GMTK Game Jam、Global Game Jam）期间。Jam
+提供强制的时间限制（48-72 小时）、即时分发给成千上万的玩家
+他们会对早期构建进行评分和评论，以及一个通过设计防止范围蔓延的截止日期。
+许多已发布的游戏（Celeste、VVVVVV）都是从 jam 原型开始的。不是必需的 — 但如果时机合适值得考虑。
 
-Read `CLAUDE.md` and `.claude/docs/technical-preferences.md` for the engine and
-language in use.
+从参数中读取概念描述。在构建任何内容之前，定义此原型必须回答的**可证伪假设**：
+
+> *"如果玩家 [做 X]，他们会感到 [Y] — 如果 [可测量的信号 Z] 为真，我们就知道这是真的。"*
+
+好的例子："如果玩家用抓钩摆动，移动会感觉流畅 — 如果玩家在拾取后 2 分钟内连续摆动 3 次以上而不停止，我们就知道了。"
+
+坏的例子："这感觉有趣吗？" ← 不可测试，不可证伪。
+
+**如果概念太模糊无法形成假设，在此停止。** 请用户在继续之前缩小问题。没有明确问题的原型是浪费时间。
+
+还要问：**"这个概念中最冒险的假设是什么？"** 这是原型应该首先测试的内容 — 不是最简单的部分，而是最冒险的。
 
 ---
 
-## Phase 3: Choose the Prototype Path
+## Phase 2: 加载概念上下文
 
-Select the prototype path. If `--path [html|engine|paper]` was passed, use that.
-Otherwise, use this quick-reference first, then read the full path details below:
+如果存在，读取 `design/gdd/game-concept.md`。提取：
+- 核心幻想（玩家应该感受到什么）
+- 核心循环（正在测试的即时动作）
 
-| Genre | Recommended path | Key reason |
+读取 `CLAUDE.md` 和 `.claude/docs/technical-preferences.md` 获取正在使用的引擎和语言。
+
+---
+
+## Phase 3: 选择原型路径
+
+选择原型路径。如果传入了 `--path [html|engine|paper]`，使用该值。
+否则，先使用下面的快速参考，然后阅读下方的完整路径详情：
+
+| 类型 | 推荐路径 | 关键原因 |
 |-------|-----------------|------------|
-| Platformer / action / fighter | **Engine** | Feel IS the hypothesis; browser latency produces false results |
-| Racing / sports | **Engine** | Same — timing and physics feedback are the point |
-| Top-down shooter / twin-stick | **Engine** | Aim feel is timing-sensitive |
-| Puzzle (logic) | **HTML** or **Paper** | Timing is not the point; logic and clarity are |
-| Card game | **Paper** first | Fastest iteration by hand before touching code |
-| Narrative / visual novel | **Paper** (Twine / Ink / Yarn Spinner) | Story is the mechanic — test it without code overhead |
-| Strategy / 4X / city builder | **Paper** (spreadsheet sim) | Validate economy and progression rules before building |
-| Roguelike (systems-heavy) | **Paper** → Engine | Validate that the ruleset is interesting before building |
-| Idle / clicker / incremental | **HTML** | Turn-based logic, no feel sensitivity required |
-| Rhythm game | **Paper** first (design levels in audio) | Design levels before the engine exists |
-| RPG / open world | **Paper** → Engine | Systems complexity: validate rules, then validate feel |
-| Horror / atmospheric | **Engine** | Atmosphere requires real rendering |
+| Platformer / action / fighter | **Engine** | 手感就是假设；浏览器延迟会产生错误结果 |
+| Racing / sports | **Engine** | 同样 — 时机和物理反馈就是重点 |
+| Top-down shooter / twin-stick | **Engine** | 瞄准手感对时机敏感 |
+| Puzzle (逻辑类) | **HTML** 或 **Paper** | 时机不是重点；逻辑和清晰度才是 |
+| Card game | 先 **Paper** | 在接触代码之前手工迭代最快 |
+| Narrative / visual novel | **Paper** (Twine / Ink / Yarn Spinner) | 故事就是机制 — 在没有代码开销的情况下测试 |
+| Strategy / 4X / city builder | **Paper** (电子表格模拟) | 在构建之前验证经济和进度规则 |
+| Roguelike (系统密集型) | **Paper** → Engine | 先验证规则集有趣，再构建 |
+| Idle / clicker / incremental | **HTML** | 回合制逻辑，无需手感灵敏度 |
+| Rhythm game | 先 **Paper** (在音频中设计关卡) | 在引擎存在之前设计关卡 |
+| RPG / open world | **Paper** → Engine | 系统复杂性：先验证规则，再验证手感 |
+| Horror / atmospheric | **Engine** | 氛围需要真实渲染 |
 
-**Rule of thumb:** "Does this feel right?" → Engine. "Are these rules interesting?" → Paper. "Is this logic correct?" → HTML or Paper.
+**经验法则：**"这感觉对吗？" → Engine。"这些规则有趣吗？" → Paper。"这逻辑正确吗？" → HTML 或 Paper。
 
-### Path: HTML (browser-playable)
+### 路径: HTML (浏览器可玩)
 
-**Best for:** Puzzle games, card games, turn-based strategy, word games, idle games,
-top-down logic games. Anything where timing precision doesn't matter.
+**最适合：** 解谜游戏、卡牌游戏、回合制策略、文字游戏、放置游戏、
+自上而下的逻辑游戏。任何时机精度不重要的游戏。
 
-**Reliability:** ~85–90% one-shot. The agent writes a single self-contained HTML
-file the user opens in a browser — no install required.
+**可靠性：** ~85-90% 一次性完成。Agent 编写一个独立的 HTML 文件，
+用户在浏览器中打开 — 无需安装。
 
-**Limitation — browser latency lies about game feel.** Browsers introduce
-50–133ms of rendering variance. This makes HTML prototypes fundamentally unreliable
-for action games, platformers, fighting games, or anything where input timing,
-jump arcs, or collision feel are what you're testing. If feel is the hypothesis,
-use the Engine path instead.
+**限制 — 浏览器延迟会对手感撒谎。** 浏览器引入
+50-133ms 的渲染差异。这使得 HTML 原型对于动作游戏、平台游戏、格斗游戏或任何你在测试输入时机、
+跳跃弧线或碰撞手感的情况下根本不可靠。如果手感是假设，
+请改用 Engine 路径。
 
-**Alternative tools for this path:** PICO-8 (extreme constraints, great for retro
-arcade concepts, web-export in one command), Phaser.js (more capable browser game
-framework, still no install needed), or Twine (narrative/choice-based games).
-These are faster than raw HTML for their respective genres — suggest them if appropriate.
+**此路径的替代工具：** PICO-8（极端约束，非常适合复古街机概念，一条命令即可 web 导出）、Phaser.js（更有能力的浏览器游戏框架，仍然无需安装）或 Twine（叙事/选择驱动游戏）。
+对于各自的原生类型，这些比原始 HTML 更快 — 如果合适的话建议它们。
 
-**Output:** A single `prototype.html` (or PICO-8/Phaser equivalent) the user opens in any browser.
+**输出：** 用户在任何浏览器中打开的单个 `prototype.html`（或 PICO-8/Phaser 等效文件）。
 
-**Distribution — the HTML path's biggest advantage:** Unlike Engine prototypes, this
-build can reach real players globally in minutes. Use this actively:
-- **itch.io** — upload the file, share the link, get play counts and written feedback
-  within hours. Free. The indie community plays rough builds here without expecting
-  polish. This is genuine external validation at zero cost.
-- **Loom + file share** — share via Google Drive/Dropbox, ask someone to record their
-  screen + audio with Loom while playing. You get a video of real first-impression
-  reactions and confusion without synchronous scheduling.
-- **r/playmygame or r/WebGames** (Reddit) — active communities that specifically
-  test early builds and give unsolicited honest feedback.
-- **Game dev Discord servers** (GMTK, Brackeys, GameDev.tv) — members test each
-  other's prototypes routinely; an HTML file is the easiest possible ask.
+**分发 — HTML 路径最大的优势：** 与 Engine 原型不同，这个构建可以在几分钟内触达全球的真实玩家。积极利用这一点：
+- **itch.io** — 上传文件，分享链接，在几小时内获得游戏次数和书面反馈。免费。独立社区在这里玩粗糙的构建而不期待打磨。这是零成本的真正外部验证。
+- **Loom + 文件共享** — 通过 Google Drive/Dropbox 分享，请某人在玩游戏时用 Loom 录制屏幕 + 音频。你获得真实第一印象反应和困惑的视频，无需同步安排。
+- **r/playmygame 或 r/WebGames** (Reddit) — 活跃的社区，专门测试早期构建并给出坦诚的诚实反馈。
+- **Game dev Discord 服务器** (GMTK、Brackeys、GameDev.tv) — 成员经常互相测试原型；HTML 文件是最简单的请求。
 
 ---
 
-### Path: Engine (engine project)
+### 路径: Engine (引擎项目)
 
-**Best for:** Action games, platformers, physics-heavy games, anything where
-moment-to-moment feel IS the hypothesis. Use this when HTML latency would lie about
-the result.
+**最适合：** 动作游戏、平台游戏、物理密集型游戏、任何即时手感就是假设的游戏。当 HTML 延迟会对结果撒谎时使用此路径。
 
-**Reliability:** ~50–60% one-shot. Expect 2–4 rounds of iteration — this is
-normal, not a failure.
+**可靠性：** ~50-60% 一次性完成。预计 2-4 轮迭代 — 这是正常的，不是失败。
 
-**Limitation — requires engine installed and running.** This path is a
-multi-turn collaborative loop:
-1. Agent writes the code
-2. User runs it in the engine
-3. User reports errors or observations
-4. Agent fixes and iterates
+**限制 — 需要安装并运行引擎。** 此路径是一个多轮协作循环：
+1. Agent 编写代码
+2. 用户在引擎中运行
+3. 用户报告错误或观察
+4. Agent 修复并迭代
 
-**Sunk cost rule:** If the user has been iterating for more than 2 hours without
-reaching a playable state, stop. The scope is too large or the question is wrong.
-Reframe the hypothesis and simplify aggressively, or switch to Paper path.
+**沉没成本规则：** 如果用户已经迭代超过 2 小时而没有达到可玩的状态，停止。范围太大或问题不对。重新构建假设并积极简化，或切换到 Paper 路径。
 
-**Output:** A minimal runnable engine project in `prototypes/[name]-concept/`.
+**输出：** `prototypes/[名称]-concept/` 中的最小可运行引擎项目。
 
-**Lighter alternative — Love2D (Lua):** If the project engine (Godot, Unity, Unreal)
-feels too heavy to stand up for a throwaway build, consider Love2D — a minimal 2D
-framework that installs in minutes, requires no project scaffolding, and renders
-natively with no browser latency. Used by many indie devs for rapid 2D action and
-platformer prototypes (Balatro prototyped in Love2D; Nuclear Throne's early builds
-used it). It sits between HTML overhead and full engine overhead: heavier than
-opening a browser, lighter than setting up a full engine project. Best for 2D
-action/platformer feel validation when the project engine is 3D-first or takes
-significant time to configure.
+**更轻量的替代方案 — Love2D (Lua)：** 如果项目引擎（Godot、Unity、Unreal）
+对于一次性构建来说感觉太重，考虑 Love2D — 一个最小的 2D 框架，几分钟内安装，不需要项目脚手架，原生渲染无浏览器延迟。被许多独立开发者用于快速 2D 动作和
+平台游戏原型（Balatro 在 Love2D 中制作原型；Nuclear Throne 的早期构建
+使用了它）。它位于 HTML 开销和完整引擎开销之间：比打开浏览器重，比设置完整引擎项目轻。最适合 2D 动作/平台游戏手感验证，当项目引擎是 3D 首选或需要大量时间配置时。
 
 ---
 
-### Path: Paper (rules document + play log)
+### 路径: Paper (规则文档 + 游戏日志)
 
-**Best for:** Strategy games, card games, board game-style mechanics, economy
-systems, progression loops, any game where the logic can be simulated by hand.
-Works for any genre when you need to validate rules, not feel.
+**最适合：** 策略游戏、卡牌游戏、棋盘游戏式机制、经济系统、进度循环、任何可以用手模拟逻辑的游戏。当你需要验证规则而非手感时适用于任何类型。
 
-**Reliability:** 100%. No code, no engine, no install.
+**可靠性：** 100%。无代码、无引擎、无安装。
 
-**Limitation — cannot validate moment-to-moment feel.** Paper prototypes prove
-that the rules are internally consistent and the decisions are interesting. They
-cannot tell you whether jumping feels right or whether explosions feel satisfying.
+**限制 — 无法验证即时手感。** 纸质原型证明
+规则在内部一致且决策有趣。它们无法告诉你跳跃是否感觉正确或爆炸是否令人满意。
 
-**Paper playtest observation protocol (run this with 5+ people):**
-1. Brief the rules once. Hand them the rule summary sheet. Then step back.
-2. Do NOT explain further. Do NOT help. Do NOT clarify. Confusion is data.
-3. Watch silently. Note every moment they slow down, re-read, or ask a question.
-4. After the session, ask one question only: "What was confusing?" — not "Did you like it?"
-5. Use fresh testers for each iteration. The same person cannot give new first-impression data.
-6. If 3+ testers hit the same confusion point, that rule is broken — redesign it before re-testing.
+**纸质 playtest 观察协议（与 5+ 人运行）：**
+1. 简要说明一次规则。给他们规则摘要表。然后退后。
+2. 不要进一步解释。不要帮助。不要澄清。困惑就是数据。
+3. 安静地观察。注意他们放慢速度、重读或提问的每一刻。
+4. 会话后，只问一个问题："什么令人困惑？" — 不是"你喜欢吗？"
+5. 每次迭代使用新鲜的测试者。同一个人无法提供新的第一印象数据。
+6. 如果 3+ 个测试者遇到相同的困惑点，该规则已损坏 — 在重新测试之前重新设计。
 
-**Output:** A printable rules document + a completed play log showing one simulated session.
+**输出：** 可打印的规则文档 + 已完成的游戏日志，展示一个模拟会话。
 
-**Narrative tools for this path:** For dialogue-heavy and story-driven games, skip the
-generic rules doc — use a dedicated narrative scripting tool instead:
-- **Twine** — zero-code hypertext fiction; ideal for branching structure experiments and choice-impact testing
-- **Ink** (Inkle) — plain-text scripting language used in *80 Days*, *Heaven's Vault*, and *Overboard*; exports directly to Unity and Godot
-- **Yarn Spinner** — dialogue scripting used in *A Short Hike*, *DREDGE*, and *Night in the Woods*; integrates natively with Unity and Godot
+**此路径的叙事工具：** 对于对话密集和故事驱动的游戏，跳过通用规则文档 — 使用专门的叙事脚本工具：
+- **Twine** — 零代码超文本小说；非常适合分支结构实验和选择影响测试
+- **Ink** (Inkle) — 纯文本脚本语言，用于 *80 Days*、*Heaven's Vault* 和 *Overboard*；直接导出到 Unity 和 Godot
+- **Yarn Spinner** — 对话脚本，用于 *A Short Hike*、*DREDGE* 和 *Night in the Woods*；原生集成 Unity 和 Godot
 
-All three let you write and playtest branching dialogue in minutes. Key metric for
-narrative prototypes: **time to first emotional beat** — how many exchanges before
-the player feels something? If it takes more than 3-4 exchanges, the opening is too slow.
+这三个工具都让你在几分钟内编写和 playtest 分支对话。叙事原型的关键指标：**到第一个情感节拍的时间** — 玩家在感受到任何东西之前需要多少次交流？如果超过 3-4 次交流，开头太慢了。
 
 ---
 
-Assess which path best fits the hypothesis, then use `AskUserQuestion` with your
-recommendation pre-stated:
+评估哪条路径最适合假设，然后使用 `AskUserQuestion` 并预先陈述你的推荐：
 
-- **Prompt**: "Which prototype path would you like to use? (Based on your concept, I'd recommend [path] — [one sentence reason].)"
-- **Options**:
-  - `HTML — browser prototype` — puzzle, card, turn-based, strategy, idle. Opens by double-clicking, no install. 85–90% reliable. **Not suitable for action games** — browser latency lies about feel.
-  - `Engine — native prototype` — action, platformer, physics, or anything where feel IS the hypothesis. 50–60% one-shot; 2–4 iteration rounds are normal. Requires engine installed.
-  - `Paper — rules document + play log` — strategy, economy, logic, board-game-style mechanics. 100% reliable. Cannot validate feel.
-
----
-
-## Phase 4: Plan the Prototype
-
-Define in 3–5 bullet points the minimum viable prototype:
-
-- What is the falsifiable hypothesis?
-- What is the riskiest assumption — and how does this prototype test it first?
-- What is the absolute minimum needed to answer the question?
-- What is explicitly cut? (menus, save systems, error handling, polish, architecture — all of it)
-
-**Scope constraint:** A concept prototype tests ONE mechanic — not the whole game.
-If scope covers more than one mechanic, cut it down. When in doubt, cut more.
-
-Present this plan to the user before building. Get confirmation before proceeding.
-
-Once confirmed, write a session checkpoint to `production/session-state/active.md`
-(create `production/session-state/` if it does not exist). Include: concept name,
-hypothesis, path chosen, scope bullet points, and current phase ("Phase 5 —
-Implement"). This lets the next session resume without starting over if the session
-ends mid-build — especially important for multi-day Engine path work.
+- **提示**: "您想使用哪条原型路径？（基于您的概念，我推荐 [路径] — [一句话原因]。）"
+- **选项**:
+  - `HTML — 浏览器原型` — 解谜、卡牌、回合制、策略、放置。双击打开，无需安装。85-90% 可靠。**不适合动作游戏** — 浏览器延迟会对手感撒谎。
+  - `Engine — 原生原型` — 动作、平台、物理或任何手感就是假设的游戏。50-60% 一次性完成；2-4 轮迭代正常。需要安装引擎。
+  - `Paper — 规则文档 + 游戏日志` — 策略、经济、逻辑、棋盘游戏式机制。100% 可靠。无法验证手感。
 
 ---
 
-## Phase 5: Implement
+## Phase 4: 规划原型
 
-Ask: "May I create the prototype directory at `prototypes/[concept-name]-concept/`
-and begin implementation?"
+用 3-5 个要点定义最小可行原型：
 
-If yes, create the directory. Every file must begin with:
+- 可证伪假设是什么？
+- 最冒险的假设是什么 — 这个原型如何首先测试它？
+- 回答问题所需的绝对最小值是什么？
+- 明确削减了什么？（菜单、保存系统、错误处理、打磨、架构 — 全部）
+
+**范围限制：** 概念原型测试一个机制 — 不是整个游戏。
+如果范围涵盖多个机制，削减它。有疑问时，多削减。
+
+在构建之前向用户展示此计划。在继续之前获得确认。
+
+确认后，将会话检查点写入 `production/session-state/active.md`
+（如果不存在则创建 `production/session-state/`）。包括：概念名称、
+假设、选择的路径、范围要点和当前阶段（"Phase 5 —
+实现"）。这让下一个会话可以在会话中途结束时恢复而不必重新开始 — 对于多天的 Engine 路径工作尤其重要。
+
+---
+
+## Phase 5: 实现
+
+询问："我可以在 `prototypes/[概念名称]-concept/` 创建原型目录并开始实现吗？"
+
+如果同意，创建目录。每个文件必须以以下内容开头：
 
 ```
 // PROTOTYPE - NOT FOR PRODUCTION
-// Question: [Core question being tested]
-// Date: [Current date]
+// Question: [正在测试的核心问题]
+// Date: [当前日期]
 ```
 
-Standards are intentionally relaxed:
+标准有意放松：
 
-- Hardcode values freely
-- Use placeholder assets (colored rectangles, debug shapes)
-- Skip error handling entirely
-- Use the simplest approach that works
-- Copy code rather than importing from production
-- No architecture, no patterns, no abstractions
+- 自由硬编码数值
+- 使用占位资源（彩色矩形、调试形状）
+- 完全跳过错误处理
+- 使用最简单有效的方法
+- 复制代码而不是从生产环境导入
+- 无架构、无模式、无抽象
 
-**Do not add polish.** No menus, no game over screens, no music, no tutorial text
-unless the tutorial IS the mechanic being tested. Every addition beyond the
-hypothesis is waste.
+**不要添加打磨。** 无菜单、无游戏结束画面、无音乐、无教程文本，除非教程本身就是正在测试的机制。超出假设的每个添加都是浪费。
 
-**Playtesting tip:** If you have access to anyone who hasn't seen the game —
-friends, family, strangers online — watching them play without explanation gives
-far better signal than testing it yourself. Watch silently; don't guide them.
-Confusion is data. Ask one question after: "What was confusing?" Not "Did you
-like it?"
+**Playtesting 提示：** 如果你能接触到任何没见过这个游戏的人 —
+朋友、家人、网上的陌生人 — 看着他们玩而不解释，效果
+远比自己测试好得多。安静地观察；不要引导他们。
+困惑就是数据。之后问一个问题："什么令人困惑？" 不是"你喜欢吗？"
 
-**No external testers available?** Use rotation: if you built system A, you're a
-naive tester for system B. In a two-person team this works well. Solo developer?
-Step away for 2-3 days before playing fresh — you won't have perfect first-impression
-signal, but you'll surface the worst blockers. Another option: play your own
-prototype as a speedrun (force yourself through it in 5 minutes without stopping
-to fix things) — the friction you feel is what strangers will hit.
+**没有外部测试者？** 使用轮换：如果你构建了系统 A，你就是系统 B 的天真测试者。在两人团队中这很有效。独立开发者？
+在玩之前离开 2-3 天 — 你不会有完美的第一印象信号，但你会暴露最严重的阻塞。另一个选择：将你自己的原型当作速通玩（强迫自己在 5 分钟内不停下来修复任何东西）— 你感受到的摩擦就是陌生人会遇到的东西。
 
-**Want more granular UX data?** Ask the tester to **think aloud** as they play —
-narrate their thoughts in real time: "I'm pressing space... nothing happened... is
-that the jump key?" This surfaces confusion the moment it happens rather than
-waiting for a post-play debrief. Best for UI/UX and onboarding clarity. Silent
-observation is still better for testing raw feel; think-aloud changes how people
-play slightly but gives much richer data about why they're confused.
+**想要更细粒度的 UX 数据？** 请测试者边玩边**自言自语** —
+实时叙述他们的想法："我在按空格……没反应……那是跳跃键吗？" 这会在困惑发生时立即暴露，而不是等待玩后汇报。最适合 UI/UX 和入门清晰度。安静观察仍然更适合测试原始手感；自言自语会稍微改变人们的玩法方式，但提供关于他们为什么困惑的丰富得多的数据。
 
-**HTML prototype?** itch.io, Reddit (r/playmygame), and Discord (GMTK, Brackeys)
-let you reach strangers today at zero cost — see the distribution options in the
-HTML path section above.
+**HTML 原型？** itch.io、Reddit (r/playmygame) 和 Discord (GMTK、Brackeys)
+让你今天零成本触达陌生人 — 参见上面 HTML 路径部分中的分发选项。
 
-**Testing AI, NPC, or complex system behavior before writing the code?** Use the
-**Wizard of Oz** technique: one person plays normally while a second person secretly
-controls the NPC, enemy, or system behavior in real time — making the decisions a
-human would make, not an algorithm. The player believes it's automated. This lets
-you validate whether your AI design *feels right* before writing a single line of
-pathfinding or decision tree code. When you observe what responses the human
-controller naturally produces, you learn exactly what the AI needs to do.
+**在编写代码之前测试 AI、NPC 或复杂系统行为？** 使用
+**Wizard of Oz** 技术：一个人正常玩，而第二个人秘密地
+实时控制 NPC、敌人或系统行为 — 做出人类会做的决定，
+而不是算法。玩家相信这是自动化的。这让你在编写寻路或决策树代码之前验证你的 AI 设计*感觉是否正确*。当你观察人类控制器自然产生什么响应时，你就确切地知道 AI 需要做什么。
 
-### Engine path: multi-turn loop
+### Engine 路径: 多轮循环
 
-After writing the initial code:
+在编写初始代码后：
 
-> "The prototype files are written. Run the project in your engine now.
-> If there are errors, paste them here and I'll fix them. If it runs,
-> describe what you see and whether it feels like it's answering the question."
+> "原型文件已编写。现在在引擎中运行项目。
+> 如果有错误，粘贴在这里我会修复。如果运行了，
+> 描述你看到的内容以及它是否在回答问题。"
 
-Iterate until the prototype is playable. Each loop:
-1. User runs → reports errors or observations
-2. Agent fixes errors or adjusts the mechanic
-3. Repeat until playable or sunk cost rule triggers
+迭代直到原型可玩。每轮循环：
+1. 用户运行 → 报告错误或观察
+2. Agent 修复错误或调整机制
+3. 重复直到可玩或触发沉没成本规则
 
-### HTML path: single output
+### HTML 路径: 单次输出
 
-Write a single `prototype.html` to `prototypes/[concept-name]-concept/`. Include
-all styles, logic, and assets inline. The file must be openable by double-clicking
-with no server required.
+将单个 `prototype.html` 写入 `prototypes/[概念名称]-concept/`。包含
+所有样式、逻辑和资产内联。该文件必须可以双击打开，
+无需服务器。
 
-### Paper path: document + log
+### Paper 路径: 文档 + 日志
 
-Write `prototypes/[concept-name]-concept/rules.md` (the game rules) and
-`prototypes/[concept-name]-concept/play-log.md` (a simulated session walking
-through one complete play cycle step by step with dice rolls, decisions, and
-outcomes narrated).
+编写 `prototypes/[概念名称]-concept/rules.md`（游戏规则）和
+`prototypes/[概念名称]-concept/play-log.md`（一个模拟会话，逐步叙述一个完整的游戏循环，包括骰子滚动、决策和
+结果）。
 
 ---
 
-## Phase 6: Playtest Debrief
+## Phase 6: Playtest 汇报
 
-The prototype is built. Now hand it to the user and capture what they actually
-experienced. Do NOT skip to report generation — the report is only as good as the
-observations you collect here.
+原型已构建。现在交给用户并捕捉他们实际体验到的内容。不要跳到报告生成 — 报告只与你在这里收集到的一样好。
 
-**For HTML path:** Say exactly this:
-> "The prototype is ready. Open `prototypes/[name]-concept/prototype.html` in your
-> browser and play it. Take as long as you need. Don't rush through it — try to
-> approach it the way a new player would. Come back here when you're done."
+**对于 HTML 路径：** 准确说这些：
+> "原型已准备就绪。在浏览器中打开 `prototypes/[名称]-concept/prototype.html` 并玩。需要多长时间都行。不要急着完成 — 尽量以新玩家的方式接近。完成后回到这里。"
 
-**For Engine path:** The multi-turn iteration loop already captured errors and
-behavior. Now ask for the overall assessment:
-> "Now that it's running — play through it a few times as if you're the player,
-> not the developer. Come back when you have a feel for it."
+**对于 Engine 路径：** 多轮迭代循环已经捕获了错误和
+行为。现在询问整体评估：
+> "现在它运行了 — 多玩几轮，就像你是玩家，
+> 而不是开发者。当你有感觉时回来。"
 
-**For Paper path:** Say exactly this:
-> "Read through `prototypes/[name]-concept/rules.md` and walk through the
-> `play-log.md` as if you're playing it for the first time. If you have someone
-> nearby, try running the rules with them. Come back when you've seen at least one
-> full play cycle."
+**对于 Paper 路径：** 准确说这些：
+> "通读 `prototypes/[名称]-concept/rules.md` 并走过
+> `play-log.md`，就像你第一次玩一样。如果你附近有人，试着和他们一起运行规则。当你看过至少一个完整的游戏循环后回来。"
 
-Once the user returns, ask these questions **one at a time** — wait for each answer
-before asking the next:
+用户返回后，逐个问这些问题 — 在问下一个之前等待每个答案：
 
-1. **Hypothesis check:**
-   > "The hypothesis was: [restate the hypothesis from Phase 1]. Did it hold up —
-   > CONFIRMED, PARTIALLY CONFIRMED, or REFUTED? Tell me what you saw."
+1. **假设检查：**
+   > "假设是：[重述 Phase 1 的假设]。它成立了吗 —
+   > CONFIRMED、PARTIALLY CONFIRMED 还是 REFUTED？告诉我你看到了什么。"
 
-2. **Best moment:**
-   > "What was the moment — if any — where it felt like it was working? Be specific."
+2. **最佳时刻：**
+   > "如果有任何时刻感觉它在运作，是什么时刻？要具体。"
 
-3. **Worst moment:**
-   > "What was the most frustrating, confusing, or broken moment? Be specific —
-   > not 'it felt slow' but 'the jump took about half a second to respond and it
-   > felt like I was fighting the controls'."
+3. **最差时刻：**
+   > "最令人沮丧、困惑或损坏的时刻是什么？要具体 —
+   > 不是'感觉慢'而是'跳跃大约需要半秒钟响应，感觉我在对抗操作'。"
 
-4. **Surprise:**
-   > "Did anything happen that you didn't expect — good or bad?"
+4. **惊喜：**
+   > "有没有发生你没想到的事情 — 好的或坏的？"
 
-5. **Verdict:**
-   > "PROCEED, PIVOT, or KILL — and one sentence why."
+5. **判定：**
+   > "PROCEED、PIVOT 还是 KILL — 以及一句话原因。"
 
-Collect all answers before moving to report generation. If any answer is vague
-("it felt fine", "pretty good"), ask a follow-up: "Can you be more specific?
-What exactly felt fine about it?" Precise observations make the report useful.
-Vague ones make it useless.
+在移动到报告生成之前收集所有答案。如果任何答案模糊
+（"感觉还行"、"相当好"），追问："你能更具体吗？
+到底是什么感觉还行？"精确的观察使报告有用。
+模糊的观察使它无用。
 
 ---
 
-## Phase 7: Generate Prototype Report
+## Phase 7: 生成原型报告
 
-Read `.claude/docs/templates/prototype-report.md` to get the report structure.
-Fill in every section based on what was observed during this session. Replace all
-placeholder text with real observations — no generic filler.
+读取 `.claude/docs/templates/prototype-report.md` 获取报告结构。
+根据本会话期间观察到的内容填写每个部分。用真实的观察替换所有
+占位文本 — 无通用填充。
 
-Ask: "May I write this report to `prototypes/[concept-name]-concept/REPORT.md`?"
+询问："我可以将此报告写入 `prototypes/[概念名称]-concept/REPORT.md` 吗？"
 
-If yes, write the file. Then update `prototypes/index.md` (create if it does not
-exist) — append one row to the concept prototype table: concept name, date, path
-used, verdict (PROCEED/PIVOT/KILL), and a link to the REPORT.md. If a PIVOT chain
-exists (prior PIVOT-NOTE.md in a related concept folder), note the chain. This file
-is the project's complete history of what was tried and what was learned.
+如果同意，写入文件。然后更新 `prototypes/index.md`（如果不存在则创建） — 在概念原型表格中追加一行：概念名称、日期、使用的路径、判定（PROCEED/PIVOT/KILL）以及 REPORT.md 的链接。如果存在 PIVOT 链
+（相关概念文件夹中有之前的 PIVOT-NOTE.md），记录该链。此文件
+是项目完整的历史记录，记录了尝试了什么以及学到了什么。
 
 ---
 
-## Phase 8: Creative Director Review
+## Phase 8: Creative Director 审查
 
-**Review mode check:**
-- `solo` → skip. Note: "CD-PLAYTEST skipped — Solo mode."
-- `lean` → skip. Note: "CD-PLAYTEST skipped — Lean mode."
-- `full` → spawn `creative-director` via Task using gate **CD-PLAYTEST** if
-  `design/gdd/game-concept.md` exists with game pillars defined. If pillars are
-  not yet defined, note: "CD-PLAYTEST skipped — game pillars not yet defined at
-  concept prototype stage."
+**审查模式检查：**
+- `solo` → 跳过。注意："CD-PLAYTEST 已跳过 — Solo 模式。"
+- `lean` → 跳过。注意："CD-PLAYTEST 已跳过 — Lean 模式。"
+- `full` → 如果 `design/gdd/game-concept.md` 存在且定义了游戏支柱，则使用 gate **CD-PLAYTEST** 通过 Task spawn `creative-director`。如果支柱尚未定义，注意："CD-PLAYTEST 已跳过 — 概念原型阶段尚未定义游戏支柱。"
 
-Pass: the full REPORT.md content, the original hypothesis, and game pillars /
-core fantasy from `design/gdd/game-concept.md`.
+传递：完整的 REPORT.md 内容、原始假设和游戏支柱/
+核心幻想（来自 `design/gdd/game-concept.md`）。
 
-The creative director evaluates the result against the game's creative vision and
-confirms, modifies, or overrides the recommendation. Their verdict is final. Update
-REPORT.md if the verdict differs.
+creative director 根据游戏的创意愿景评估结果并确认、修改或覆盖推荐。他们的判定是最终的。如果判定不同，更新 REPORT.md。
 
 ---
 
-## Phase 9: Summary and Next Steps
+## Phase 9: 摘要和后续步骤
 
-Output a summary: the hypothesis, the result, and the final recommendation.
-Link to `prototypes/[concept-name]-concept/REPORT.md`.
+输出摘要：假设、结果和最终推荐。
+链接到 `prototypes/[概念名称]-concept/REPORT.md`。
 
-**If PROCEED:**
-Your concept prototype validated the core idea. Now design it properly, informed by
-what you just learned.
+**如果 PROCEED：**
+你的概念原型验证了核心想法。现在根据你刚刚学到的内容进行正确的设计。
 
-Recommended path (in order):
-1. `/design-review design/gdd/game-concept.md` — validate the concept doc against what the prototype revealed
-2. `/gate-check` — confirm readiness to advance to Systems Design
-3. `/art-bible` — define visual identity (optional but worth doing before GDDs)
-4. `/map-systems` — decompose the concept into all game systems
-5. `/design-system [mechanic]` — GDD for each MVP system; use prototype learnings
-   in the Tuning Knobs and Formulas sections
-6. `/review-all-gdds` — cross-system consistency check
+推荐路径（按顺序）：
+1. `/design-review design/gdd/game-concept.md` — 根据原型揭示的内容验证概念文档
+2. `/gate-check` — 确认准备进入 Systems Design
+3. `/art-bible` — 定义视觉识别（可选但在 GDD 之前值得做）
+4. `/map-systems` — 将概念分解为所有游戏系统
+5. `/design-system [机制]` — 每个 MVP 系统的 GDD；在 Tuning Knobs 和 Formulas 部分使用原型学习
+6. `/review-all-gdds` — 跨系统一致性检查
 
-**Note:** If you used the HTML path and feel is still uncertain, consider running
-a quick engine path prototype targeting feel before writing GDDs.
+**注意：** 如果你使用了 HTML 路径且手感仍不确定，考虑在编写 GDD 之前运行一个针对手感的快速引擎路径原型。
 
-**If PIVOT:**
+**如果 PIVOT：**
 
-Before routing to the next prototype, capture the carry-forward note. Ask these
-two questions (plain text, one at a time):
+在路由到下一个原型之前，捕获延续记录。逐个问这两个问题（纯文本）：
 
-1. "What specifically worked in this prototype that we should preserve in the next version?"
-2. "What is the single most important thing to change?"
+1. "这个原型中具体什么有效，我们应该在下一个版本中保留？"
+2. "要改变的最重要的一件事是什么？"
 
-Ask: "May I write this to `prototypes/[concept-name]-concept/PIVOT-NOTE.md`?"
+询问："我可以将此写入 `prototypes/[概念名称]-concept/PIVOT-NOTE.md` 吗？"
 
-If yes, write the file with: original hypothesis, what to keep, what to change, and
-the revised hypothesis for the next prototype. When `/prototype` is next run, check
-`prototypes/` for any `PIVOT-NOTE.md` files — if found, read them and use the
-revised hypothesis as the starting point rather than forming one from scratch.
+如果同意，写入文件：原始假设、要保留的内容、要更改的内容以及下一个原型的修订假设。下次运行 `/prototype` 时，检查 `prototypes/` 中是否有任何 `PIVOT-NOTE.md` 文件 — 如果找到，读取它们并使用修订后的假设作为起点，而不是从头开始形成。
 
-- Run `/prototype [revised-concept]` to test the adjusted direction
-- Or `/brainstorm [hint]` if the concept needs more fundamental rethinking
+- 运行 `/prototype [修订后的概念]` 测试调整后的方向
+- 或 `/brainstorm [提示]` 如果概念需要更根本的重新思考
 
-**If KILL:**
+**如果 KILL：**
 
-Before moving on, run this check to confirm the verdict is sound and not temporary frustration:
+在继续之前，运行此检查以确认判定是合理的而不是暂时的挫折：
 
-- [ ] Core mechanic still unclear to testers after 2+ playtests?
-- [ ] No "fun moment" (smile, laugh, or retry by choice) observed in any session?
-- [ ] 3+ PIVOT iterations on the same concept with no clear improvement?
-- [ ] Concept only works when heavily explained or when the dev guides the player?
-- [ ] Building this feels like obligation, not excitement?
+- [ ] 经过 2+ 次 playtest 后核心机制对测试者仍不清楚？
+- [ ] 在任何会话中都没有观察到"有趣时刻"（微笑、大笑或选择重试）？
+- [ ] 同一概念 3+ 次 PIVOT 迭代没有明显改善？
+- [ ] 只有大量解释或开发者引导玩家时概念才有效？
+- [ ] 构建这个感觉像是义务，而不是兴奋？
 
-If 2+ boxes apply → KILL verdict is sound. If 0–1 apply → consider one more focused PIVOT before killing.
+如果 2+ 个框适用 → KILL 判定是合理的。如果 0-1 个适用 → 在终止前考虑再进行一次有针对性的 PIVOT。
 
-**Document the kill in `prototypes/GRAVEYARD.md`** (create if it doesn't exist).
-Ask: "May I append this concept to `prototypes/GRAVEYARD.md`?" If yes, add one entry:
+**将终止记录在 `prototypes/GRAVEYARD.md`**（如果不存在则创建）。
+询问："我可以将此概念追加到 `prototypes/GRAVEYARD.md` 吗？" 如果同意，添加一个条目：
 
 ```
-## [Concept Name] — YYYY-MM-DD
-- **Kill reason:** [specific blocker — not "it was boring" but "players never understood the core action"]
-- **What worked:** [2-3 things worth carrying forward to future concepts]
-- **What failed:** [the specific mechanic, design decision, or scope issue]
-- **Next time:** [one explicit action to try differently on a similar concept]
+## [概念名称] — YYYY-MM-DD
+- **终止原因:** [具体阻塞点 — 不是"很无聊"而是"玩家从未理解核心动作"]
+- **有效的部分:** [2-3 个值得带入未来概念的内容]
+- **失败的部分:** [具体的机制、设计决策或范围问题]
+- **下次:** [在类似概念上要尝试的不同操作]
 ```
 
-This file exists so the same mistake doesn't get made twice on the next concept.
+此文件的存在是为了同一个错误不会在下一个概念上犯两次。
 
-- Run `/brainstorm open` or `/brainstorm [new-hint]` to explore a different concept
-- The prototype report is the deliverable — no further action needed
-
----
+- 运行 `/brainstorm open` 或 `/brainstorm [新提示]` 探索不同的概念
+- 原型报告就是交付物 — 无需进一步操作
 
 ---
 
-## Spike Mode
+---
 
-**Triggered by:** `--spike` flag OR "Mid-production spike" entry choice in Phase 1.
+## Spike 模式
 
-**Purpose:** Test a specific technical or design question mid-production, without
-the overhead of a full concept prototype workflow. No GDD prerequisites. No phase
-gate implications. Hard cap: ~4 hours.
+**触发方式：** `--spike` 标志或 Phase 1 中的"Mid-production spike"入口选择。
 
-**When to use:**
-- You're in Production and want to test whether a new mechanic should be added
-- You're unsure if a technical approach will work before building it properly
-- A design change is being considered and you want a quick before/after comparison
-- A GDD system is proving harder than expected and you want to prototype the hard part
-- You need to confirm target hardware can sustain the required framerate before writing gameplay code (**performance spike** — see below)
+**用途：** 在制作中期测试特定技术或设计问题，无需完整概念原型工作流的开销。无 GDD 先决条件。无 phase gate 影响。硬性上限：约 4 小时。
 
-**Spike Mode workflow (replaces Phases 1–9):**
+**何时使用：**
+- 你在 Production 中并想测试是否应该添加新机制
+- 你不确定技术方法是否有效，想在正确构建之前测试
+- 正在考虑设计变更，想要快速的 before/after 比较
+- GDD 系统比预期更难，你想制作困难部分的原型
+- 你需要确认目标硬件能否在编写游戏代码之前维持所需的帧率（**性能 spike** — 见下文）
 
-1. **Define the spike question** (plain text, not a widget): "What specific question does this spike answer? Give me one sentence: 'Can we [do X] using [approach Y]?'"
+**Spike 模式工作流（替换 Phase 1-9）：**
 
-2. **Choose path** — same AskUserQuestion widget as Phase 3 (HTML / Engine / Paper).
+1. **定义 spike 问题**（纯文本，不是小部件）："这个 spike 回答什么具体问题？给我一句话：'我们能否用 [方法 Y] 做到 [X]？'"
 
-3. **Scope** — maximum 2-3 bullet points. One mechanic, one technical question, nothing else.
+2. **选择路径** — 与 Phase 3 相同的 AskUserQuestion 小部件（HTML / Engine / Paper）。
 
-4. **Build** — same relaxed standards as concept prototype. Hard cap: 4 hours. If not demonstrable in 4 hours, the question is too large. Split it.
+3. **范围** — 最多 2-3 个要点。一个机制，一个技术问题，没有其他。
 
-5. **Observe and decide** — no formal playtest debrief. Ask: "Did the spike answer the question? YES or NO, and why in one sentence."
+4. **构建** — 与概念原型相同的放松标准。硬性上限：4 小时。如果 4 小时内无法演示，问题太大了。拆分它。
 
-6. **Write a spike note** (not a full report) to `prototypes/[concept-name]-spike-[date]/SPIKE-NOTE.md`:
-   - Question tested
-   - Result (YES it works / NO it doesn't / PARTIAL — needs more investigation)
-   - What to do next (add to current sprint / investigate further / abandon the idea)
+5. **观察并决定** — 无正式的 playtest 汇报。询问："spike 是否回答了问题？是或否，以及一句话原因。"
 
-7. **Update `production/session-state/active.md`** to clear the spike and return to the current sprint state.
+6. **编写 spike 笔记**（不是完整报告）到 `prototypes/[概念名称]-spike-[日期]/SPIKE-NOTE.md`：
+   - 测试的问题
+   - 结果（是有效 / 否无效 / 部分 — 需要更多调查）
+   - 下一步做什么（添加到当前 sprint / 进一步调查 / 放弃想法）
 
-**No CD gate. No phase gate. No PROCEED/PIVOT/KILL.** Spike results inform decisions; they don't make them. The developer decides whether to add the mechanic/approach to the sprint backlog based on what the spike revealed.
+7. **更新 `production/session-state/active.md`** 以清除 spike 并返回到当前 sprint 状态。
 
-**Performance spike (special case):** If the game involves demanding rendering —
-large open worlds, hundreds of simultaneous physics bodies, heavy particle systems,
-complex shaders — run a performance spike before writing gameplay code to confirm
-the target hardware can sustain the required framerate. This is distinct from other
-spikes in two ways:
-- The question is "can the engine render [scene X] at 60fps on [minimum spec hardware]?"
-  not "does this mechanic feel good?"
-- The output is a benchmark number, not a feel verdict
-- No gameplay logic is needed — just the maximum intended scene load (terrain, draw
-  calls, physics objects, particles) running at once
-- Build time stays within the ~4-hour cap; the spike is setting up the rendering
-  load, not the game
-- If the answer is NO at this scope, this is an architecture or scope constraint
-  that affects everything downstream — better to surface it now than during Sprint 8
+**无 CD gate。无 phase gate。无 PROCEED/PIVOT/KILL。** Spike 结果为决策提供信息；它们不做决定。开发者根据 spike 揭示的内容决定是否将机制/方法添加到 sprint 待办列表。
+
+**性能 spike（特殊情况）：** 如果游戏涉及高要求的渲染 —
+大型开放世界、数百个同时物理实体、重度粒子系统、
+复杂 shader — 在编写游戏代码之前运行性能 spike 以确认
+目标硬件能否维持所需的帧率。这与其他 spike 在两方面不同：
+- 问题是"引擎能否在 [最低规格硬件] 上以 60fps 渲染 [场景 X]？"
+  不是"这个机制感觉好吗？"
+- 输出是基准数字，而不是手感判定
+- 不需要游戏逻辑 — 只需最大预期场景负载（地形、draw call、
+  物理对象、粒子）同时运行
+- 构建时间保持在约 4 小时上限内；spike 是在设置渲染
+  负载，而不是游戏
+- 如果在此范围下答案为否，这是一个影响所有下游的架构或
+  范围约束 — 最好现在在 Sprint 8 期间暴露它
 
 ---
 
-### Important Constraints
+### 重要约束
 
-- Prototype code must NEVER import from production source files
-- Production code must NEVER import from prototype directories
-- If the recommendation is PROCEED, production implementation is written from
-  scratch — prototype code is never refactored into production
-- Total effort is hard-capped at 1 day (concept prototypes test one mechanic)
-- Test ONE mechanic — if scope grows, stop and simplify the question
-- No polish. No menus, no game over, no music, no UI unless it IS the mechanic
-- If stuck after 2 hours of engine iteration, reframe the question or switch paths
-- **3 PIVOT iterations → force a KILL decision.** If this is the third time the
-  same concept has produced a PIVOT verdict, the concept likely doesn't work.
-  Ask: "Is this the right idea, or am I in the sunk cost trap?" A new concept
-  prototyped fresh will almost always beat a fourth iteration of a struggling one.
-- Building 2-3 different concept variants and picking the best one is a healthier
-  strategy than iterating one concept to death. Natural selection between prototypes
-  beats willpower.
-- **Networked/multiplayer games:** A local prototype cannot validate the feel of a
-  networked mechanic. Latency fundamentally changes how combat, movement, and
-  prediction feel — a prototype running at 0ms local will feel entirely different at
-  80ms network delay. Use a local prototype to validate that the mechanic is
-  *interesting*. Do not use it as evidence that it *feels good* under real network
-  conditions. Network feel requires real peers or simulated latency (e.g., throttle
-  tools, network condition simulators).
+- 原型代码绝不能从生产源文件导入
+- 生产代码绝不能从原型目录导入
+- 如果推荐是 PROCEED，生产实现从头开始编写 — 原型代码永远不会重构为生产代码
+- 总工作量硬性上限为 1 天（概念原型测试一个机制）
+- 测试一个机制 — 如果范围增长，停止并简化问题
+- 无打磨。无菜单、无游戏结束、无音乐、无 UI，除非它本身就是机制
+- 如果引擎迭代 2 小时后卡住，重新构建问题或切换路径
+- **3 次 PIVOT 迭代 → 强制 KILL 决策。** 如果同一概念第三次产生 PIVOT 判定，该概念可能不起作用。
+  问："这是正确的想法，还是我陷入了沉没成本陷阱？"一个全新制作的新概念几乎总是胜过苦苦挣扎的概念的第四次迭代。
+- 构建 2-3 个不同的概念变体并选择最好的，是一个比将一个概念迭代至死更健康的策略。原型之间的自然选择胜过意志力。
+- **网络化/多人游戏：** 本地原型无法验证网络化机制的手感。延迟从根本上改变了战斗、移动和
+  预测的感觉 — 在 0ms 本地运行的原型在
+  80ms 网络延迟下会感觉完全不同。使用本地原型来验证机制是否
+  *有趣*。不要将其用作它在真实网络条件下*感觉良好*的证据。网络手感需要真实对等端或模拟延迟（例如，节流
+  工具、网络条件模拟器）。

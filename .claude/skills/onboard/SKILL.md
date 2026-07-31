@@ -1,96 +1,96 @@
 ---
 name: onboard
-description: "Generates a contextual onboarding document for a new contributor or agent joining the project. Summarizes project state, architecture, conventions, and current priorities relevant to the specified role or area."
+description: "为加入项目的新贡献者或 Agent 生成上下文感知的入职文档。总结项目状态、架构、规范以及与指定角色或领域相关的当前优先事项。"
 argument-hint: "[role|area]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write
 model: haiku
 ---
 
-## Phase 1: Load Project Context
+## Phase 1: 加载项目上下文
 
-Read CLAUDE.md for project overview and standards.
+读取 CLAUDE.md 了解项目概览和标准。
 
-Read the relevant agent definition from `.claude/agents/` if a specific role is specified.
-
----
-
-## Phase 2: Scan Relevant Area
-
-- For programmers: scan `src/` for architecture, patterns, key files
-- For designers: scan `design/` for existing design documents
-- For narrative: scan `design/narrative/` for world-building and story docs
-- For QA: scan `tests/` for existing test coverage
-- For production: scan `production/` for current sprint and milestone
-
-Read recent changes (git log if available) to understand current momentum.
+如果指定了特定角色，从 `.claude/agents/` 读取对应的 Agent 定义。
 
 ---
 
-## Phase 3: Generate Onboarding Document
+## Phase 2: 扫描相关领域
+
+- 对于程序员：扫描 `src/` 了解架构、模式、关键文件
+- 对于设计师：扫描 `design/` 了解现有设计文档
+- 对于叙事：扫描 `design/narrative/` 了解世界观和故事文档
+- 对于 QA：扫描 `tests/` 了解现有测试覆盖
+- 对于制作：扫描 `production/` 了解当前 sprint 和里程碑
+
+读取最近的变更（如果有 git log）以了解当前进展势头。
+
+---
+
+## Phase 3: 生成入职文档
 
 ```markdown
-# Onboarding: [Role/Area]
+# 入职文档：[角色/领域]
 
-## Project Summary
-[2-3 sentence summary of what this game is and its current state]
+## 项目概要
+[这款游戏是什么及其当前状态的 2-3 句话摘要]
 
-## Your Role
-[What this role does on this project, key responsibilities, who you report to]
+## 你的角色
+[该角色在这个项目上的职责、关键责任、汇报对象]
 
-## Project Architecture
-[Relevant architectural overview for this role]
+## 项目架构
+[与该角色相关的架构概览]
 
-### Key Directories
-| Directory | Contents | Your Interaction |
+### 关键目录
+| 目录 | 内容 | 你的交互方式 |
 |-----------|----------|-----------------|
 
-### Key Files
-| File | Purpose | Read Priority |
+### 关键文件
+| 文件 | 用途 | 阅读优先级 |
 |------|---------|--------------|
 
-## Current Standards and Conventions
-[Summary of conventions relevant to this role from CLAUDE.md and agent definition]
+## 当前标准与规范
+[从 CLAUDE.md 和 Agent 定义中总结与该角色相关的规范]
 
-## Current State of Your Area
-[What has been built, what is in progress, what is planned next]
+## 你所在领域的当前状态
+[已构建的内容、正在进行的内容、下一步计划]
 
-## Current Sprint Context
-[What the team is working on now and what is expected of this role]
+## 当前 Sprint 上下文
+[团队当前正在做什么以及该角色的期望]
 
-## Key Dependencies
-[What other roles/systems this role interacts with most]
+## 关键依赖
+[该角色交互最多的其他角色/系统]
 
-## Common Pitfalls
-[Things that trip up new contributors in this area]
+## 常见陷阱
+[该领域新贡献者容易踩的坑]
 
-## First Tasks
-[Suggested first tasks to get oriented and productive]
+## 首要任务
+[建议的首要任务以熟悉环境并进入工作状态]
 
-1. [Read these documents first]
-2. [Review this code/content]
-3. [Start with this small task]
+1. [首先阅读这些文档]
+2. [审查此代码/内容]
+3. [从这个小任务开始]
 
-## Questions to Ask
-[Questions the new contributor should ask to get fully oriented]
+## 需要提出的问题
+[新贡献者应提出的问题以充分了解情况]
 ```
 
 ---
 
-## Phase 4: Save Document
+## Phase 4: 保存文档
 
-Present the onboarding document to the user.
+向用户展示入职文档。
 
-Ask: "May I write this to `production/onboarding/onboard-[role]-[date].md`?"
+询问："可以写入 `production/onboarding/onboard-[role]-[date].md` 吗？"
 
-If yes, write the file, creating the directory if needed.
+如果同意，写入文件，必要时创建目录。
 
 ---
 
-## Phase 5: Next Steps
+## Phase 5: 下一步
 
-Verdict: **COMPLETE** — onboarding document generated.
+裁决：**COMPLETE** — 入职文档已生成。
 
-- Share the onboarding doc with the new contributor before their first session.
-- Run `/sprint-status` to show the new contributor current progress.
-- Run `/help` if the contributor needs guidance on what to work on next.
+- 在新贡献者首次会话前与其分享入职文档。
+- 运行 `/sprint-status` 向新贡献者展示当前进度。
+- 如果贡献者需要下一步工作指导，运行 `/help`。

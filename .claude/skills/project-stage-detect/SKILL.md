@@ -5,191 +5,190 @@ argument-hint: "[optional: role filter like 'programmer' or 'designer']"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Write
 model: haiku
-# Read-only diagnostic skill — no specialist agent delegation needed
+# 只读诊断 skill — 无需委派给专家 agent
 ---
 
-# Project Stage Detection
+# 项目阶段检测
 
-This skill scans your project to determine its current development stage, completeness
-of artifacts, and gaps that need attention. It's especially useful when:
-- Starting with an existing project
-- Onboarding to a codebase
-- Checking what's missing before a milestone
-- Understanding "where are we?"
+此 skill 扫描您的项目以确定其当前开发阶段、资源的完整性以及需要注意的缺口。它在以下情况下特别有用：
+- 从现有项目开始时
+- 加入代码库时
+- 在里程碑之前检查缺失内容时
+- 理解"我们在哪里？"
 
 ---
 
-## Workflow
+## 工作流
 
-### 1. Scan Key Directories
+### 1. 扫描关键目录
 
-Analyze project structure and content:
+分析项目结构和内容：
 
-**Design Documentation** (`design/`):
-- Count GDD files in `design/gdd/*.md`
-- Check for game-concept.md, game-pillars.md, systems-index.md
-- If systems-index.md exists, count total systems vs. designed systems
-- Analyze completeness (Overview, Detailed Design, Edge Cases, etc.)
-- Count narrative docs in `design/narrative/`
-- Count level designs in `design/levels/`
+**设计文档** (`design/`):
+- 统计 `design/gdd/*.md` 中的 GDD 文件数量
+- 检查是否存在 game-concept.md、game-pillars.md、systems-index.md
+- 如果 systems-index.md 存在，统计总系统数 vs 已设计的系统数
+- 分析完整性（Overview、Detailed Design、Edge Cases 等）
+- 统计 `design/narrative/` 中的叙事文档数量
+- 统计 `design/levels/` 中的关卡设计数量
 
-**Source Code** (`src/`):
-- Count source files (language-agnostic)
-- Identify major systems (directories with 5+ files)
-- Check for core/, gameplay/, ai/, networking/, ui/ directories
-- Estimate lines of code (rough scale)
+**源代码** (`src/`):
+- 统计源文件数量（语言无关）
+- 识别主要系统（包含 5+ 文件的目录）
+- 检查是否存在 core/、gameplay/、ai/、networking/、ui/ 目录
+- 估算代码行数（粗略规模）
 
-**Production Artifacts** (`production/`):
-- Check for active sprint plans
-- Look for milestone definitions
-- Find roadmap documents
+**制作资源** (`production/`):
+- 检查是否存在活跃的 sprint 计划
+- 查找里程碑定义
+- 查找路线图文档
 
-**Prototypes** (`prototypes/`):
-- Count prototype directories
-- Check for READMEs (documented vs undocumented)
-- Assess if prototypes are archived or active
+**原型** (`prototypes/`):
+- 统计原型目录数量
+- 检查是否有 README（有文档 vs 无文档）
+- 评估原型是已归档还是活跃的
 
-**Architecture Docs** (`docs/architecture/`):
-- Count ADRs (Architecture Decision Records)
-- Check for overview/index documents
+**架构文档** (`docs/architecture/`):
+- 统计 ADR（架构决策记录）数量
+- 检查是否存在 overview/index 文档
 
-**Tests** (`tests/`):
-- Count test files
-- Estimate test coverage (rough heuristic)
+**测试** (`tests/`):
+- 统计测试文件数量
+- 估算测试覆盖率（粗略启发式）
 
-### 2. Classify Project Stage
+### 2. 分类项目阶段
 
-Based on scanned artifacts, determine stage. Check `production/stage.txt` first —
-if it exists, use its value (explicit override from `/gate-check`). Otherwise,
-auto-detect using these heuristics (check from most-advanced backward):
+基于扫描的资源确定阶段。首先检查 `production/stage.txt` —
+如果存在，使用其值（来自 `/gate-check` 的显式覆盖）。否则，
+使用以下启发式规则自动检测（从最先进阶段向后检查）：
 
-| Stage | Indicators |
+| 阶段 | 指标 |
 |-------|-----------|
-| **Concept** | No game concept doc, brainstorming phase |
-| **Systems Design** | Game concept exists, systems index missing or incomplete |
-| **Technical Setup** | Systems index exists, engine not configured |
-| **Pre-Production** | Engine configured, `src/` has <10 source files |
-| **Production** | `src/` has 10+ source files, active development |
-| **Polish** | Explicit only (set by `/gate-check` Production → Polish gate) |
-| **Release** | Explicit only (set by `/gate-check` Polish → Release gate) |
+| **Concept** | 无游戏概念文档，处于头脑风暴阶段 |
+| **Systems Design** | 存在游戏概念，systems index 缺失或不完整 |
+| **Technical Setup** | 存在 systems index，引擎未配置 |
+| **Pre-Production** | 引擎已配置，`src/` 中少于 10 个源文件 |
+| **Production** | `src/` 中有 10+ 个源文件，活跃开发中 |
+| **Polish** | 仅显式设置（由 `/gate-check` Production → Polish gate 设置） |
+| **Release** | 仅显式设置（由 `/gate-check` Polish → Release gate 设置） |
 
-### 3. Collaborative Gap Identification
+### 3. 协作式缺口识别
 
-**DO NOT** just list missing files. Instead, **ask clarifying questions**:
+**不要**只列出缺失的文件。相反，**提出澄清性问题**：
 
-- "I see combat code (`src/gameplay/combat/`) but no `design/gdd/combat-system.md`. Was this prototyped first, or should we reverse-document?"
-- "You have 15 ADRs but no architecture overview. Should I create one to help new contributors?"
-- "No sprint plans in `production/`. Are you tracking work elsewhere (Jira, Trello, etc.)?"
-- "I found a game concept but no systems index. Have you decomposed the concept into individual systems yet, or should we run `/map-systems`?"
-- "Prototypes directory has 3 projects with no READMEs. Were these experiments, or do they need documentation?"
+- "我看到战斗代码（`src/gameplay/combat/`）但没有 `design/gdd/combat-system.md`。这是先做的原型，还是需要反向文档化？"
+- "你有 15 个 ADR 但没有架构概览。我应该创建一个来帮助新贡献者吗？"
+- "`production/` 中没有 sprint 计划。你在其他地方跟踪工作吗（Jira、Trello 等）？"
+- "我找到了游戏概念但没有 systems index。你是否已将概念分解为各个系统，还是我们应该运行 `/map-systems`？"
+- "Prototypes 目录有 3 个项目但没有 README。这些是实验，还是需要文档化？"
 
-### 4. Generate Stage Report
+### 4: 生成阶段报告
 
-Use template: `.claude/docs/templates/project-stage-report.md`
+使用模板：`.claude/docs/templates/project-stage-report.md`
 
-**Report structure**:
+**报告结构**：
 ```markdown
-# Project Stage Analysis
+# 项目阶段分析
 
-**Date**: [date]
-**Stage**: [Concept/Systems Design/Technical Setup/Pre-Production/Production/Polish/Release]
-**Stage Confidence**: [PASS — clearly detected / CONCERNS — ambiguous signals / FAIL — critical gaps block progress]
+**日期**: [日期]
+**阶段**: [Concept/Systems Design/Technical Setup/Pre-Production/Production/Polish/Release]
+**阶段置信度**: [PASS — 明确检测 / CONCERNS — 信号模糊 / FAIL — 关键缺口阻塞进度]
 
-## Completeness Overview
-- Design: [X%] ([N] docs, [gaps])
-- Code: [X%] ([N] files, [systems])
-- Architecture: [X%] ([N] ADRs, [gaps])
-- Production: [X%] ([status])
-- Tests: [X%] ([coverage estimate])
+## 完整性概览
+- 设计: [X%] ([N] 个文档，[缺口])
+- 代码: [X%] ([N] 个文件，[系统])
+- 架构: [X%] ([N] 个 ADR，[缺口])
+- 制作: [X%] ([状态])
+- 测试: [X%] ([覆盖率估算])
 
-## Gaps Identified
-1. [Gap description + clarifying question]
-2. [Gap description + clarifying question]
+## 已识别缺口
+1. [缺口描述 + 澄清性问题]
+2. [缺口描述 + 澄清性问题]
 
-## Recommended Next Steps
-[Priority-ordered list based on stage and role]
+## 推荐后续步骤
+[基于阶段和角色的优先级排序列表]
 ```
 
-### 5. Role-Filtered Recommendations (Optional)
+### 5: 按角色过滤的推荐（可选）
 
-If user provided a role argument (e.g., `/project-stage-detect programmer`):
+如果用户提供了角色参数（例如 `/project-stage-detect programmer`）：
 
 **Programmer**:
-- Focus on architecture docs, test coverage, missing ADRs
-- Code-to-docs gaps
+- 关注架构文档、测试覆盖率、缺失的 ADR
+- 代码与文档之间的缺口
 
 **Designer**:
-- Focus on GDD completeness, missing design sections
-- Prototype documentation
+- 关注 GDD 完整性、缺失的设计部分
+- 原型文档化
 
 **Producer**:
-- Focus on sprint plans, milestone tracking, roadmap
-- Cross-team coordination docs
+- 关注 sprint 计划、里程碑跟踪、路线图
+- 跨团队协调文档
 
-**General** (no role):
-- Holistic view of all gaps
-- Highest-priority items across domains
+**General**（无角色）：
+- 所有缺口的整体视图
+- 跨领域最高优先级项目
 
-### 6. Request Approval Before Writing
+### 6: 写入前请求批准
 
-**Collaborative protocol**:
+**协作协议**：
 ```
-I've analyzed your project. Here's what I found:
+我已分析您的项目。这是我的发现：
 
-[Show summary]
+[展示摘要]
 
-Gaps identified:
-1. [Gap 1 + question]
-2. [Gap 2 + question]
+已识别缺口：
+1. [缺口 1 + 问题]
+2. [缺口 2 + 问题]
 
-Recommended next steps:
-- [Priority 1]
-- [Priority 2]
-- [Priority 3]
+推荐后续步骤：
+- [优先级 1]
+- [优先级 2]
+- [优先级 3]
 
-May I write the full stage analysis to production/project-stage-report.md?
+我可以将完整的阶段分析写入 production/project-stage-report.md 吗？
 ```
 
-Wait for user approval before creating the file.
+在创建文件之前等待用户批准。
 
 ---
 
-## Example Usage
+## 示例用法
 
 ```bash
-# General project analysis
+# 通用项目分析
 /project-stage-detect
 
-# Programmer-focused analysis
+# 面向 programmer 的分析
 /project-stage-detect programmer
 
-# Designer-focused analysis
+# 面向 designer 的分析
 /project-stage-detect designer
 ```
 
 ---
 
-## Follow-Up Actions
+## 后续操作
 
-After generating the report, suggest relevant next steps:
+生成报告后，推荐相关的后续步骤：
 
-- **Concept exists but no systems index?** → `/map-systems` to decompose into systems
-- **Missing design docs?** → `/reverse-document design src/[system]`
-- **Missing architecture docs?** → `/architecture-decision` or `/reverse-document architecture`
-- **Prototypes need documentation?** → `/reverse-document concept prototypes/[name]`
-- **No sprint plan?** → `/sprint-plan`
-- **Approaching milestone?** → `/milestone-review`
+- **有概念但没有 systems index？** → `/map-systems` 分解为系统
+- **缺少设计文档？** → `/reverse-document design src/[系统]`
+- **缺少架构文档？** → `/architecture-decision` 或 `/reverse-document architecture`
+- **原型需要文档化？** → `/reverse-document concept prototypes/[名称]`
+- **没有 sprint 计划？** → `/sprint-plan`
+- **接近里程碑？** → `/milestone-review`
 
 ---
 
-## Collaborative Protocol
+## 协作协议
 
-This skill follows the collaborative design principle:
+此 skill 遵循协作设计原则：
 
-1. **Question First**: Ask about gaps, don't assume
-2. **Present Options**: "Should I create X, or is it tracked elsewhere?"
-3. **User Decides**: Wait for direction
-4. **Show Draft**: Display report summary
-5. **Get Approval**: "May I write to production/project-stage-report.md?"
+1. **先提问**: 对缺口提问，不要假设
+2. **展示选项**: "我应该创建 X，还是在其他地方跟踪？"
+3. **用户决定**: 等待指示
+4. **展示草稿**: 显示报告摘要
+5. **获取批准**: "我可以写入 production/project-stage-report.md 吗？"
 
-**Never** silently write files. **Always** show findings and ask before creating artifacts.
+**永远不要**静默写入文件。**始终**先展示发现并在创建资源前询问。

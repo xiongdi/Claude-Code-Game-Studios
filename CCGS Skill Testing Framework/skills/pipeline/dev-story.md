@@ -2,16 +2,9 @@
 
 ## Skill Summary
 
-`/dev-story` reads a story file, loads all required context (referenced ADR,
-TR-ID from the registry, control manifest, engine preferences), implements the
-story, verifies that all acceptance criteria are met, and marks the story
-Complete. The skill routes implementation to the correct specialist agent based
-on the engine and file type — it does not write source code directly.
+`/dev-story` 读取一个 story 文件，加载所有必需上下文（引用的 ADR、注册表中的 TR-ID、control manifest、引擎偏好），实现 story，验证所有验收标准均已满足，并将 story 标记为 Complete。该 skill 根据引擎和文件类型将实现路由到正确的专家 agent —— 它不直接编写源代码。
 
-In `full` review mode, an LP-CODE-REVIEW gate runs before marking the story
-Complete. In `lean` or `solo` mode, LP-CODE-REVIEW is skipped and the story is
-marked Complete after the user confirms all criteria are met. The skill asks
-"May I write" before updating story status and before writing code files.
+在 `full` review 模式下，LP-CODE-REVIEW 门控在将 story 标记为 Complete 之前运行。在 `lean` 或 `solo` 模式下，LP-CODE-REVIEW 被跳过，story 在用户确认所有标准均已满足后被标记为 Complete。在更新 story 状态和编写代码文件之前会询问 "May I write"。
 
 ---
 

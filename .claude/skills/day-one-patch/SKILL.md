@@ -9,218 +9,214 @@ model: sonnet
 
 # Day-One Patch
 
-Every shipped game has a day-one patch. Planning it before launch day prevents
-chaos. This skill scopes the patch to only what is safe and necessary, gates it
-through a lightweight QA pass, and ensures a rollback plan exists before anything
-ships. It is a mini-sprint — not a hotfix, not a full sprint.
+每个已发布游戏都有 day-one patch。在发布日之前计划它可以防止混乱。此技能将 patch 范围限定为仅安全且必要的内容，通过轻量级 QA 通道进行门控，并确保在任何内容发布前存在回滚计划。它是一个 mini-sprint——不是 hotfix，不是完整 sprint。
 
-**When to run:**
-- After the gold master build is locked (cert approved or launch candidate tagged)
-- When known bugs exist that are too risky to address in the gold master
-- When cert feedback requires minor fixes post-submission
-- When a pre-launch playtest surfaces must-fix issues after the release gate passed
+**何时运行：**
+- gold master 构建锁定后（cert 批准或 launch candidate 标记）
+- 存在已知 bug，在 gold master 中修复风险太大
+- cert 反馈需要在提交后进行小修复
+- 发布门通过后，发布前试玩浮现了必须修复的问题
 
-**Day-one patch scope rules:**
-- Only P1/P2 bugs that are SAFE to fix quickly
-- No new features — this is fix-only
-- No refactoring — minimum viable change
-- Any fix that requires more than 4 hours of dev time belongs in patch 1.1, not day-one
+**Day-one patch 范围规则：**
+- 仅 P1/P2 bug，且快速修复是安全的
+- 无新功能——这仅限修复
+- 无重构——最小可行更改
+- 任何需要超过 4 小时开发时间的修复属于 patch 1.1，不属于 day-one
 
-**Output:** `production/releases/day-one-patch-[version].md`
+**输出：** `production/releases/day-one-patch-[version].md`
 
 ---
 
-## Phase 1: Load Release Context
+## 第 1 阶段：加载发布上下文
 
-Read:
-- `production/stage.txt` — confirm project is in Release stage
-- The most recent file in `production/gate-checks/` — read the release gate verdict
-- `production/qa/bugs/*.md` — load all bugs with Status: Open or Fixed — Pending Verification
-- `production/sprints/` most recent — understand what shipped
-- `production/security/security-audit-*.md` most recent — check for any open security items
+读取：
+- `production/stage.txt` — 确认项目处于 Release 阶段
+- `production/gate-checks/` 中最新的文件 — 读取发布门裁决
+- `production/qa/bugs/*.md` — 加载所有状态为 Open 或 Fixed — Pending Verification 的 bug
+- `production/sprints/` 最新的 — 了解已发布的内容
+- `production/security/security-audit-*.md` 最新的 — 检查任何未解决的安全项目
 
-If `production/stage.txt` is not `Release` or `Polish`:
-> "Day-one patch prep is for Release-stage projects. Current stage: [stage]. This skill is not appropriate until you are approaching launch."
+如果 `production/stage.txt` 不是 `Release` 或 `Polish`：
+> "Day-one patch 准备适用于 Release 阶段的项目。当前阶段：[stage]。在接近发布之前，此技能不适用。"
 
 ---
 
-## Phase 2: Scope the Patch
+## 第 2 阶段：确定 Patch 范围
 
-### Step 2a — Classify open bugs for patch inclusion
+### 步骤 2a — 分类补丁包含的未解决 bug
 
-For each open bug, evaluate:
+对于每个未解决的 bug，评估：
 
-| Criterion | Include in day-one? |
+| 标准 | 包含在 day-one 中？ |
 |-----------|-------------------|
-| S1 or S2 severity | Yes — must include if safe to fix |
-| P1 priority | Yes |
-| Fix estimated < 4 hours | Yes |
-| Fix requires architecture change | No — defer to 1.1 |
-| Fix introduces new code paths | No — too risky |
-| Fix is data/config only (no code change) | Yes — very low risk |
-| Cert feedback requirement | Yes — required for platform approval |
-| S3/S4 severity | Only if trivial config fix; otherwise defer |
+| S1 或 S2 严重性 | 是 — 如果安全修复则必须包含 |
+| P1 优先级 | 是 |
+| 修复估算 < 4 小时 | 是 |
+| 修复需要架构变更 | 否 — 推迟到 1.1 |
+| 修复引入新代码路径 | 否 — 太危险 |
+| 修复仅数据/配置（无代码更改） | 是 — 风险极低 |
+| Cert 反馈要求 | — 平台批准所需 |
+| S3/S4 严重性 | 仅当琐碎的配置修复时；否则推迟 |
 
-### Step 2b — Present patch scope to user
+### 步骤 2b — 向用户展示补丁范围
 
-Use `AskUserQuestion`:
-- Prompt: "Based on open bugs and cert feedback, here is the proposed day-one patch scope. Does this look right?"
-- Show: table of included bugs (ID, severity, description, estimated effort)
-- Show: table of deferred bugs (ID, severity, reason deferred)
-- Options: `[A] Approve this scope` / `[B] Adjust — I want to add or remove items` / `[C] No day-one patch needed`
+使用 `AskUserQuestion`：
+- 提示："根据未解决的 bug 和 cert 反馈，这是提议的 day-one patch 范围。这看起来对吗？"
+- 展示：包含的 bug 表（ID、严重性、描述、估算工作量）
+- 展示：推迟的 bug 表（ID、严重性、推迟原因）
+- 选项：`[A] 批准此范围` / `[B] 调整 — 我想添加或删除项目` / `[C] 不需要 day-one patch`
 
-If [C]: output "No day-one patch required. Proceed to `/launch-checklist`." Stop.
+如果 [C]：输出 "不需要 day-one patch。继续 `/launch-checklist`。" 停止。
 
-### Step 2c — Check total scope
+### 步骤 2c — 检查总范围
 
-Sum estimated effort. If total exceeds 1 day of work:
-> "⚠️ Patch scope is [N hours] — this exceeds a safe day-one window. Consider deferring lower-priority items to patch 1.1. A bloated day-one patch introduces more risk than it removes."
+汇总估算工作量。如果总计超过 1 天的工作量：
+> "⚠️ Patch 范围为 [N 小时] — 这超出了安全的 day-one 窗口。考虑将低优先级项目推迟到 patch 1.1。臃肿的 day-one patch 引入的风险比消除的更多。"
 
-Use `AskUserQuestion` to confirm proceeding or reduce scope.
-
----
-
-## Phase 3: Rollback Plan
-
-Before any code is written, define the rollback procedure. This is non-negotiable.
-
-Spawn `release-manager` via Task. Ask them to produce a rollback plan covering:
-- How to revert to the gold master build on each target platform
-- Platform-specific rollback constraints (some platforms cannot roll back cert builds)
-- Who is responsible for triggering the rollback
-- What player communication is required if a rollback occurs
-
-Present the rollback plan. Ask: "May I write this rollback plan to `production/releases/rollback-plan-[version].md`?"
-
-Do not proceed to Phase 4 until the rollback plan is written.
+使用 `AskUserQuestion` 确认继续或缩小范围。
 
 ---
 
-## Phase 4: Implement Fixes
+## 第 3 阶段：回滚计划
 
-For each bug in the approved scope, spawn a focused implementation loop:
+在写入任何代码之前，定义回滚程序。这是不可协商的。
 
-1. Spawn `lead-programmer` via Task with:
-   - The bug report (exact reproduction steps and root cause if known)
-   - The constraint: minimum viable fix only, no cleanup
-   - The affected files (from bug report Technical Context section)
+通过 Task 生成 `release-manager`。要求他们制定涵盖以下内容的回滚计划：
+- 如何在每个目标平台上恢复到 gold master 构建
+- 平台特定的回滚约束（某些平台无法回滚 cert 构建）
+- 谁负责触发回滚
+- 如果发生回滚，需要什么样的玩家沟通
 
-2. The lead-programmer implements and runs targeted tests.
+展示回滚计划。询问："我可以将此回滚计划写入 `production/releases/rollback-plan-[version].md` 吗？"
 
-3. Spawn `qa-tester` via Task to verify: does the bug reproduce after the fix?
-
-For config/data-only fixes: make the change directly (no programmer agent needed). Confirm the value changed and re-run any relevant smoke test.
-
----
-
-## Phase 5: Patch QA Gate
-
-This is a lightweight QA pass — not a full `/team-qa`. The patch is already QA-approved from the release gate; we are only re-verifying the changed areas.
-
-Spawn `qa-lead` via Task with:
-- List of all changed files
-- List of bugs fixed (with verification status from Phase 4)
-- The smoke check scope for the affected systems
-
-Ask qa-lead to determine: **Is a targeted smoke check sufficient, or do any fixes touch systems that require a broader regression?**
-
-Run the required QA scope:
-- **Targeted smoke check** — run `/smoke-check [affected-systems]`
-- **Broader regression** — run targeted tests in `tests/unit/` and `tests/integration/` for affected systems
-
-QA verdict must be PASS or PASS WITH WARNINGS before proceeding. If FAIL: scope the failing fix out of the day-one patch and defer to 1.1.
+在回滚计划写入之前，不要进入第 4 阶段。
 
 ---
 
-## Phase 6: Generate Patch Record
+## 第 4 阶段：实现修复
+
+对于批准范围内的每个 bug，生成一个专注的实现循环：
+
+1. 通过 Task 生成 `lead-programmer`，提供：
+   - bug 报告（确切的复现步骤和根本原因，如果已知）
+   - 约束：仅限最小可行修复，无清理
+   - 受影响的文件（来自 bug 报告的 Technical Context 部分）
+
+2. lead-programmer 实现并运行针对性测试。
+
+3. 通过 Task 生成 `qa-tester` 验证：修复后 bug 是否重现？
+
+对于仅配置/数据的修复：直接进行更改（不需要程序员代理）。确认值已更改并重新运行任何相关的冒烟测试。
+
+---
+
+## 第 5 阶段：Patch QA 门
+
+这是一个轻量级的 QA 通道——不是完整的 `/team-qa`。Patch 已经从发布门获得了 QA 批准；我们仅重新验证更改的区域。
+
+通过 Task 生成 `qa-lead`，提供：
+- 所有更改文件的列表
+- 已修复 bug 的列表（含第 4 阶段的验证状态）
+- 受影响系统的冒烟检查范围
+
+询问 qa-lead：**针对性冒烟检查是否足够，还是任何修复触及需要更广泛回归的系统？**
+
+运行所需的 QA 范围：
+- **针对性冒烟检查** — 运行 `/smoke-check [affected-systems]`
+- **更广泛的回归** — 在受影响系统的 `tests/unit/` 和 `tests/integration/` 中运行针对性测试
+
+在继续之前，QA 裁决必须为 PASS 或 PASS WITH WARNINGS。如果 FAIL：将失败的修复排除在 day-one patch 之外并推迟到 1.1。
+
+---
+
+## 第 6 阶段：生成 Patch 记录
 
 ```markdown
-# Day-One Patch: [Game Name] v[version]
+# Day-One Patch: [游戏名称] v[version]
 
-**Date prepared**: [date]
-**Target release**: [launch date or "day of launch"]
-**Base build**: [gold master tag or commit]
-**Patch build**: [patch tag or commit]
+**准备日期**：[date]
+**目标发布**：[launch date 或 "发布当天"]
+**基础构建**：[gold master tag 或 commit]
+**Patch 构建**：[patch tag 或 commit]
 
 ---
 
-## Patch Notes (Internal)
+## Patch Notes（内部）
 
-### Bugs Fixed
-| BUG-ID | Severity | Description | Fix summary |
+### 已修复 Bug
+| BUG-ID | 严重性 | 描述 | 修复摘要 |
 |--------|----------|-------------|-------------|
-| BUG-NNN | S[1-4] | [description] | [one-line fix] |
+| BUG-NNN | S[1-4] | [描述] | [一行修复] |
 
-### Deferred to 1.1
-| BUG-ID | Severity | Description | Reason deferred |
+### 推迟到 1.1
+| BUG-ID | 严重性 | 描述 | 推迟原因 |
 |--------|----------|-------------|-----------------|
-| BUG-NNN | S[1-4] | [description] | [reason] |
+| BUG-NNN | S[1-4] | [描述] | [原因] |
 
 ---
 
 ## QA Sign-Off
 
-**QA scope**: [Targeted smoke / Broader regression]
-**Verdict**: [PASS / PASS WITH WARNINGS]
-**QA lead**: qa-lead agent
-**Date**: [date]
-**Warnings (if any)**: [list or "None"]
+**QA 范围**：[针对性冒烟 / 更广泛回归]
+**裁决**：[PASS / PASS WITH WARNINGS]
+**QA lead**：qa-lead agent
+**日期**：[date]
+**警告（如有）**：[列表或 "None"]
 
 ---
 
-## Rollback Plan
+## 回滚计划
 
-See: `production/releases/rollback-plan-[version].md`
+参见：`production/releases/rollback-plan-[version].md`
 
-**Trigger condition**: If [N] or more S1 bugs are reported within [X] hours of launch, execute rollback.
-**Rollback owner**: [user / producer]
-
----
-
-## Approvals Required Before Deploy
-
-- [ ] lead-programmer: all fixes reviewed
-- [ ] qa-lead: QA gate PASS confirmed
-- [ ] producer: deployment timing approved
-- [ ] release-manager: platform submission confirmed
+**触发条件**：如果在发布后 [X] 小时内报告 [N] 个或更多 S1 bug，执行回滚。
+**回滚负责人**：[user / producer]
 
 ---
 
-## Player-Facing Patch Notes
+## 部署前所需批准
+- [ ] lead-programmer：所有修复已审查
+- [ ] qa-lead：QA 门 PASS 已确认
+- [ ] producer：部署时间已批准
+- [ ] release-manager：平台提交已确认
 
-[Draft for community-manager to review before publishing]
+---
 
-[list player-facing changes in plain language]
+## 面向玩家的 Patch Notes
+
+[供 community-manager 在发布前审查的草稿]
+
+[用通俗语言列出面向玩家的更改]
 ```
 
-Ask: "May I write this patch record to `production/releases/day-one-patch-[version].md`?"
+询问："我可以将此 patch 记录写入 `production/releases/day-one-patch-[version].md` 吗？"
 
 ---
 
-## Phase 7: Next Steps
+## 第 7 阶段：后续步骤
 
-After the patch record is written:
+patch 记录写入后：
 
-1. Run `/patch-notes` to generate the player-facing version of the patch notes
-2. Run `/bug-report verify [BUG-ID]` for each fixed bug after the patch is live
-3. Run `/bug-report close [BUG-ID]` for each verified fix
-4. Schedule a post-launch review 48–72 hours after launch using `/retrospective launch`
+1. 运行 `/patch-notes` 生成面向玩家的 patch notes 版本
+2. patch 上线后，对每个已修复的 bug 运行 `/bug-report verify [BUG-ID]`
+3. 对每个已验证的修复运行 `/bug-report close [BUG-ID]`
+4. 使用 `/retrospective launch` 在发布后 48-72 小时安排发布后审查
 
-**If any S1 bugs remain open after the patch:**
-> "⚠️ S1 bugs remain open and were not patched. These are accepted risks. Document them in the rollback plan trigger conditions — if they occur at scale, rollback may be preferable to a follow-up patch."
+**如果 patch 后仍有任何 S1 bug 未解决：**
+> "⚠️ S1 bug 仍未解决且未打补丁。这些是已接受的风险。将它们记录在回滚计划触发条件中——如果它们大规模发生，回滚可能比后续 patch 更可取。"
 
-Use `AskUserQuestion`:
-- Prompt: "Day-one patch complete. What's next?"
-- Options:
-  - `[A] Run /patch-notes — generate player-facing patch notes`
-  - `[B] Run /bug-report to log any issues found post-deploy`
-  - `[C] Stop here`
+使用 `AskUserQuestion`：
+- 提示："Day-one patch 完成。下一步？"
+- 选项：
+  - `[A] 运行 /patch-notes — 生成面向玩家的 patch notes`
+  - `[B] 运行 /bug-report 记录部署后发现的问题`
+  - `[C] 停在这里`
 
 ---
 
-## Collaborative Protocol
+## 协作协议
 
-- **Scope discipline is everything** — resist scope creep; every addition increases risk
-- **Rollback plan first, always** — a patch without a rollback plan is irresponsible
-- **Deferred is not forgotten** — every deferred bug gets a 1.1 ticket automatically
-- **Player communication is part of the patch** — `/patch-notes` is a required output, not optional
+- **范围纪律就是一切** — 抵制范围蔓延；每个添加都增加风险
+- **回滚计划优先，始终** — 没有回滚计划的 patch 是不负责任的
+- **推迟不等于遗忘** — 每个推迟的 bug 自动获得 1.1 工单
+- **玩家沟通是 patch 的一部分** — `/patch-notes` 是必需的输出，不是可选的

@@ -1,167 +1,166 @@
-# Skill Test Spec: /sprint-status
+# Skill 测试规格：/sprint-status
 
-## Skill Summary
+## Skill 摘要
 
-`/sprint-status` is a Haiku-tier read-only skill that reads the current active
-sprint file and the session state to produce a concise sprint health summary.
-It reports story counts by status (Complete / In Progress / Blocked / Not Started)
-and emits one of three sprint-health verdicts: ON TRACK, AT RISK, or BLOCKED.
-It never writes files and does not invoke any director gates. It is designed for
-fast, low-cost status checks during a session.
-
----
-
-## Static Assertions (Structural)
-
-Verified automatically by `/skill-test static` — no fixture needed.
-
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings or numbered check sections
-- [ ] Contains verdict keywords: ON TRACK, AT RISK, BLOCKED
-- [ ] Does NOT require "May I write" language (read-only skill)
-- [ ] Has a next-step handoff (what to do based on the verdict)
+`/sprint-status` 是 Haiku 层级的只读 skill，它读取当前活动 sprint 文件和
+会话状态以生成简明 sprint 健康摘要。它按状态报告 story 数量
+（Complete / In Progress / Blocked / Not Started）并发出三个 sprint 健康判定之一：
+ON TRACK、AT RISK 或 BLOCKED。它从不写入文件，也不调用任何 director 关卡。
+它专为会话期间的快速、低成本状态检查而设计。
 
 ---
 
-## Director Gate Checks
+## 静态断言（结构性）
 
-None. `/sprint-status` is a read-only reporting skill; no gates are invoked.
+由 `/skill-test static` 自动验证——不需要 fixture。
 
----
-
-## Test Cases
-
-### Case 1: Happy Path — Mixed sprint, AT RISK with named blocker
-
-**Fixture:**
-- `production/sprints/sprint-004.md` exists (active sprint, linked in `active.md`)
-- Sprint contains 6 stories:
-  - 3 with `Status: Complete`
-  - 2 with `Status: In Progress`
-  - 1 with `Status: Blocked` (blocker: "Waiting on physics ADR acceptance")
-- Sprint end date is 2 days away
-
-**Input:** `/sprint-status`
-
-**Expected behavior:**
-1. Skill reads `production/session-state/active.md` to find active sprint reference
-2. Skill reads `production/sprints/sprint-004.md`
-3. Skill counts stories by status: 3 Complete, 2 In Progress, 1 Blocked
-4. Skill detects a Blocked story and the approaching deadline
-5. Skill outputs AT RISK verdict with the blocker named explicitly
-
-**Assertions:**
-- [ ] Output includes story count breakdown by status
-- [ ] Output names the specific blocked story and its blocker reason
-- [ ] Verdict is AT RISK (not BLOCKED, not ON TRACK) when any story is Blocked
-- [ ] Skill does not write any files
+- [ ] 具备必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 有 ≥2 个阶段标题或编号检查部分
+- [ ] 包含判定关键词：ON TRACK、AT RISK、BLOCKED
+- [ ] 不需要"可以写入吗"语言（只读 skill）
+- [ ] 有下一步交接（根据判定结果做什么）
 
 ---
 
-### Case 2: All Stories Complete — Sprint COMPLETE verdict
+## Director 关卡检查
 
-**Fixture:**
-- `production/sprints/sprint-004.md` exists
-- All 5 stories have `Status: Complete`
-
-**Input:** `/sprint-status`
-
-**Expected behavior:**
-1. Skill reads sprint file — all stories are Complete
-2. Skill outputs ON TRACK verdict or SPRINT COMPLETE label
-3. Skill suggests running `/milestone-review` or `/sprint-plan` as next steps
-
-**Assertions:**
-- [ ] Verdict is ON TRACK or SPRINT COMPLETE when all stories are Complete
-- [ ] Output notes that the sprint is fully done
-- [ ] Next-step suggestion references `/milestone-review` or `/sprint-plan`
-- [ ] No files are written
+无。`/sprint-status` 是只读报告 skill；不调用关卡。
 
 ---
 
-### Case 3: No Active Sprint File — Guidance to run /sprint-plan
+## 测试用例
 
-**Fixture:**
-- `production/session-state/active.md` does not reference an active sprint
-- `production/sprints/` directory is empty or absent
+### 用例 1：正常路径——混合 sprint，AT RISK 并命名阻塞项
 
-**Input:** `/sprint-status`
+**Fixture：**
+- `production/sprints/sprint-004.md` 存在（活动 sprint，在 `active.md` 中链接）
+- Sprint 包含 6 个 story：
+  - 3 个 `Status: Complete`
+  - 2 个 `Status: In Progress`
+  - 1 个 `Status: Blocked`（阻塞项："Waiting on physics ADR acceptance"）
+- Sprint 结束日期还有 2 天
 
-**Expected behavior:**
-1. Skill reads `active.md` — finds no active sprint reference
-2. Skill checks `production/sprints/` — finds no files
-3. Skill outputs an informational message: no active sprint detected
-4. Skill suggests running `/sprint-plan` to create one
+**输入：** `/sprint-status`
 
-**Assertions:**
-- [ ] Skill does not error or crash when no sprint file exists
-- [ ] Output clearly states no active sprint was found
-- [ ] Output recommends `/sprint-plan` as the next action
-- [ ] No verdict keyword is emitted (no sprint to assess)
+**预期行为：**
+1. Skill 读取 `production/session-state/active.md` 以找到活动 sprint 引用
+2. Skill 读取 `production/sprints/sprint-004.md`
+3. Skill 按状态统计 story：3 Complete、2 In Progress、1 Blocked
+4. Skill 检测到 Blocked story 和临近的截止日期
+5. Skill 输出 AT RISK 判定，明确命名阻塞项
 
----
-
-### Case 4: Edge Case — Stale In Progress Story (flagged)
-
-**Fixture:**
-- `production/sprints/sprint-004.md` exists
-- One story has `Status: In Progress` with a note in `active.md`:
-  `Last updated: 2026-03-30` (more than 2 days before today's session date)
-- No stories are Blocked
-
-**Input:** `/sprint-status`
-
-**Expected behavior:**
-1. Skill reads sprint file and session state
-2. Skill detects the story has been In Progress for >2 days without update
-3. Skill flags the story as "stale" in the output
-4. Verdict is AT RISK (stale in-progress stories indicate a hidden blocker)
-
-**Assertions:**
-- [ ] Skill compares story "last updated" metadata against session date
-- [ ] Stale In Progress story is flagged by name in the output
-- [ ] Verdict is AT RISK, not ON TRACK, when a stale story is detected
-- [ ] Output does not conflate "stale" with "Blocked" — the label is distinct
+**断言：**
+- [ ] 输出包含按状态分类的 story 数量明细
+- [ ] 输出命名具体的阻塞 story 及其阻塞原因
+- [ ] 当有任何 story 为 Blocked 时判定为 AT RISK（不是 BLOCKED，不是 ON TRACK）
+- [ ] Skill 不写入任何文件
 
 ---
 
-### Case 5: Gate Compliance — Read-only; no gate invocation
+### 用例 2：所有 Story 完成——Sprint COMPLETE 判定
 
-**Fixture:**
-- `production/sprints/sprint-004.md` exists with 4 stories (2 Complete, 2 In Progress)
-- `production/session-state/review-mode.txt` contains `full`
+**Fixture：**
+- `production/sprints/sprint-004.md` 存在
+- 所有 5 个 story 的 `Status: Complete`
 
-**Input:** `/sprint-status`
+**输入：** `/sprint-status`
 
-**Expected behavior:**
-1. Skill reads sprint and produces status summary
-2. Skill does NOT invoke any director gate regardless of review mode
-3. Output is a plain status report with ON TRACK, AT RISK, or BLOCKED verdict
-4. Skill does not prompt for user approval or ask to write any file
+**预期行为：**
+1. Skill 读取 sprint 文件——所有 story 均为 Complete
+2. Skill 输出 ON TRACK 判定或 SPRINT COMPLETE 标签
+3. Skill 建议运行 `/milestone-review` 或 `/sprint-plan` 作为下一步
 
-**Assertions:**
-- [ ] No director gate is invoked in any review mode
-- [ ] Output does not contain any "May I write" prompt
-- [ ] Skill completes and returns a verdict without user interaction
-- [ ] Review mode file is ignored (or confirmed irrelevant) by this skill
-
----
-
-## Protocol Compliance
-
-- [ ] Does NOT use Write or Edit tools (read-only skill)
-- [ ] Presents story count breakdown before emitting verdict
-- [ ] Does not ask for approval
-- [ ] Ends with a recommended next step based on verdict
-- [ ] Runs on Haiku model tier (fast, low-cost)
+**断言：**
+- [ ] 当所有 story 均为 Complete 时判定为 ON TRACK 或 SPRINT COMPLETE
+- [ ] 输出注明 sprint 已全部完成
+- [ ] 下一步建议引用 `/milestone-review` 或 `/sprint-plan`
+- [ ] 未写入任何文件
 
 ---
 
-## Coverage Notes
+### 用例 3：无活动 Sprint 文件——引导运行 /sprint-plan
 
-- The case where multiple sprints are active simultaneously is not tested;
-  the skill reads whichever sprint `active.md` references.
-- Partial sprint completion percentages are not explicitly verified; the
-  count-by-status output implies them.
-- The `solo` mode review-mode variant is not separately tested; gate
-  behavior in Case 5 applies to all modes equally.
+**Fixture：**
+- `production/session-state/active.md` 未引用活动 sprint
+- `production/sprints/` 目录为空或不存在
+
+**输入：** `/sprint-status`
+
+**预期行为：**
+1. Skill 读取 `active.md`——未找到活动 sprint 引用
+2. Skill 检查 `production/sprints/`——未找到文件
+3. Skill 输出信息性消息：未检测到活动 sprint
+4. Skill 建议运行 `/sprint-plan` 创建一个
+
+**断言：**
+- [ ] 当无 sprint 文件存在时 skill 不会报错或崩溃
+- [ ] 输出清楚说明未找到活动 sprint
+- [ ] 输出推荐 `/sprint-plan` 作为下一步操作
+- [ ] 不发出判定关键词（无 sprint 可评估）
+
+---
+
+### 用例 4：边缘情况——过期的 In Progress Story（被标记）
+
+**Fixture：**
+- `production/sprints/sprint-004.md` 存在
+- 一个 story 的 `Status: In Progress`，在 `active.md` 中有注释：
+  `Last updated: 2026-03-30`（距今天会话日期超过 2 天）
+- 无 story 为 Blocked
+
+**输入：** `/sprint-status`
+
+**预期行为：**
+1. Skill 读取 sprint 文件和会话状态
+2. Skill 检测到 story 已 In Progress >2 天未更新
+3. Skill 在输出中将 story 标记为"stale"
+4. 判定为 AT RISK（过期的进行中 story 表明存在隐藏阻塞项）
+
+**断言：**
+- [ ] Skill 将 story 的"last updated"元数据与会话日期进行比较
+- [ ] 过期的 In Progress story 在输出中按名称标记
+- [ ] 当检测到过期 story 时判定为 AT RISK，不是 ON TRACK
+- [ ] 输出不将"stale"与"Blocked"混淆——标签是区分的
+
+---
+
+### 用例 5：关卡合规性——只读；不调用关卡
+
+**Fixture：**
+- `production/sprints/sprint-004.md` 存在，有 4 个 story（2 Complete、2 In Progress）
+- `production/session-state/review-mode.txt` 包含 `full`
+
+**输入：** `/sprint-status`
+
+**预期行为：**
+1. Skill 读取 sprint 并生成状态摘要
+2. Skill 无论审查模式如何都不调用任何 director 关卡
+3. 输出是带有 ON TRACK、AT RISK 或 BLOCKED 判定的纯状态报告
+4. Skill 不提示用户批准或请求写入任何文件
+
+**断言：**
+- [ ] 在任何审查模式下都不调用 director 关卡
+- [ ] 输出不包含任何"可以写入吗"提示
+- [ ] Skill 无需用户交互即完成并返回判定
+- [ ] 审查模式文件被此 skill 忽略（或确认无关）
+
+---
+
+## 协议合规性
+
+- [ ] 不使用 Write 或 Edit 工具（只读 skill）
+- [ ] 发出判定前展示 story 数量明细
+- [ ] 不请求批准
+- [ ] 以基于判定的推荐下一步结束
+- [ ] 在 Haiku 模型层级运行（快速、低成本）
+
+---
+
+## 覆盖说明
+
+- 多个 sprint 同时活动的情况未测试；
+  skill 读取 `active.md` 引用的任何 sprint。
+- 部分 sprint 完成百分比未明确验证；
+  按状态计数输出隐含了它们。
+- `solo` 模式审查模式变体未单独测试；
+  用例 5 中的关卡行为平等适用于所有模式。

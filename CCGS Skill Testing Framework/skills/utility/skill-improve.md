@@ -2,35 +2,27 @@
 
 ## Skill Summary
 
-`/skill-improve` runs an automated test-fix-retest improvement loop on a skill
-file. It invokes `/skill-test static` (and optionally `/skill-test category`) to
-establish a baseline score, diagnoses the failing checks, proposes targeted fixes
-to the SKILL.md file, asks "May I write the improvements to [skill path]?", applies
-the fixes, and re-runs the tests to confirm improvement.
+`/skill-improve` 对技能文件运行自动化的测试-修复-重测改进循环。它调用 `/skill-test static`（以及可选的 `/skill-test category`）建立基线分数，诊断失败的检查，向 SKILL.md 文件提出有针对性的修复，询问 "May I write the improvements to [skill path]?"，应用修复，并重新运行测试以确认改进。
 
-If the proposed fix makes the skill worse (regression), the fix is reverted (with
-user confirmation) rather than applied. If the skill is already perfect (0 failures),
-the skill exits immediately without making changes. No director gates apply. Verdicts:
-IMPROVED (score went up), NO CHANGE (no improvements possible or user declined), or
-REVERTED (fix was applied but caused regression and was reverted).
+如果提出的修复使技能变差（回退），则修复会被撤销（经用户确认）而不是应用。如果技能已经完美（0 失败），技能会立即退出而不做任何更改。不适用 director gate。裁决：IMPROVED（分数上升）、NO CHANGE（无改进可能或用户拒绝）或 REVERTED（修复已应用但导致回退并被撤销）。
 
 ---
 
 ## Static Assertions (Structural)
 
-Verified automatically by `/skill-test static` — no fixture needed.
+由 `/skill-test static` 自动验证——不需要 fixture。
 
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings
-- [ ] Contains verdict keywords: IMPROVED, NO CHANGE, REVERTED
-- [ ] Contains "May I write" collaborative protocol language before applying fixes
-- [ ] Has a next-step handoff (e.g., run `/skill-test spec` to validate behavioral compliance)
+- [ ] 具有必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 具有 ≥2 个 phase 标题
+- [ ] 包含裁决关键词：IMPROVED、NO CHANGE、REVERTED
+- [ ] 在应用修复前包含 "May I write" 协作协议语言
+- [ ] 具有下一步交接（例如，运行 `/skill-test spec` 以验证行为合规性）
 
 ---
 
 ## Director Gate Checks
 
-None. `/skill-improve` is a meta-utility skill. No director gates apply.
+无。`/skill-improve` 是一个元工具技能。不适用 director gate。
 
 ---
 
@@ -39,147 +31,144 @@ None. `/skill-improve` is a meta-utility skill. No director gates apply.
 ### Case 1: Happy Path — Skill With 2 Static Failures, Both Fixed, IMPROVED
 
 **Fixture:**
-- `.claude/skills/some-skill/SKILL.md` has 2 static failures:
-  - Check 4: no "May I write" language despite having Write in allowed-tools
-  - Check 5: no next-step handoff at the end
+- `.claude/skills/some-skill/SKILL.md` 有 2 个静态失败：
+  - 检查 4：尽管 allowed-tools 中有 Write，但没有 "May I write" 语言
+  - 检查 5：末尾没有下一步交接
 
 **Input:** `/skill-improve some-skill`
 
 **Expected behavior:**
-1. Skill runs `/skill-test static some-skill` — baseline: 5/7 checks pass
-2. Skill diagnoses the 2 failing checks (4 and 5)
-3. Skill proposes fixes:
-   - Add "May I write" language to the appropriate phase
-   - Add a next-step handoff section at the end
-4. Skill asks "May I write improvements to `.claude/skills/some-skill/SKILL.md`?"
-5. Fixes applied; `/skill-test static some-skill` re-run — now 7/7 checks pass
-6. Verdict is IMPROVED (5→7)
+1. Skill 运行 `/skill-test static some-skill`——基线：5/7 检查通过
+2. Skill 诊断 2 个失败的检查（4 和 5）
+3. Skill 提出修复：
+   - 在适当的阶段添加 "May I write" 语言
+   - 在末尾添加下一步交接部分
+4. Skill 询问 "May I write improvements to `.claude/skills/some-skill/SKILL.md`?"
+5. 应用修复；重新运行 `/skill-test static some-skill`——现在 7/7 检查通过
+6. 裁决为 IMPROVED（5→7）
 
 **Assertions:**
-- [ ] Baseline score is established before any changes (5/7)
-- [ ] Both failing checks are diagnosed and addressed in the proposed fix
-- [ ] "May I write" is asked before applying the fix
-- [ ] Re-test confirms improvement (7/7)
-- [ ] Verdict is IMPROVED with before/after score shown
+- [ ] 在任何更改之前建立基线分数（5/7）
+- [ ] 诊断并在提出的修复中解决两个失败的检查
+- [ ] 在应用修复前询问 "May I write"
+- [ ] 重测确认改进（7/7）
+- [ ] 裁决为 IMPROVED 并显示前后分数
 
 ---
 
 ### Case 2: Fix Causes Regression — Score Comparison Shows Regression, REVERTED
 
 **Fixture:**
-- `.claude/skills/some-skill/SKILL.md` has 1 static failure (missing handoff)
-- Proposed fix inadvertently removes the verdict keywords section
-  (introducing a new failure)
+- `.claude/skills/some-skill/SKILL.md` 有 1 个静态失败（缺少交接）
+- 提出的修复无意中删除了裁决关键词部分
+  （引入新的失败）
 
 **Input:** `/skill-improve some-skill`
 
 **Expected behavior:**
-1. Baseline: 6/7 checks pass (1 failure: missing handoff)
-2. Skill proposes fix and asks "May I write improvements?"
-3. Fix is applied; re-test runs
-4. Re-test result: 5/7 (fixed the handoff but broke verdict keywords)
-5. Skill detects regression: score went DOWN
-6. Skill asks user: "Fix caused a regression (6→5). May I revert the changes?"
-7. User confirms; changes are reverted; verdict is REVERTED
+1. 基线：6/7 检查通过（1 个失败：缺少交接）
+2. Skill 提出修复并询问 "May I write improvements?"
+3. 应用修复；运行重测
+4. 重测结果：5/7（修复了交接但破坏了裁决关键词）
+5. Skill 检测到回退：分数下降了
+6. Skill 询问用户："Fix caused a regression (6→5). May I revert the changes?"
+7. 用户确认；更改被撤销；裁决为 REVERTED
 
 **Assertions:**
-- [ ] Re-test score is compared to baseline before finalizing
-- [ ] Regression is detected when score decreases
-- [ ] User is asked to confirm revert (not automatic)
-- [ ] File is reverted on user confirmation
-- [ ] Verdict is REVERTED
+- [ ] 在最终确定前将重测分数与基线进行比较
+- [ ] 分数下降时检测到回退
+- [ ] 询问用户确认撤销（不是自动的）
+- [ ] 用户确认后文件被撤销
+- [ ] 裁决为 REVERTED
 
 ---
 
 ### Case 3: Skill With Category Assignment — Baseline Captures Both Scores
 
 **Fixture:**
-- `.claude/skills/gate-check/SKILL.md` is a gate skill with 1 static failure
-  and 2 category (G-criteria) failures
-- `tests/skills/quality-rubric.md` has Gate Skills section
+- `.claude/skills/gate-check/SKILL.md` 是一个 gate 技能，有 1 个静态失败
+  和 2 个类别（G-标准）失败
+- `tests/skills/quality-rubric.md` 有 Gate Skills 部分
 
 **Input:** `/skill-improve gate-check`
 
 **Expected behavior:**
-1. Skill runs both static and category tests for the baseline:
-   - Static: 6/7 checks pass
-   - Category: 3/5 G-criteria pass
-2. Combined baseline: 9/12
-3. Skill diagnoses all 3 failures and proposes fixes
+1. Skill 为基线运行静态和类别测试：
+   - 静态：6/7 检查通过
+   - 类别：3/5 G-标准通过
+2. 组合基线：9/12
+3. Skill 诊断所有 3 个失败并提出修复
 4. "May I write improvements to `.claude/skills/gate-check/SKILL.md`?"
-5. Fixes applied; both test types re-run
-6. Re-test: static 7/7, category 5/5 = 12/12
-7. Verdict is IMPROVED (9→12)
+5. 应用修复；重新运行两种测试类型
+6. 重测：静态 7/7，类别 5/5 = 12/12
+7. 裁决为 IMPROVED（9→12）
 
 **Assertions:**
-- [ ] Both static and category scores are captured in the baseline
-- [ ] Combined score is used for comparison (not just one type)
-- [ ] All 3 failures are addressed in the proposed fix
-- [ ] Re-test confirms improvement in both score types
-- [ ] Verdict is IMPROVED with combined before/after
+- [ ] 基线中捕获了静态和类别分数
+- [ ] 使用组合分数进行比较（不仅是其中一种）
+- [ ] 提出的修复中解决了所有 3 个失败
+- [ ] 重测确认两种分数类型都有改进
+- [ ] 裁决为 IMPROVED 并显示组合前后分数
 
 ---
 
 ### Case 4: Skill Already Perfect — No Improvements Needed
 
 **Fixture:**
-- `.claude/skills/brainstorm/SKILL.md` has no static failures
-- Category score is also 5/5 (if applicable)
+- `.claude/skills/brainstorm/SKILL.md` 没有静态失败
+- 类别分数也是 5/5（如果适用）
 
 **Input:** `/skill-improve brainstorm`
 
 **Expected behavior:**
-1. Skill runs `/skill-test static brainstorm` — 7/7 checks pass
-2. If category applies: 5/5 criteria pass
-3. Skill outputs: "No improvements needed — brainstorm is fully compliant"
-4. Skill exits without proposing any changes
-5. No "May I write" is asked; no files are modified
-6. Verdict is NO CHANGE
+1. Skill 运行 `/skill-test static brainstorm`——7/7 检查通过
+2. 如果适用类别：5/5 标准通过
+3. Skill 输出："No improvements needed — brainstorm is fully compliant"
+4. Skill 退出而不提出任何更改
+5. 不询问 "May I write"；不修改任何文件
+6. 裁决为 NO CHANGE
 
 **Assertions:**
-- [ ] Skill exits immediately after confirming 0 failures
-- [ ] "No improvements needed" message is shown
-- [ ] No changes are proposed
-- [ ] No "May I write" is asked
-- [ ] Verdict is NO CHANGE
+- [ ] Skill 在确认 0 失败后立即退出
+- [ ] 显示 "No improvements needed" 消息
+- [ ] 不提出任何更改
+- [ ] 不询问 "May I write"
+- [ ] 裁决为 NO CHANGE
 
 ---
 
 ### Case 5: Director Gate Check — No gate; skill-improve is a meta utility
 
 **Fixture:**
-- Skill with at least 1 static failure
+- 至少有 1 个静态失败的技能
 
 **Input:** `/skill-improve some-skill`
 
 **Expected behavior:**
-1. Skill runs the test-fix-retest loop
-2. No director agents are spawned
-3. No gate IDs appear in output
+1. Skill 运行测试-修复-重测循环
+2. 不派生 director agent
+3. 输出中不出现 gate ID
 
 **Assertions:**
-- [ ] No director gate is invoked
-- [ ] No gate skip messages appear
-- [ ] Verdict is IMPROVED, NO CHANGE, or REVERTED — no gate verdict
+- [ ] 未调用 director gate
+- [ ] 不出现 gate 跳过消息
+- [ ] 裁决为 IMPROVED、NO CHANGE 或 REVERTED——无 gate 裁决
 
 ---
 
 ## Protocol Compliance
 
-- [ ] Always establishes a baseline score before proposing any changes
-- [ ] Shows before/after score comparison in the output
-- [ ] Asks "May I write" before applying any fix
-- [ ] Detects regressions by comparing re-test score to baseline
-- [ ] Asks for user confirmation before reverting (not automatic)
-- [ ] Ends with IMPROVED, NO CHANGE, or REVERTED verdict
+- [ ] 在提出任何更改之前始终建立基线分数
+- [ ] 在输出中显示前后分数比较
+- [ ] 在应用任何修复前询问 "May I write"
+- [ ] 通过比较重测分数与基线检测回退
+- [ ] 在撤销前询问用户确认（不是自动的）
+- [ ] 以 IMPROVED、NO CHANGE 或 REVERTED 裁决结束
 
 ---
 
 ## Coverage Notes
 
-- The improvement loop is designed to run only one fix-retest cycle per
-  invocation; running multiple iterations requires re-invoking `/skill-improve`.
-- Behavioral compliance (spec-mode test results) is not included in the
-  improvement loop — only structural (static) and category scores are automated.
-- The case where the skill file cannot be read (permissions error or missing file)
-  is not tested; this would result in an error before the baseline is established.
+- 改进循环设计为每次调用只运行一个修复-重测周期；运行多次迭代需要重新调用 `/skill-improve`。
+- 行为合规性（spec 模式测试结果）不包含在改进循环中——只有结构（静态）和类别分数是自动化的。
+- 技能文件无法读取（权限错误或文件缺失）的情况未测试；这会在建立基线之前导致错误。

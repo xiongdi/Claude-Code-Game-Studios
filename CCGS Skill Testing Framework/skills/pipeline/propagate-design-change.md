@@ -2,16 +2,9 @@
 
 ## Skill Summary
 
-`/propagate-design-change` handles GDD revision cascades. When a GDD is updated,
-the skill traces all downstream artifacts that reference it: ADRs, TR-registry
-entries, stories, and epics. It produces a structured impact report showing what
-needs to change and why. The skill does NOT automatically apply changes — it
-proposes edits for each affected artifact and asks "May I write" per artifact
-before making any modification.
+`/propagate-design-change` 处理 GDD 修订级联。当 GDD 更新时，该 skill 追踪所有引用它的下游产物：ADR、TR-registry 条目、story 和 epic。它生成一份结构化的影响报告，展示需要更改什么以及为什么。该 skill 不会自动应用更改 —— 它为每个受影响的产物提出编辑建议，并在进行任何修改之前按产物询问 "May I write"。
 
-The skill is read-only during analysis and write-gated per artifact during the
-update phase. It has no director gates — the analysis itself is mechanical
-tracing, not a creative review.
+该 skill 在分析期间是只读的，在更新阶段按产物进行写入门控。它没有 director gate —— 分析本身是机械追踪，不是创意审查。
 
 ---
 

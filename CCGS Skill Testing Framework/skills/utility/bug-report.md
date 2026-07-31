@@ -2,173 +2,162 @@
 
 ## Skill Summary
 
-`/bug-report` creates a structured bug report document from a user description.
-It produces a report with the following required fields: Title, Repro Steps,
-Expected Behavior, Actual Behavior, Severity (CRITICAL/HIGH/MEDIUM/LOW), Affected
-System(s), and Build/Version. If the user's initial description is missing any
-required field, the skill asks follow-up questions to fill the gaps before
-producing the draft.
+`/bug-report` 从用户描述创建结构化 bug 报告文档。它生成具有以下必需字段的报告：Title、Repro Steps、Expected Behavior、Actual Behavior、Severity（CRITICAL/HIGH/MEDIUM/LOW）、Affected System(s) 和 Build/Version。如果用户的初始描述缺少任何必需字段，该 skill 会提出后续问题以在产生草案前填补空白。
 
-The skill checks for possibly duplicate reports (by comparing to existing files
-in `production/bugs/`) and offers to link rather than create a new report. Each
-report is written to `production/bugs/bug-[date]-[slug].md` after a "May I write"
-ask. No director gates are used — bug reporting is an operational utility.
+该 skill 检查可能的重复报告（通过与 `production/bugs/` 中的现有文件比较）并提供链接而非创建新报告的选项。每份报告在 "May I write" 请求后写入 `production/bugs/bug-[date]-[slug].md`。不使用 director gate——bug 报告是操作性的实用工具。
 
 ---
 
-## Static Assertions (Structural)
+## Static Assertions（结构性）
 
-Verified automatically by `/skill-test static` — no fixture needed.
+由 `/skill-test static` 自动验证——不需要 fixture。
 
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings
-- [ ] Contains verdict keyword: COMPLETE
-- [ ] Contains "May I write" collaborative protocol language before writing the report
-- [ ] Has a next-step handoff (e.g., `/bug-triage` to reprioritize, `/hotfix` for critical)
+- [ ] 具有必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 具有 ≥2 个 phase 标题
+- [ ] 包含裁定关键词：COMPLETE
+- [ ] 在写入报告前包含 "May I write" 协作协议语言
+- [ ] 具有下一步交接说明（例如，`/bug-triage` 重新确定优先级，`/hotfix` 用于关键问题）
 
 ---
 
 ## Director Gate Checks
 
-None. `/bug-report` is an operational documentation skill. No director gates apply.
+无。`/bug-report` 是操作文档 skill。不适用 director gate。
 
 ---
 
 ## Test Cases
 
-### Case 1: Happy Path — User describes a crash, full report produced
+### Case 1: Happy Path——用户描述崩溃，生成完整报告
 
 **Fixture:**
-- `production/bugs/` directory exists and is empty
-- No similar existing reports
+- `production/bugs/` 目录存在且为空
+- 无类似现有报告
 
-**Input:** `/bug-report` (user describes: "Game crashes when player enters the boss arena")
+**Input:** `/bug-report`（用户描述："Game crashes when player enters the boss arena"）
 
 **Expected behavior:**
-1. Skill extracts: Title = "Game crashes when entering boss arena"
-2. Skill recognizes crash reports as CRITICAL severity
-3. Skill confirms repro steps, expected (no crash), actual (crash), affected system
-   (arena/boss), and build version with the user
-4. Skill drafts the full structured report
-5. Skill asks "May I write to `production/bugs/bug-2026-04-06-game-crashes-boss-arena.md`?"
-6. File is written on approval; verdict is COMPLETE
+1. Skill 提取：Title = "Game crashes when entering boss arena"
+2. Skill 将崩溃报告识别为 CRITICAL 严重性
+3. Skill 与用户确认复现步骤、预期（无崩溃）、实际（崩溃）、受影响的系统
+   （arena/boss）和构建版本
+4. Skill 起草完整的结构化报告
+5. Skill 询问 "May I write to `production/bugs/bug-2026-04-06-game-crashes-boss-arena.md`?"
+6. 批准后写入文件；裁定为 COMPLETE
 
 **Assertions:**
-- [ ] All 7 required fields are present in the report
-- [ ] Severity is CRITICAL for a crash report
-- [ ] Filename follows the `bug-[date]-[slug].md` convention
-- [ ] "May I write" is asked with the full file path
-- [ ] Verdict is COMPLETE
+- [ ] 报告中存在所有 7 个必需字段
+- [ ] 崩溃报告的严重性为 CRITICAL
+- [ ] 文件名遵循 `bug-[date]-[slug].md` 约定
+- [ ] "May I write" 使用完整文件路径询问
+- [ ] 裁定为 COMPLETE
 
 ---
 
-### Case 2: Minimal Input — Skill asks follow-up questions for missing fields
+### Case 2: Minimal Input——Skill 提出后续问题以填补缺失字段
 
 **Fixture:**
-- User provides: "Sometimes the audio cuts out"
-- No existing reports
+- 用户提供："Sometimes the audio cuts out"
+- 无现有报告
 
 **Input:** `/bug-report`
 
 **Expected behavior:**
-1. Skill identifies missing required fields: repro steps, expected vs. actual,
-   severity, affected system, build
-2. Skill asks targeted follow-up questions for each missing field (one at a time
-   or in a structured prompt)
-3. User provides answers
-4. Skill compiles complete report from answers
-5. Skill asks "May I write?" and writes on approval
+1. Skill 识别缺失的必需字段：复现步骤、预期与实际、
+   严重性、受影响的系统、构建版本
+2. Skill 针对每个缺失字段提出有针对性的后续问题（一次一个
+   或结构化提示）
+3. 用户提供答案
+4. Skill 从答案编译完整报告
+5. Skill 询问 "May I write?" 并在批准后写入
 
 **Assertions:**
-- [ ] At least 3 follow-up questions are asked to fill missing fields
-- [ ] Each required field is filled before the report is finalized
-- [ ] Report is not written until all required fields are present
-- [ ] Verdict is COMPLETE after all fields are filled and file is written
+- [ ] 至少提出 3 个后续问题以填补缺失字段
+- [ ] 每个必需字段在报告最终化前都已填写
+- [ ] 在所有必需字段存在前不写入报告
+- [ ] 所有字段填写且文件写入后裁定为 COMPLETE
 
 ---
 
-### Case 3: Possible Duplicate — Offers to link rather than create new
+### Case 3: Possible Duplicate——提供链接而非创建新报告
 
 **Fixture:**
-- `production/bugs/bug-2026-03-20-audio-cut-out.md` already exists with
-  similar title and MEDIUM severity
+- `production/bugs/bug-2026-03-20-audio-cut-out.md` 已存在，具有类似标题和 MEDIUM 严重性
 
-**Input:** `/bug-report` (user describes: "Audio randomly stops working")
+**Input:** `/bug-report`（用户描述："Audio randomly stops working"）
 
 **Expected behavior:**
-1. Skill scans existing reports and finds the similar audio bug
-2. Skill reports: "A similar bug report exists: bug-2026-03-20-audio-cut-out.md"
-3. Skill presents options: link as duplicate (add note to existing), create new anyway
-4. If user chooses link: skill adds a cross-reference note to the existing file
-   (asks "May I update the existing report?")
-5. If user chooses create new: normal report creation proceeds
+1. Skill 扫描现有报告并找到类似的音频 bug
+2. Skill 报告："A similar bug report exists: bug-2026-03-20-audio-cut-out.md"
+3. Skill 呈现选项：链接为重复（在现有文件中添加说明）、仍然创建新报告
+4. 如果用户选择链接：skill 在现有文件中添加交叉引用说明
+   （询问 "May I update the existing report?"）
+5. 如果用户选择创建新报告：正常报告创建继续
 
 **Assertions:**
-- [ ] Existing similar report is surfaced before creating a new one
-- [ ] User is given the choice (not forced to link or create)
-- [ ] If linking: "May I update" is asked before modifying the existing file
-- [ ] Verdict is COMPLETE in either path
+- [ ] 在创建新报告前展示现有类似报告
+- [ ] 用户被给予选择（不强制链接或创建）
+- [ ] 如果链接：在修改现有文件前询问 "May I update"
+- [ ] 任一路径下裁定都为 COMPLETE
 
 ---
 
-### Case 4: Multi-System Bug — Report created with multiple system tags
+### Case 4: Multi-System Bug——创建具有多个系统标签的报告
 
 **Fixture:**
-- No existing reports
+- 无现有报告
 
-**Input:** `/bug-report` (user describes: "After finishing a level, the save system
-  freezes and the UI doesn't show the completion screen")
+**Input:** `/bug-report`（用户描述："After finishing a level, the save system
+  freezes and the UI doesn't show the completion screen"）
 
 **Expected behavior:**
-1. Skill identifies 2 affected systems from the description: Save System and UI
-2. Report is drafted with both systems listed under Affected System(s)
-3. Severity is assessed (likely HIGH — data loss risk from save freeze)
-4. Skill asks "May I write" with the appropriate filename
-5. Report is written with both systems tagged; verdict is COMPLETE
+1. Skill 从描述中识别 2 个受影响的系统：Save System 和 UI
+2. 报告起草时在 Affected System(s) 下列出两个系统
+3. 评估严重性（可能为 HIGH——保存冻结导致的数据丢失风险）
+4. Skill 询问 "May I write"，使用适当的文件名
+5. 报告写入时标记了两个系统；裁定为 COMPLETE
 
 **Assertions:**
-- [ ] Both affected systems are listed in the report
-- [ ] Single report is created (not one per system)
-- [ ] Severity reflects the most impactful component (save freeze → HIGH or CRITICAL)
-- [ ] Verdict is COMPLETE
+- [ ] 报告中列出了两个受影响的系统
+- [ ] 创建单一报告（不是每个系统一个）
+- [ ] 严重性反映最具影响的组件（保存冻结 → HIGH 或 CRITICAL）
+- [ ] 裁定为 COMPLETE
 
 ---
 
-### Case 5: Director Gate Check — No gate; bug reporting is operational
+### Case 5: Director Gate Check——无 gate；bug 报告是操作性的
 
 **Fixture:**
-- Any bug description provided
+- 提供了任何 bug 描述
 
 **Input:** `/bug-report`
 
 **Expected behavior:**
-1. Skill creates and writes the bug report
-2. No director agents are spawned
-3. No gate IDs appear in output
+1. Skill 创建并写入 bug 报告
+2. 不派生 director agent
+3. 输出中不出现 gate ID
 
 **Assertions:**
-- [ ] No director gate is invoked
-- [ ] No gate skip messages appear
-- [ ] Skill reaches COMPLETE without any gate check
+- [ ] 不调用 director gate
+- [ ] 不出现 gate 跳过消息
+- [ ] Skill 无需任何 gate 检查即达到 COMPLETE
 
 ---
 
 ## Protocol Compliance
 
-- [ ] Collects all 7 required fields before drafting the report
-- [ ] Asks follow-up questions for any missing required fields
-- [ ] Checks for similar existing reports before creating a new one
-- [ ] Asks "May I write to `production/bugs/bug-[date]-[slug].md`?" before writing
-- [ ] Verdict is COMPLETE when the report file is written
+- [ ] 在起草报告前收集所有 7 个必需字段
+- [ ] 对任何缺失的必需字段提出后续问题
+- [ ] 在创建新报告前检查类似的现有报告
+- [ ] 在写入前询问 "May I write to `production/bugs/bug-[date]-[slug].md`?"
+- [ ] 当报告文件写入后裁定为 COMPLETE
 
 ---
 
 ## Coverage Notes
 
-- The case where the user provides a severity that seems too low for the
-  described impact (e.g., LOW for a crash) is not tested; the skill may suggest
-  a higher severity but ultimately respects user input.
-- Build/version field is required but may be "unknown" if the user doesn't know —
-  this is accepted as a valid value and not tested separately.
-- Report slug generation (sanitizing the title into a filename) is an
-  implementation detail not assertion-tested here.
+- 用户提供的严重性对于描述的影响来说似乎太低的情况（例如，崩溃为 LOW）不在此测试；
+  skill 可能建议更高的严重性但最终尊重用户输入。
+- Build/Version 字段是必需的，但如果用户不知道可能是 "unknown"——
+  这被接受为有效值，不单独测试。
+- 报告 slug 生成（将标题清理为文件名）是实现细节，不在此进行断言测试。

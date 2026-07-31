@@ -1,84 +1,84 @@
-# Agent Test Spec: godot-shader-specialist
+# Agent 测试规格：godot-shader-specialist
 
-## Agent Summary
-Domain: Godot shading language (GLSL-derivative), visual shaders (VisualShader graph), material setup, particle shaders, and post-processing effects.
-Does NOT own: gameplay code, art style direction.
-Model tier: Sonnet (default).
-No gate IDs assigned.
-
----
-
-## Static Assertions (Structural)
-
-- [ ] `description:` field is present and domain-specific (references Godot shading language / materials / post-processing)
-- [ ] `allowed-tools:` list includes Read, Write, Edit, Glob, Grep
-- [ ] Model tier is Sonnet (default for specialists)
-- [ ] Agent definition references `docs/engine-reference/godot/VERSION.md` as the authoritative source for Godot shader API changes
+## Agent 摘要
+领域：Godot 着色语言（GLSL 衍生）、视觉着色器（VisualShader 图）、材质设置、粒子和后处理效果。
+不负责：游戏代码、艺术风格方向。
+模型层级：Sonnet（默认）。
+未分配 gate ID。
 
 ---
 
-## Test Cases
+## 静态断言（结构性）
 
-### Case 1: In-domain request — appropriate output
-**Input:** "Write a dissolve effect shader for enemy death in Godot."
-**Expected behavior:**
-- Produces valid Godot shading language code (not HLSL, not GLSL directly)
-- Uses `shader_type spatial;` or `canvas_item` as appropriate
-- Defines `uniform float dissolve_amount : hint_range(0.0, 1.0);`
-- Samples a noise texture to determine per-pixel dissolve threshold
-- Uses `discard;` for pixels below the threshold
-- Optionally adds an edge glow using emission near the dissolve boundary
-- Code is syntactically correct for Godot's shading language
-
-### Case 2: HLSL redirect
-**Input:** "Write an HLSL compute shader for this dissolve effect."
-**Expected behavior:**
-- Does NOT produce HLSL code
-- Clearly states: "Godot does not use HLSL directly; it uses its own shading language (a GLSL derivative)"
-- Translates the HLSL intent to the equivalent Godot shader approach
-- Notes that RenderingDevice compute shaders are available in Godot 4 but are a low-level API and flags it appropriately if that was the intent
-
-### Case 3: Post-cutoff API change — texture sampling (Godot 4.4)
-**Input:** "Use `texture()` with a sampler2D to sample the noise texture in the shader."
-**Expected behavior:**
-- Checks the version reference: Godot 4.4 changed texture sampler type declarations
-- Flags the potential API change: `sampler2D` syntax and `texture()` call behavior may differ from pre-4.4
-- Provides the correct syntax for the project's pinned version (4.6) as documented in migration notes
-- Does NOT use pre-4.4 texture sampling syntax without flagging the version risk
-
-### Case 4: Fragment shader LOD strategy
-**Input:** "The fragment shader for the water surface has 8 texture samples and is causing GPU bottlenecks on mid-range hardware."
-**Expected behavior:**
-- Identifies the per-fragment texture sample count as the primary cost driver
-- Proposes an LOD strategy:
-  - Reduce sample count at distance (distance-based shader variant or LOD level)
-  - Pre-bake some texture combinations offline
-  - Use lower-resolution noise textures for distant samples
-- Provides the shader code modification implementing the LOD approach
-- Does NOT change gameplay behavior of the water system
-
-### Case 5: Context pass — Godot 4.6 glow rework
-**Input:** Engine version context: Godot 4.6. Request: "Add a bloom/glow post-processing effect to the scene."
-**Expected behavior:**
-- References the VERSION.md note: Godot 4.6 includes a glow rework
-- Produces glow configuration guidance using the 4.6 WorldEnvironment approach, not the pre-4.6 API
-- Explicitly notes which properties or parameters changed in the 4.6 glow rework
-- Flags any properties that the LLM's training data may have incorrect information about due to the post-cutoff timing
+- [ ] `description:` 字段存在且领域特定（引用 Godot 着色语言 / 材质 / 后处理）
+- [ ] `allowed-tools:` 列表包括 Read、Write、Edit、Glob、Grep
+- [ ] 模型层级为 Sonnet（专业人员默认值）
+- [ ] Agent 定义引用 `docs/engine-reference/godot/VERSION.md` 作为 Godot 着色器 API 更改的权威来源
 
 ---
 
-## Protocol Compliance
+## 测试用例
 
-- [ ] Stays within declared domain (Godot shading language, materials, VFX shaders, post-processing)
-- [ ] Redirects gameplay code requests to gameplay-programmer
-- [ ] Produces valid Godot shading language — never HLSL or raw GLSL without a Godot wrapper
-- [ ] Checks engine version reference for post-cutoff shader API changes (4.4 texture types, 4.6 glow rework)
-- [ ] Returns structured output (shader code with uniforms documented, LOD strategies with performance rationale)
-- [ ] Flags any post-cutoff API usage as requiring verification
+### 用例 1：领域内请求 — 适当的输出
+**输入：** "为 Godot 中的敌人死亡编写一个溶解效果着色器。"
+**预期行为：**
+- 生成有效的 Godot 着色语言代码（不是 HLSL，不是直接 GLSL）
+- 适当时使用 `shader_type spatial;` 或 `canvas_item`
+- 定义 `uniform float dissolve_amount : hint_range(0.0, 1.0);`
+- 采样噪声纹理以确定每像素溶解阈值
+- 对低于阈值的像素使用 `discard;`
+- 可选地使用发射在溶解边界附近添加边缘发光
+- 代码在语法上对 Godot 的着色语言正确
+
+### 用例 2：HLSL 重定向
+**输入：** "为此溶解效果编写一个 HLSL 计算着色器。"
+**预期行为：**
+- 不生成 HLSL 代码
+- 明确指出："Godot 不直接使用 HLSL；它使用自己的着色语言（GLSL 衍生）"
+- 将 HLSL 意图转换为等效的 Godot 着色器方法
+- 注意 RenderingDevice 计算着色器在 Godot 4 中可用，但是低级 API，如果那是意图则适当标记
+
+### 用例 3：截止后 API 更改 — 纹理采样（Godot 4.4）
+**输入：** "在着色器中使用带有 sampler2D 的 `texture()` 来采样噪声纹理。"
+**预期行为：**
+- 检查版本参考：Godot 4.4 更改了纹理采样器类型声明
+- 标记潜在的 API 更改：`sampler2D` 语法和 `texture()` 调用行为可能与 4.4 之前不同
+- 提供项目固定版本（4.6）的正确语法，如迁移说明中记录的
+- 不会在不标记版本风险的情况下使用 4.4 之前的纹理采样语法
+
+### 用例 4：片段着色器 LOD 策略
+**输入：** "水面的片段着色器有 8 个纹理采样，在中端硬件上导致 GPU 瓶颈。"
+**预期行为：**
+- 识别每片段纹理采样数量为主要成本驱动因素
+- 提出 LOD 策略：
+  - 在距离处减少采样数量（基于距离的着色器变体或 LOD 级别）
+  - 离线预烘焙一些纹理组合
+  - 对远处采样使用较低分辨率的噪声纹理
+- 提供实现 LOD 方法的着色器代码修改
+- 不改变水系统的游戏行为
+
+### 用例 5：上下文传递 — Godot 4.6 发光重做
+**输入：** 引擎版本上下文：Godot 4.6。请求："向场景添加泛光/发光后处理效果。"
+**预期行为：**
+- 参考 VERSION.md 说明：Godot 4.6 包含发光重做
+- 使用 4.6 WorldEnvironment 方法生成发光配置指导，而非 4.6 之前的 API
+- 明确说明在 4.6 发光重做中哪些属性或参数发生了变化
+- 标记由于截止后时间 LLM 训练数据可能有不正确信息的任何属性
 
 ---
 
-## Coverage Notes
-- Dissolve shader (Case 1) should be paired with a visual test screenshot in `production/qa/evidence/`
-- Texture API flag (Case 3) confirms the agent checks VERSION.md before using APIs that changed post-4.3
-- Glow rework (Case 5) is a Godot 4.6-specific test — verifies the agent applies the most recent migration notes
+## 协议合规
+
+- [ ] 保持在声明领域内（Godot 着色语言、材质、VFX 着色器、后处理）
+- [ ] 将游戏代码请求重定向到 gameplay-programmer
+- [ ] 生成有效的 Godot 着色语言 — 永远不是 HLSL 或原始 GLSL 而没有 Godot 包装器
+- [ ] 检查引擎版本参考中的截止后着色器 API 更改（4.4 纹理类型、4.6 发光重做）
+- [ ] 返回结构化输出（带有记录 uniform 的着色器代码、带有性能理由的 LOD 策略）
+- [ ] 将任何截止后 API 使用标记为需要验证
+
+---
+
+## 覆盖说明
+- 溶解着色器（用例 1）应与 `production/qa/evidence/` 中的视觉测试截图配对
+- 纹理 API 标记（用例 3）确认 agent 在使用 4.3 之后更改的 API 之前检查 VERSION.md
+- 发光重做（用例 5）是 Godot 4.6 特定测试 — 验证 agent 应用最新的迁移说明

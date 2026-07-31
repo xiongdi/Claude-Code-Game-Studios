@@ -2,18 +2,9 @@
 
 ## Skill Summary
 
-`/map-systems` decomposes a game concept into a systems index. It reads the
-approved game concept and pillars, enumerates both explicit and implicit systems,
-maps dependencies between systems, assigns priority tiers (MVP / Vertical Slice /
-Alpha / Full Vision), and organizes systems into a layered design order
-(Foundation → Core → Feature → Presentation). The output is written to
-`design/systems-index.md` after user approval.
+`/map-systems` 将游戏概念分解为系统索引。它读取已批准的游戏概念和支柱，枚举显式和隐式系统，映射系统之间的依赖关系，分配优先级层级（MVP / Vertical Slice / Alpha / Full Vision），并将系统组织为分层设计顺序（Foundation → Core → Feature → Presentation）。输出在用户批准后写入 `design/systems-index.md`。
 
-This skill is required between game concept approval and per-system GDD creation
-— it is a mandatory gate in the pipeline. In `full` review mode, CD-SYSTEMS
-(creative-director) and TD-SYSTEM-BOUNDARY (technical-director) spawn in parallel
-after the decomposition is drafted. In `lean` or `solo` mode, both gates are
-skipped. The skill writes to `design/systems-index.md`.
+该 skill 在游戏概念审批和按系统 GDD 创建之间是必需的 —— 它是流程中的一个强制性门控。在 `full` review 模式下，CD-SYSTEMS（creative-director）和 TD-SYSTEM-BOUNDARY（technical-director）在分解起草后并行派生。在 `lean` 或 `solo` 模式下，两个门控都被跳过。该 skill 写入 `design/systems-index.md`。
 
 ---
 

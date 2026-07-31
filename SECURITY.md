@@ -1,80 +1,73 @@
-# Security Policy
+# 安全政策
 
-## Supported Versions
+## 支持的版本
 
-Only the `main` branch receives security fixes. Forks and older releases are
-not supported.
+只有 `main` 分支接收安全修复。Fork 和旧版本不受支持。
 
-## Reporting a Vulnerability
+## 报告漏洞
 
-**Do not report security vulnerabilities through public GitHub issues.**
+**不要通过公开的 GitHub issue 报告安全漏洞。**
 
-Use GitHub's private vulnerability reporting instead:
+请改用 GitHub 的私有漏洞报告：
 
-**[Report a vulnerability →](https://github.com/Donchitos/Claude-Code-Game-Studios/security/advisories/new)**
+**[报告漏洞 →](https://github.com/Donchitos/Claude-Code-Game-Studios/security/advisories/new)**
 
-Include as much detail as possible:
-- Description of the vulnerability and what it affects
-- Steps to reproduce
-- Potential impact and attack scenarios
-- Any suggested mitigations
+包含尽可能多的细节：
+- 漏洞描述及其影响
+- 复现步骤
+- 潜在影响和攻击场景
+- 任何建议的缓解措施
 
-**What to expect:**
-- Acknowledgment within **48 hours**
-- Status update within **7 days**
-- Resolution within **90 days** for confirmed vulnerabilities
+**预期：**
+- **48 小时内**确认收到
+- **7 天内**状态更新
+- **90 天内**解决已确认的漏洞
 
-## What Is In Scope
+## 范围内内容
 
-CCGS is a **local development tool** — it installs shell hooks and coordinates
-AI agents that run directly on your machine. Security issues are primarily about
-contributed code that executes in users' environments without their awareness.
+CCGS 是一个**本地开发工具** — 它安装 shell hooks 并协调
+直接在你机器上运行的 AI agent。安全问题主要是关于
+在用户环境中未经用户知晓就执行的贡献代码。
 
-### High Severity
-- Hooks (`.claude/hooks/*.sh`) that execute malicious or undisclosed shell
-  commands on user machines
-- Skills or agents that exfiltrate environment variables, API keys, or secrets
-- Prompt injection via skill or agent definitions that causes Claude to bypass
-  safety measures or take unauthorized destructive actions
-- Contributions that silently alter behavior in ways users cannot audit
+### 高严重性
+- 在用户机器上执行恶意或未公开 shell 命令的 hooks（`.claude/hooks/*.sh`）
+- 泄露环境变量、API 密钥或机密的 skills 或 agents
+- 通过 skill 或 agent 定义进行的 prompt 注入，导致 Claude 绕过
+  安全措施或采取未经授权的破坏性操作
+- 以用户无法审计的方式静默改变行为的贡献
 
-### Medium Severity
-- Skills that make undisclosed outbound network requests
-- Agent definitions that escalate permissions or bypass user confirmation prompts
-- Hook patterns that behave differently across platforms to conceal behavior
-- Skills that write outside their documented scope without an explicit user
-  approval step
+### 中等严重性
+- Skills 发出未公开的出站网络请求
+- Agent 定义提升权限或绕过用户确认提示
+- 在不同平台上表现不同以隐藏行为的 hook 模式
+- Skills 在没有明确用户批准步骤的情况下写入其文档化范围之外
 
-### Out of Scope
-- The behavior of Claude or the Claude Code CLI itself
-  (report to [Anthropic](https://www.anthropic.com/security))
-- Bugs in the user's Claude Code installation or editor extension
-- Theoretical vulnerabilities with no realistic attack path
-- Issues requiring physical access to the user's machine
+### 范围外
+- Claude 或 Claude Code CLI 本身的行为
+  （向 [Anthropic](https://www.anthropic.com/security) 报告）
+- 用户的 Claude Code 安装或编辑器扩展中的 bug
+- 没有现实攻击路径的理论漏洞
+- 需要物理访问用户机器的问题
 
-## Security Guidelines for Contributors
+## 贡献者的安全指南
 
-When contributing hooks, skills, or agents:
+在贡献 hooks、skills 或 agents 时：
 
-- **Hooks must be POSIX-compatible** — use `grep -E`, not `grep -P`; avoid
-  platform-specific syntax that behaves differently across operating systems
-- **No silent network calls** from hooks or skills unless explicitly documented
-  and opt-in by the user
-- **No reading secrets or environment variables** beyond what is minimally
-  required and clearly documented in the skill's header
-- **Skills must not write outside their documented scope** without an explicit
-  user confirmation step
+- **Hooks 必须兼容 POSIX** — 使用 `grep -E`，不是 `grep -P`；避免
+  在不同操作系统上表现不同的平台特定语法
+- **不静默网络调用**，除非明确记录并由用户选择加入
+- **不读取机密或环境变量**，超出最小必需范围且未在 skill 头部明确记录
+- **Skills 不得写入其文档化范围之外**，除非有明确的用户确认步骤
 
-## Disclosure Policy
+## 披露政策
 
-We follow a **90-day coordinated disclosure** timeline:
+我们遵循 **90 天协调披露**时间线：
 
-1. You submit the vulnerability privately
-2. We acknowledge within 48 hours
-3. We confirm and assess severity within 7 days
-4. We develop and test a fix
-5. We notify you before any public disclosure
-6. Public disclosure happens after the fix ships, or at 90 days — whichever
-   comes first
+1. 你私下提交漏洞
+2. 我们在 48 小时内确认
+3. 我们在 7 天内确认并评估严重性
+4. 我们开发并测试修复
+5. 在任何公开披露之前通知你
+6. 公开披露在修复发布后或 90 天时发生 — 以先到者为准
 
-We credit reporters in release notes unless you prefer to remain anonymous.
+我们在发布说明中署名报告者，除非你选择保持匿名。

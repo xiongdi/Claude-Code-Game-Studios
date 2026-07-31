@@ -1,177 +1,176 @@
-# Skill Test Spec: /sprint-plan
+# Skill 测试规格：/sprint-plan
 
-## Skill Summary
+## Skill 摘要
 
-`/sprint-plan` reads the current milestone file and backlog stories, then
-generates a new numbered sprint with stories prioritized by implementation layer
-and priority score. In full mode the PR-SPRINT director gate runs after the
-sprint draft is compiled (producer reviews the plan). In lean and solo modes
-the gate is skipped. The skill asks "May I write to `production/sprints/sprint-NNN.md`?"
-before persisting. Verdicts: COMPLETE (sprint generated and written) or
-BLOCKED (cannot proceed due to missing data or gate failure).
-
----
-
-## Static Assertions (Structural)
-
-Verified automatically by `/skill-test static` — no fixture needed.
-
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings
-- [ ] Contains verdict keywords: COMPLETE, BLOCKED
-- [ ] Contains "May I write" language (skill writes sprint file)
-- [ ] Has a next-step handoff (what to do after sprint is written)
+`/sprint-plan` 读取当前里程碑文件和积压 story，然后
+生成一个新的编号 sprint，story 按实现层和优先级分数排序。
+在 full 模式下，PR-SPRINT director 关卡在 sprint 草稿编译后运行
+（producer 审查计划）。在 lean 和 solo 模式下，关卡被跳过。
+该 skill 在持久化前询问"可以写入 `production/sprints/sprint-NNN.md` 吗？"。
+判定结果：COMPLETE（sprint 已生成并写入）或 BLOCKED（因缺少数据或关卡失败无法继续）。
 
 ---
 
-## Director Gate Checks
+## 静态断言（结构性）
 
-| Gate ID   | Trigger condition        | Mode guard         |
-|-----------|--------------------------|--------------------|
-| PR-SPRINT | After sprint draft built | full only (not lean/solo) |
+由 `/skill-test static` 自动验证——不需要 fixture。
 
----
-
-## Test Cases
-
-### Case 1: Happy Path — Backlog with stories generates sprint
-
-**Fixture:**
-- `production/milestones/milestone-02.md` exists with capacity `10 story points`
-- Backlog contains 5 unstarted stories across 2 epics, mixed priorities
-- `production/session-state/review-mode.txt` contains `full`
-- Next sprint number is `003` (sprints 001 and 002 already exist)
-
-**Input:** `/sprint-plan`
-
-**Expected behavior:**
-1. Skill reads current milestone to obtain capacity and goals
-2. Skill reads all unstarted stories from backlog; sorts by layer + priority
-3. Skill drafts sprint-003 with stories fitting within capacity
-4. Skill presents draft to user before invoking gate
-5. Skill invokes PR-SPRINT gate (full mode); producer approves
-6. Skill asks "May I write to `production/sprints/sprint-003.md`?"
-7. User approves; file is written
-
-**Assertions:**
-- [ ] Stories are sorted by implementation layer before priority
-- [ ] Sprint draft is shown before any write or gate invocation
-- [ ] PR-SPRINT gate is invoked in full mode after draft is ready
-- [ ] Skill asks "May I write" before writing the sprint file
-- [ ] Written file path matches `production/sprints/sprint-003.md`
-- [ ] Verdict is COMPLETE after successful write
+- [ ] 具备必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 有 ≥2 个阶段标题
+- [ ] 包含判定关键词：COMPLETE、BLOCKED
+- [ ] 包含"可以写入吗"语言（skill 写入 sprint 文件）
+- [ ] 有下一步交接（sprint 写入后做什么）
 
 ---
 
-### Case 2: Blocked Path — Backlog is empty
+## Director 关卡检查
 
-**Fixture:**
-- `production/milestones/milestone-02.md` exists
-- No unstarted stories exist in any epic backlog
-
-**Input:** `/sprint-plan`
-
-**Expected behavior:**
-1. Skill reads backlog — finds no unstarted stories
-2. Skill outputs "No unstarted stories in backlog"
-3. Skill suggests running `/create-stories` to populate the backlog
-4. No gate is invoked; no file is written
-
-**Assertions:**
-- [ ] Verdict is BLOCKED
-- [ ] Output contains "No unstarted stories" or equivalent message
-- [ ] Output recommends `/create-stories`
-- [ ] PR-SPRINT gate is NOT invoked
-- [ ] No write tool is called
+| Gate ID   | 触发条件             | 模式守卫                  |
+|-----------|----------------------|---------------------------|
+| PR-SPRINT | sprint 草稿构建后    | full only（非 lean/solo）  |
 
 ---
 
-### Case 3: Gate returns CONCERNS — Sprint overloaded, revised before write
+## 测试用例
 
-**Fixture:**
-- Backlog has 8 stories totalling 16 points; milestone capacity is 10 points
-- `review-mode.txt` contains `full`
+### 用例 1：正常路径——有 story 的积压生成 sprint
 
-**Input:** `/sprint-plan`
+**Fixture：**
+- `production/milestones/milestone-02.md` 存在，容量为 `10 story points`
+- 积压包含跨 2 个 epic 的 5 个未开始 story，优先级混合
+- `production/session-state/review-mode.txt` 包含 `full`
+- 下一个 sprint 编号是 `003`（sprint 001 和 002 已存在）
 
-**Expected behavior:**
-1. Skill drafts sprint with all 8 stories (over capacity)
-2. PR-SPRINT gate runs; producer returns CONCERNS: sprint is overloaded
-3. Skill presents concern to user and asks which stories to defer
-4. User selects 3 stories to defer; sprint is revised to 5 stories / 10 points
-5. Skill asks "May I write" with revised sprint; writes on approval
+**输入：** `/sprint-plan`
 
-**Assertions:**
-- [ ] CONCERNS from PR-SPRINT gate surfaces to user before any write
-- [ ] Skill allows sprint to be revised after gate feedback
-- [ ] Revised sprint (not original) is written to file
-- [ ] Verdict is COMPLETE after revision and write
+**预期行为：**
+1. Skill 读取当前里程碑以获取容量和目标
+2. Skill 读取积压中所有未开始的 story；按层 + 优先级排序
+3. Skill 起草 sprint-003，story 在容量范围内
+4. Skill 在调用关卡前向用户展示草稿
+5. Skill 调用 PR-SPRINT 关卡（full 模式）；producer 批准
+6. Skill 询问"可以写入 `production/sprints/sprint-003.md` 吗？"
+7. 用户批准；文件写入
 
----
-
-### Case 4: Lean Mode — PR-SPRINT gate skipped
-
-**Fixture:**
-- Backlog has 4 stories; milestone capacity is 8 points
-- `review-mode.txt` contains `lean`
-
-**Input:** `/sprint-plan`
-
-**Expected behavior:**
-1. Skill reads review mode — determines `lean`
-2. Skill drafts sprint and presents it to user
-3. PR-SPRINT gate is skipped; output notes "[PR-SPRINT] skipped — Lean mode"
-4. Skill asks user for direct approval of the sprint
-5. User approves; sprint file is written
-
-**Assertions:**
-- [ ] PR-SPRINT gate is NOT invoked in lean mode
-- [ ] Skip is explicitly noted in output
-- [ ] User approval is still required before write (gate skip ≠ approval skip)
-- [ ] Verdict is COMPLETE after write
+**断言：**
+- [ ] Story 在优先级之前按实现层排序
+- [ ] Sprint 草稿在任何写入或关卡调用前展示
+- [ ] PR-SPRINT 关卡在 full 模式下草稿就绪后调用
+- [ ] Skill 在写入 sprint 文件前询问"可以写入吗"
+- [ ] 写入文件路径匹配 `production/sprints/sprint-003.md`
+- [ ] 成功写入后判定为 COMPLETE
 
 ---
 
-### Case 5: Edge Case — Previous sprint still has open stories
+### 用例 2：阻塞路径——积压为空
 
-**Fixture:**
-- `production/sprints/sprint-002.md` exists with 2 stories still `Status: In Progress`
-- Backlog has 5 new unstarted stories
-- `review-mode.txt` contains `full`
+**Fixture：**
+- `production/milestones/milestone-02.md` 存在
+- 任何 epic 积压中无未开始的 story
 
-**Input:** `/sprint-plan`
+**输入：** `/sprint-plan`
 
-**Expected behavior:**
-1. Skill reads sprint-002 and detects 2 open (in-progress) stories
-2. Skill flags: "Sprint 002 has 2 open stories — confirm carry-over before planning sprint 003"
-3. Skill presents user with choice: carry stories over, defer them, or cancel
-4. User confirms carry-over; carried stories are prepended to new sprint with `[CARRY]` tag
-5. Sprint draft is built; PR-SPRINT gate runs; sprint is written on approval
+**预期行为：**
+1. Skill 读取积压——未发现未开始的 story
+2. Skill 输出 "No unstarted stories in backlog"
+3. Skill 建议运行 `/create-stories` 填充积压
+4. 不调用关卡；不写入文件
 
-**Assertions:**
-- [ ] Skill checks the most recent sprint file for open stories
-- [ ] User is asked to confirm carry-over before sprint planning continues
-- [ ] Carried stories appear in the new sprint draft with a distinguishing label
-- [ ] Skill does not silently ignore open stories from the previous sprint
-
----
-
-## Protocol Compliance
-
-- [ ] Shows draft sprint before invoking PR-SPRINT gate or asking to write
-- [ ] Always asks "May I write" before writing sprint file
-- [ ] PR-SPRINT gate only runs in full mode
-- [ ] Skip message appears in lean and solo mode output
-- [ ] Verdict is clearly stated at the end of the skill output
+**断言：**
+- [ ] 判定为 BLOCKED
+- [ ] 输出包含 "No unstarted stories" 或等效消息
+- [ ] 输出推荐 `/create-stories`
+- [ ] PR-SPRINT 关卡不调用
+- [ ] 不调用写入工具
 
 ---
 
-## Coverage Notes
+### 用例 3：关卡返回 CONCERNS——Sprint 超载，写入前修订
 
-- The case where no milestone file exists is not explicitly tested; behavior
-  follows the BLOCKED pattern with a suggestion to run `/gate-check` for
-  milestone progression.
-- Solo mode behavior is equivalent to lean (gate skipped, user approval
-  required) and is not separately tested.
-- Parallel story selection algorithms are not tested here; those are unit
-  concerns for the sprint-plan subagent.
+**Fixture：**
+- 积压有 8 个 story 共 16 个点；里程碑容量为 10 个点
+- `review-mode.txt` 包含 `full`
+
+**输入：** `/sprint-plan`
+
+**预期行为：**
+1. Skill 起草包含所有 8 个 story 的 sprint（超出容量）
+2. PR-SPRINT 关卡运行；producer 返回 CONCERNS：sprint 超载
+3. Skill 向用户展示关切并询问要延期哪些 story
+4. 用户选择 3 个 story 延期；sprint 修订为 5 个 story / 10 个点
+5. Skill 询问"可以写入吗"附带修订后的 sprint；批准后写入
+
+**断言：**
+- [ ] 来自 PR-SPRINT 关卡的 CONCERNS 在任何写入前展示给用户
+- [ ] Skill 允许在关卡反馈后修订 sprint
+- [ ] 写入的是修订后的 sprint（不是原始版本）
+- [ ] 修订和写入后判定为 COMPLETE
+
+---
+
+### 用例 4：Lean 模式——PR-SPRINT 关卡被跳过
+
+**Fixture：**
+- 积压有 4 个 story；里程碑容量为 8 个点
+- `review-mode.txt` 包含 `lean`
+
+**输入：** `/sprint-plan`
+
+**预期行为：**
+1. Skill 读取审查模式——确定为 `lean`
+2. Skill 起草 sprint 并向用户展示
+3. PR-SPRINT 关卡被跳过；输出注明"[PR-SPRINT] skipped——Lean mode"
+4. Skill 请求用户直接批准 sprint
+5. 用户批准；sprint 文件写入
+
+**断言：**
+- [ ] PR-SPRINT 关卡在 lean 模式下不调用
+- [ ] 跳过在输出中明确注明
+- [ ] 写入前仍需要用户批准（gate 跳过 ≠ 批准跳过）
+- [ ] 写入后判定为 COMPLETE
+
+---
+
+### 用例 5：边缘情况——先前的 sprint 仍有未关闭 story
+
+**Fixture：**
+- `production/sprints/sprint-002.md` 存在，有 2 个 story 仍为 `Status: In Progress`
+- 积压有 5 个新的未开始 story
+- `review-mode.txt` 包含 `full`
+
+**输入：** `/sprint-plan`
+
+**预期行为：**
+1. Skill 读取 sprint-002 并检测到 2 个未关闭（进行中）的 story
+2. Skill 标记："Sprint 002 has 2 open stories——confirm carry-over before planning sprint 003"
+3. Skill 向用户展示选择：延期 story、延期它们、或取消
+4. 用户确认延期；延期的 story 以 `[CARRY]` 标签前置到新 sprint
+5. Sprint 草稿构建；PR-SPRINT 关卡运行；sprint 在批准后写入
+
+**断言：**
+- [ ] Skill 检查最近的 sprint 文件中的未关闭 story
+- [ ] 在继续 sprint 计划前要求用户确认延期
+- [ ] 延期的 story 在新 sprint 草稿中以区分标签出现
+- [ ] Skill 不忽略先前 sprint 中的未关闭 story
+
+---
+
+## 协议合规性
+
+- [ ] 在调用 PR-SPRINT 关卡或请求写入前展示 sprint 草稿
+- [ ] 写入 sprint 文件前始终询问"可以写入吗"
+- [ ] PR-SPRINT 关卡仅在 full 模式下运行
+- [ ] 跳过消息出现在 lean 和 solo 模式输出中
+- [ ] 判定在 skill 输出末尾明确说明
+
+---
+
+## 覆盖说明
+
+- 无里程碑文件存在的情况未明确测试；行为
+  遵循 BLOCKED 模式，建议运行 `/gate-check` 进行
+  里程碑推进。
+- Solo 模式行为等同于 lean（gate 跳过，用户批准
+  需要）且未单独测试。
+- 并行 story 选择算法不在此处测试；这些是
+  sprint-plan subagent 的单元问题。

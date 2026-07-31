@@ -1,6 +1,6 @@
 # 技能质量规则
 
-由 `/skill-test category [name|all]` 使用，以评估超出结构合规性的技能。
+由 `/skill-test category [name|all]` 使用，用于评估超出结构合规性的技能。
 每个类别定义 4-5 个特定于技能工作的二进制 PASS/FAIL 指标。
 
 当技能的书面指令清楚满足标准时，指标为 PASS。

@@ -9,72 +9,66 @@ model: sonnet
 
 # Test Helpers
 
-Writing test cases is faster and more consistent when common setup, teardown,
-and assertion patterns are abstracted into helpers. This skill generates a
-`tests/helpers/` library tailored to the project's actual engine, language,
-and systems — so every developer writes less boilerplate and more assertions.
+当常见的 setup、teardown 和断言模式被抽象为辅助函数时，编写测试用例会更快、更一致。此 skill 为项目的实际引擎、语言和系统生成一个 `tests/helpers/` 库 — 这样每个开发者可以编写更少的样板代码和更多的断言。
 
-**Output:** `tests/helpers/` directory with engine-specific helper files
+**输出：** `tests/helpers/` 目录，包含引擎特定的辅助文件
 
-**When to run:**
-- After `/test-setup` scaffolds the framework (first time)
-- When multiple test files repeat the same setup boilerplate
-- When starting to write tests for a new system
+**何时运行：**
+- 在 `/test-setup` 搭建框架后（首次）
+- 当多个测试文件重复相同的 setup 样板代码时
+- 当开始为新系统编写测试时
 
 ---
 
-## 1. Parse Arguments
+## 1. 解析参数
 
-**Modes:**
-- `/test-helpers [system-name]` — generate helpers for a specific system
-  (e.g., `/test-helpers combat`)
-- `/test-helpers all` — generate helpers for all systems with test files
-- `/test-helpers scaffold` — generate only the base helper library (no
-  system-specific helpers); use this on first run
-- No argument — run `scaffold` if no helpers exist, else `all`
+**模式：**
+- `/test-helpers [system-name]` — 为特定系统生成辅助函数（例如 `/test-helpers combat`）
+- `/test-helpers all` — 为所有有测试文件的系统生成辅助函数
+- `/test-helpers scaffold` — 仅生成基础辅助函数库（无系统特定辅助函数）；首次运行时使用
+- 无参数 — 如果不存在辅助函数则运行 `scaffold`，否则 `all`
 
 ---
 
-## 2. Detect Engine and Language
+## 2. 检测引擎和语言
 
-Read `.claude/docs/technical-preferences.md` and extract:
-- `Engine:` value
-- `Language:` value
-- `Framework:` from the Testing section
+读取 `.claude/docs/technical-preferences.md` 并提取：
+- `Engine:` 值
+- `Language:` 值
+- 测试部分的 `Framework:` 值
 
-If engine is not configured: "Engine not configured. Run `/setup-engine` first."
+如果引擎未配置："Engine not configured. Run `/setup-engine` first."
 
 ---
 
-## 3. Load Existing Test Patterns
+## 3. 加载现有测试模式
 
-Scan the test directory for patterns already in use:
+扫描测试目录中已在使用的模式：
 
 ```
 Glob pattern="tests/**/*_test.*" (all test files)
 ```
 
-For a representative sample (up to 5 files), read the test files and extract:
-- Setup patterns (how `before_each` / `setUp` / fixtures are written)
-- Common assertion patterns (what is being asserted most often)
-- Object creation patterns (how game objects or scenes are instantiated in tests)
-- Mock/stub patterns (how dependencies are replaced)
+对于代表性样本（最多 5 个文件），读取测试文件并提取：
+- Setup 模式（`before_each` / `setUp` / fixtures 的编写方式）
+- 常见断言模式（最常断言的内容）
+- 对象创建模式（游戏对象或场景在测试中的实例化方式）
+- Mock/stub 模式（依赖项的替换方式）
 
-This ensures generated helpers match the project's existing style, not a
-generic template.
+这确保生成的辅助函数匹配项目的现有风格，而不是通用模板。
 
-Also read:
-- `design/gdd/systems-index.md` — to know which systems exist
-- In-scope GDD(s) — to understand what data types and values need testing
-- `docs/architecture/tr-registry.yaml` — to map requirements to tested systems
+还要读取：
+- `design/gdd/systems-index.md` — 了解存在哪些系统
+- 范围内的 GDD — 了解需要测试的数据类型和值
+- `docs/architecture/tr-registry.yaml` — 将需求映射到已测试的系统
 
 ---
 
-## 4. Generate Engine-Specific Helpers
+## 4. 生成引擎特定辅助函数
 
-### Godot 4 (GDUnit4 / GDScript)
+### Godot 4（GDUnit4 / GDScript）
 
-**Base helper** (`tests/helpers/game_assertions.gd`):
+**基础辅助函数**（`tests/helpers/game_assertions.gd`）：
 
 ```gdscript
 ## Game-specific assertion utilities for [Project Name] tests.
@@ -131,7 +125,7 @@ static func assert_node_exists(parent: Node, path: NodePath) -> void:
     )
 ```
 
-**Factory helper** (`tests/helpers/game_factory.gd`):
+**工厂辅助函数**（`tests/helpers/game_factory.gd`）：
 
 ```gdscript
 ## Factory functions for creating test game objects.
@@ -151,7 +145,7 @@ static func make_player(health: int = 100) -> Node:
     return player
 ```
 
-**Scene helper** (`tests/helpers/scene_runner_helper.gd`):
+**场景辅助函数**（`tests/helpers/scene_runner_helper.gd`）：
 
 ```gdscript
 ## Utilities for scene-based integration tests.
@@ -170,9 +164,9 @@ func load_scene_and_wait(scene_path: String) -> Node:
 
 ---
 
-### Unity (NUnit / C#)
+### Unity（NUnit / C#）
 
-**Base helper** (`tests/helpers/GameAssertions.cs`):
+**基础辅助函数**（`tests/helpers/GameAssertions.cs`）：
 
 ```csharp
 using NUnit.Framework;
@@ -212,7 +206,7 @@ public static class GameAssertions
 }
 ```
 
-**Factory helper** (`tests/helpers/GameFactory.cs`):
+**工厂辅助函数**（`tests/helpers/GameFactory.cs`）：
 
 ```csharp
 using UnityEngine;
@@ -242,9 +236,9 @@ public static class GameFactory
 
 ---
 
-### Unreal Engine (C++)
+### Unreal Engine（C++）
 
-**Base helper** (`tests/helpers/GameTestHelpers.h`):
+**基础辅助函数**（`tests/helpers/GameTestHelpers.h`）：
 
 ```cpp
 #pragma once
@@ -299,19 +293,18 @@ namespace GameTestHelpers
 
 ---
 
-## 5. Generate System-Specific Helpers
+## 5. 生成系统特定辅助函数
 
-For `[system-name]` or `all` modes, generate a helper per system:
+对于 `[system-name]` 或 `all` 模式，为每个系统生成一个辅助函数：
 
-Read the system's GDD to extract:
-- Data types (entity types, component names)
-- Formula variables and their bounds
-- Common test scenarios mentioned in Edge Cases
+读取系统的 GDD 以提取：
+- 数据类型（实体类型、组件名称）
+- 公式变量及其边界
+- Edge Cases 中提到的常见测试场景
 
-Generate `tests/helpers/[system]_factory.[ext]` with factory functions
-specific to that system's objects.
+生成 `tests/helpers/[system]_factory.[ext]`，包含特定于该系统对象的工厂函数。
 
-Example pattern for a `combat` system (Godot/GDScript):
+`combat` 系统的示例模式（Godot/GDScript）：
 
 ```gdscript
 ## Factory and assertion helpers for Combat system tests.
@@ -346,9 +339,9 @@ static func assert_damage_in_bounds(damage: float) -> void:
 
 ---
 
-## 6. Write Output
+## 6. 写入输出
 
-Present a summary of what will be created:
+展示将要创建的总结：
 
 ```
 ## Test Helpers to Create
@@ -362,13 +355,12 @@ System helpers ([mode]):
 - tests/helpers/[system]_factory.[ext]  ← from [system] GDD
 ```
 
-Ask: "May I write these helper files to `tests/helpers/`?"
+询问："May I write these helper files to `tests/helpers/`?"
 
-**Never overwrite existing files.** If a file already exists, report:
-"Skipping `[path]` — already exists. Remove the file manually if you want it
-regenerated."
+**永远不要覆盖现有文件。** 如果文件已存在，报告：
+"Skipping `[path]` — already exists. Remove the file manually if you want it regenerated."
 
-After writing: Verdict: **COMPLETE** — helper files created.
+写入后：结论：**COMPLETE** — 辅助函数文件已创建。
 
 "Helper files created. To use them in a test:
 - Godot: `class_name` is auto-imported — no explicit import needed
@@ -377,19 +369,15 @@ After writing: Verdict: **COMPLETE** — helper files created.
 
 ---
 
-## Collaborative Protocol
+## 协作协议
 
-- **Never overwrite existing helpers** — they may contain hand-written
-  customisations. Only generate new files that don't exist yet
-- **Generated code is a starting point** — the generated factory functions use
-  metadata patterns for simplicity; adapt to the actual class structure once
-  the code exists
-- **Helpers should reflect the GDD** — bounds and constants in helpers should
-  trace to GDD Formulas sections, not invented values
-- **Ask before writing** — always confirm before creating files in `tests/`
+- **永远不要覆盖现有辅助函数** — 它们可能包含手写定制。只生成尚不存在的新文件
+- **生成的代码是一个起点** — 生成的工厂函数为简单起见使用元数据模式；一旦代码存在就适应实际类结构
+- **辅助函数应反映 GDD** — 辅助函数中的边界和常量应追溯到 GDD Formulas 部分，而不是发明的值
+- **写入前先询问** — 在 `tests/` 中创建文件前始终确认
 
-## Next Steps
+## 下一步
 
-- Run `/test-setup` if the test framework has not been scaffolded yet.
-- Use `/dev-story` to implement stories — helpers reduce boilerplate in new test files.
-- Run `/skill-test` to validate other skills that may need helper coverage.
+- 如果测试框架尚未搭建，运行 `/test-setup`。
+- 使用 `/dev-story` 实现 story — 辅助函数减少新测试文件中的样板代码。
+- 运行 `/skill-test` 验证其他可能需要辅助函数覆盖的 skill。

@@ -1,19 +1,18 @@
-# Godot Networking — Quick Reference
+# Godot Networking — 快速参考
 
 Last verified: 2026-02-12 | Engine: Godot 4.6
 
-## What Changed Since ~4.3 (LLM Cutoff)
+## 自 ~4.3（LLM 截止时间）以来的变更
 
-### 4.6 Changes
-- **Networking section in breaking changes**: See the official migration guide for
-  specifics at the 4.5→4.6 level
+### 4.6 变更
+- **破坏性变更中的 Networking 部分**：有关 4.5→4.6 级别的具体内容，请参阅官方迁移指南
 
-### 4.5 Changes
-- **No major networking API breaks** — core multiplayer API remains stable
+### 4.5 变更
+- **无重大 networking API 破坏** — 核心 multiplayer API 保持稳定
 
-## Current API Patterns
+## 当前 API 模式
 
-### High-Level Multiplayer
+### 高层 Multiplayer
 ```gdscript
 # Server
 func host_game(port: int = 9999) -> void:
@@ -32,45 +31,45 @@ func join_game(address: String, port: int = 9999) -> void:
 
 ### RPCs
 ```gdscript
-# Server-authoritative pattern
+# Server-authoritative 模式
 @rpc("any_peer", "call_local", "reliable")
 func request_action(action_data: Dictionary) -> void:
     if not multiplayer.is_server():
         return
-    # Validate on server, then broadcast
+    # 在服务器上验证，然后广播
     _execute_action.rpc(action_data)
 
 @rpc("authority", "call_local", "reliable")
 func _execute_action(action_data: Dictionary) -> void:
-    # All peers execute the validated action
+    # 所有 peer 执行已验证的动作
     pass
 ```
 
-### MultiplayerSpawner and MultiplayerSynchronizer
+### MultiplayerSpawner 和 MultiplayerSynchronizer
 ```gdscript
-# Use MultiplayerSpawner for automatic node replication
-# Use MultiplayerSynchronizer for property synchronization
+# 使用 MultiplayerSpawner 进行自动节点复制
+# 使用 MultiplayerSynchronizer 进行属性同步
 
-# MultiplayerSynchronizer setup:
-# 1. Add as child of the node to sync
-# 2. Configure replication properties in editor
-# 3. Set visibility filters for relevancy
+# MultiplayerSynchronizer 设置：
+# 1. 作为要同步的节点的子节点添加
+# 2. 在编辑器中配置复制属性
+# 3. 为 relevancy 设置可见性过滤器
 ```
 
-### SceneMultiplayer Configuration
+### SceneMultiplayer 配置
 ```gdscript
 func _ready() -> void:
     var scene_mp := multiplayer as SceneMultiplayer
     scene_mp.auth_callback = _authenticate_peer
-    scene_mp.server_relay = false  # Direct peer connections
+    scene_mp.server_relay = false  # 直接 peer 连接
 
 func _authenticate_peer(id: int, data: PackedByteArray) -> void:
-    # Custom authentication logic
+    # 自定义认证逻辑
     pass
 ```
 
-## Common Mistakes
-- Not using `"any_peer"` for client-to-server RPCs (defaults to authority only)
-- Trusting client data without server-side validation
-- Using `"unreliable"` for game state changes (use for position updates only)
-- Not setting multiplayer authority (`set_multiplayer_authority()`) on spawned nodes
+## 常见错误
+- 客户端到服务器的 RPC 未使用 `"any_peer"`（默认仅为 authority）
+- 信任客户端数据而未经服务器端验证
+- 对游戏状态变更使用 `"unreliable"`（仅用于位置更新）
+- 未在生成的节点上设置 multiplayer authority（`set_multiplayer_authority()`）

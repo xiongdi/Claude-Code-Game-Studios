@@ -1,79 +1,79 @@
-# Agent Test Spec: security-engineer
+# Agent 测试规格：security-engineer
 
-## Agent Summary
-Domain: Anti-cheat systems, save data security, network security, vulnerability assessment, and data privacy compliance.
-Does NOT own: game logic design (gameplay-programmer), server infrastructure (devops-engineer).
-Model tier: Sonnet (default).
-No gate IDs assigned.
-
----
-
-## Static Assertions (Structural)
-
-- [ ] `description:` field is present and domain-specific (references anti-cheat / security / vulnerability assessment)
-- [ ] `allowed-tools:` list includes Read, Write, Edit, Bash, Glob, Grep
-- [ ] Model tier is Sonnet (default for specialists)
-- [ ] Agent definition does not claim authority over game logic design or server deployment
+## Agent 摘要
+领域：反作弊系统、存档数据安全、网络安全、漏洞评估和数据隐私合规。
+不负责：游戏逻辑设计（gameplay-programmer）、服务器基础设施（devops-engineer）。
+模型层级：Sonnet（默认值）。
+未分配 Gate ID。
 
 ---
 
-## Test Cases
+## 静态断言（结构性）
 
-### Case 1: In-domain request — appropriate output
-**Input:** "Review the save data system for security issues."
-**Expected behavior:**
-- Audits the save data handling for: unencrypted sensitive fields, lack of integrity checksums, world-writable file permissions, and cleartext credentials
-- Flags unencrypted player stats with severity level (e.g., MEDIUM — enables offline stat manipulation)
-- Recommends: AES-256 encryption for sensitive fields, HMAC checksum for tamper detection
-- Produces a prioritized finding list (CRITICAL / HIGH / MEDIUM / LOW)
-- Does NOT change the save system code directly — produces findings for gameplay-programmer or engine-programmer to act on
-
-### Case 2: Out-of-domain request — redirects correctly
-**Input:** "Design the matchmaking algorithm to pair players by skill rating."
-**Expected behavior:**
-- Does NOT produce matchmaking algorithm design
-- Explicitly states that matchmaking design belongs to `network-programmer`
-- Redirects the request to `network-programmer`
-- May note it can review the matchmaking system for security vulnerabilities (e.g., rating manipulation) once the design is complete
-
-### Case 3: Critical vulnerability — SQL injection
-**Input:** (Hypothetical) "Review this server-side query handler: `query = 'SELECT * FROM users WHERE id=' + user_input`"
-**Expected behavior:**
-- Flags this as a CRITICAL vulnerability (SQL injection via unsanitized user input)
-- Provides immediate remediation: parameterized queries / prepared statements
-- Recommends a security review of all other query-construction code in the codebase
-- Escalates to `technical-director` given CRITICAL severity — does not leave the finding unescalated
-
-### Case 4: Security vs. performance trade-off
-**Input:** "The anti-cheat validation is adding 8ms to every physics frame and the performance budget is already at 98%."
-**Expected behavior:**
-- Surfaces the trade-off clearly: removing/reducing validation creates exploit surface; keeping it blows the performance budget
-- Does NOT unilaterally drop the security measure
-- Escalates to `technical-director` with both the security risk level and the performance impact quantified
-- Proposes options: async validation (reduces frame impact, adds latency), sampling-based checks (reduces frequency, accepts some cheating), or budget renegotiation
-
-### Case 5: Context pass — OWASP guidelines
-**Input:** OWASP Top 10 (2021) provided in context. Request: "Audit the game's login and account system."
-**Expected behavior:**
-- Structures the audit findings against the specific OWASP Top 10 categories (A01 Broken Access Control, A02 Cryptographic Failures, A07 Identification and Authentication Failures, etc.)
-- References specific control IDs from the provided list rather than generic advice
-- Flags each finding with the relevant OWASP category
-- Produces a compliance gap list: which controls are met, which are missing, which are partial
+- [ ] `description:` 字段存在且领域特定（引用反作弊/安全/漏洞评估）
+- [ ] `allowed-tools:` 列表包括 Read、Write、Edit、Bash、Glob、Grep
+- [ ] 模型层级为 Sonnet（专家默认值）
+- [ ] Agent 定义不声称对游戏逻辑设计或服务器部署拥有权限
 
 ---
 
-## Protocol Compliance
+## 测试用例
 
-- [ ] Stays within declared domain (anti-cheat, save security, network security, vulnerability assessment)
-- [ ] Redirects matchmaking / game logic requests to appropriate agents
-- [ ] Returns structured findings with severity classification (CRITICAL / HIGH / MEDIUM / LOW)
-- [ ] Does not implement fixes unilaterally — produces findings for the responsible programmer
-- [ ] Escalates CRITICAL findings to technical-director immediately
-- [ ] References specific standards (OWASP, GDPR, etc.) when provided in context
+### 用例 1：领域内请求 — 适当的输出
+**输入：** "审查存档数据系统的安全问题。"
+**预期行为：**
+- 审计存档数据处理是否存在：未加密的敏感字段、缺乏完整性校验和、全局可写文件权限、明文凭证
+- 标记未加密的玩家属性及其严重级别（例如，MEDIUM——启用离线属性篡改）
+- 推荐：敏感字段使用 AES-256 加密，HMAC 校验和用于防篡改
+- 生成优先级排序的发现列表（CRITICAL / HIGH / MEDIUM / LOW）
+- 不直接修改存档系统代码——生成发现供 gameplay-programmer 或 engine-programmer 处理
+
+### 用例 2：领域外请求 — 正确重定向
+**输入：** "设计匹配算法以按技能评分配对玩家。"
+**预期行为：**
+- 不生成匹配算法设计
+- 明确声明匹配设计属于 `network-programmer`
+- 将请求重定向给 `network-programmer`
+- 可能注明一旦设计完成，可以审查匹配系统的安全漏洞（例如评分操纵）
+
+### 用例 3：严重漏洞 — SQL 注入
+**输入：**（假设）"审查此服务器端查询处理代码：`query = 'SELECT * FROM users WHERE id=' + user_input`"
+**预期行为：**
+- 将此标记为 CRITICAL 漏洞（通过未净化的用户输入进行 SQL 注入）
+- 提供立即修复方案：参数化查询 / 预处理语句
+- 推荐对代码库中所有其他查询构建代码进行安全审查
+- 鉴于 CRITICAL 严重级别，升级到 `technical-director`——不留下未升级的发现
+
+### 用例 4：安全与性能权衡
+**输入：** "反作弊验证每帧物理增加 8ms，性能预算已经达到 98%。"
+**预期行为：**
+- 清楚地呈现权衡：移除/减少验证会产生漏洞面；保持它会突破性能预算
+- 不单方面放弃安全措施
+- 升级到 `technical-director`，量化安全风险级别和性能影响
+- 提出选项：异步验证（减少帧影响，增加延迟）、基于采样的检查（减少频率，接受一些作弊）或预算重新协商
+
+### 用例 5：上下文传递 — OWASP 指南
+**输入：** 上下文中提供了 OWASP Top 10 (2021)。请求："审计游戏的登录和账户系统。"
+**预期行为：**
+- 按照特定 OWASP Top 10 类别构建审计发现（A01 失效的访问控制、A02 加密失败、A07 识别和认证失败等）
+- 引用提供的列表中的特定控制 ID，而非泛泛建议
+- 用相关 OWASP 类别标记每个发现
+- 生成合规差距列表：哪些控制已满足、哪些缺失、哪些部分满足
 
 ---
 
-## Coverage Notes
-- Save data audit (Case 1) confirms the agent produces actionable, prioritized findings not generic advice
-- CRITICAL vulnerability escalation (Case 3) verifies the agent's severity classification and escalation path
-- Performance trade-off (Case 4) confirms the agent does not silently drop security measures to hit a budget
+## 协议合规
+
+- [ ] 保持在声明领域内（反作弊、存档安全、网络安全、漏洞评估）
+- [ ] 将匹配/游戏逻辑请求重定向给相关 Agent
+- [ ] 返回带有严重级别分类的结构化发现（CRITICAL / HIGH / MEDIUM / LOW）
+- [ ] 不单方面实现修复——生成发现供相关程序员处理
+- [ ] 立即将 CRITICAL 发现升级到 technical-director
+- [ ] 在上下文中提供特定标准时引用它们（OWASP、GDPR 等）
+
+---
+
+## 覆盖说明
+- 存档数据审计（用例 1）确认 Agent 生成可操作的、优先级排序的发现，而非泛泛建议
+- CRITICAL 漏洞升级（用例 3）验证 Agent 的严重级别分类和升级路径
+- 性能权衡（用例 4）确认 Agent 不会为了达到预算而默默放弃安全措施

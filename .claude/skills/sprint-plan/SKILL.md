@@ -1,6 +1,6 @@
 ---
 name: sprint-plan
-description: "Generates a new sprint plan or updates an existing one based on the current milestone, completed work, and available capacity. Pulls context from production documents and design backlogs."
+description: "基于当前 milestone、已完成工作和可用容量生成新的 sprint 计划或更新现有计划。从制作文档和设计 backlog 中提取上下文。"
 argument-hint: "[new|update|status] [--review full|lean|solo]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Task, AskUserQuestion
@@ -9,47 +9,47 @@ context: |
   !ls production/sprints/ 2>/dev/null
 ---
 
-## Phase 0: Parse Arguments
+## Phase 0: 解析参数
 
-Extract the mode argument (`new`, `update`, or `status`) and resolve the review mode (once, store for all gate spawns this run):
-1. If `--review [full|lean|solo]` was passed → use that
-2. Else read `production/review-mode.txt` → use that value
-3. Else → default to `lean`
+提取模式参数（`new`、`update` 或 `status`）并解析 review 模式（一次性解析，存储供本运行的所有 gate 生成使用）：
+1. 如果传入了 `--review [full|lean|solo]` → 使用该值
+2. 否则读取 `production/review-mode.txt` → 使用该值
+3. 否则 → 默认为 `lean`
 
-See `.claude/docs/director-gates.md` for the full check pattern.
+参见 `.claude/docs/director-gates.md` 了解完整的检查模式。
 
-**Review mode check** (before gates run):
-- Read `production/review-mode.txt` if it exists. Use that mode.
-- If the file doesn't exist and this is a `new` sprint: use `AskUserQuestion`:
-  - Prompt: "No review mode is set. Which review depth would you like for this sprint?"
-  - Options:
+**Review 模式检查**（在 gates 运行之前）：
+- 如果 `production/review-mode.txt` 存在，读取它。使用该模式。
+- 如果文件不存在且这是 `new` sprint：使用 `AskUserQuestion`：
+  - 提示："No review mode is set. Which review depth would you like for this sprint?"
+  - 选项：
     - `[A] full — spawn all director and lead gates`
     - `[B] lean — skip non-phase-gate director reviews (recommended for most sprints)`
     - `[C] solo — skip all gate spawning`
-  - After selection: write `production/review-mode.txt` with the chosen mode. Say: "Review mode set to [mode] and saved to production/review-mode.txt."
-- If the file doesn't exist and this is NOT a `new` sprint (e.g., updating an existing sprint): default to `lean` silently.
+  - 选择后：将所选模式写入 `production/review-mode.txt`。说："Review mode set to [mode] and saved to production/review-mode.txt."
+- 如果文件不存在且这不是 `new` sprint（如更新现有 sprint）：静默默认为 `lean`。
 
 ---
 
-## Phase 1: Gather Context
+## Phase 1: 收集上下文
 
-1. **Read the current milestone** from `production/milestones/`.
+1. **从 `production/milestones/` 读取当前 milestone**。
 
-2. **Read the previous sprint** (if any) from `production/sprints/` to
-   understand velocity and carryover.
+2. **从 `production/sprints/` 读取前一个 sprint**（如有）以
+   了解速度和遗留工作。
 
-3. **Scan design documents** in `design/gdd/` for features tagged as ready
-   for implementation.
+3. **扫描 `design/gdd/` 中的设计文档**，查找标记为可实现的
+   功能。
 
-4. **Check the risk register** at `production/risk-register/`.
+4. **检查 `production/risk-register/` 中的风险登记册**。
 
 ---
 
-## Phase 2: Generate Output
+## Phase 2: 生成输出
 
-For `new`:
+对于 `new`：
 
-**Generate a sprint plan** following this format and present it to the user. Do NOT ask to write yet — the producer feasibility gate (Phase 4) runs first and may require revisions before the file is written.
+**按照以下格式生成 sprint 计划**并展示给用户。尚不要请求写入 — producer 可行性关卡（Phase 4）先运行，可能在文件写入前需要修订。
 
 ```markdown
 # Sprint [N] — [Start Date] to [End Date]
@@ -99,22 +99,22 @@ For `new`:
 - [ ] Code reviewed and merged
 ```
 
-For `update`:
+对于 `update`：
 
-**Update an existing sprint plan**:
+**更新现有 sprint 计划**：
 
-1. Read the most recent sprint plan from `production/sprints/`.
-2. Present the current story list with their current statuses from `production/sprint-status.yaml`.
-3. Ask the user what to change: stories to add, remove, reprioritize, or re-estimate. Use `AskUserQuestion` to gather changes.
-4. Apply the changes and re-present the full revised plan for review.
-5. Re-run the producer feasibility gate (Phase 4) on the revised plan.
-6. Write the updated markdown plan and yaml together (same approval as `new` mode).
+1. 从 `production/sprints/` 读取最近的 sprint 计划。
+2. 展示当前 story 列表及其在 `production/sprint-status.yaml` 中的当前状态。
+3. 询问用户要更改什么：添加、移除、重新排序或重新估算 stories。使用 `AskUserQuestion` 收集变更。
+4. 应用变更并重新展示完整修订计划供审查。
+5. 在修订后的计划上重新运行 producer 可行性关卡（Phase 4）。
+6. 一起写入更新后的 markdown 计划和 yaml（与 `new` 模式相同的批准流程）。
 
-Note: `update` mode does not reset story statuses. Stories already marked `in-progress` or `done` keep their status. Only `backlog` and `ready-for-dev` stories can be removed or reprioritized freely.
+注意：`update` 模式不重置 story 状态。已标记为 `in-progress` 或 `done` 的 stories 保持其状态。只有 `backlog` 和 `ready-for-dev` 的 stories 可以自由移除或重新排序。
 
-For `status`:
+对于 `status`：
 
-**Generate a status report**:
+**生成状态报告**：
 
 ```markdown
 # Sprint [N] Status -- [Date]
@@ -147,15 +147,15 @@ For `status`:
 
 ---
 
-## Phase 3: Prepare Sprint Status File
+## Phase 3: 准备 Sprint 状态文件
 
-After generating a new sprint plan, also prepare the `production/sprint-status.yaml` content.
-This is the machine-readable source of truth for story status — read by
-`/sprint-status`, `/story-done`, and `/help` without markdown parsing.
+生成新的 sprint 计划后，还要准备 `production/sprint-status.yaml` 内容。
+这是 story 状态的机器可读真实来源 — 由
+`/sprint-status`、`/story-done` 和 `/help` 读取，无需 markdown 解析。
 
-**Do not write the yaml yet** — hold it in context. The producer feasibility gate (Phase 4) may revise the story list. Both files will be written together after Phase 4 in a single write approval.
+**尚不要写入 yaml** — 保持在上下文中。producer 可行性关卡（Phase 4）可能修订 story 列表。两个文件将在 Phase 4 后的单次写入批准中一起写入。
 
-Format:
+格式：
 
 ```yaml
 # Auto-generated by /sprint-plan. Updated by /story-done and /dev-story.
@@ -188,72 +188,71 @@ stories:
     completed: ""
 ```
 
-Initialize each story from the sprint plan's task tables:
-- Must Have tasks → `priority: must-have`, `status: ready-for-dev`
-- Should Have tasks → `priority: should-have`, `status: backlog`
-- Nice to Have tasks → `priority: nice-to-have`, `status: backlog`
+从 sprint 计划的任务表初始化每个 story：
+- Must Have 任务 → `priority: must-have`，`status: ready-for-dev`
+- Should Have 任务 → `priority: should-have`，`status: backlog`
+- Nice to Have 任务 → `priority: nice-to-have`，`status: backlog`
 
-For `update`: read the existing `sprint-status.yaml`, carry over statuses for
-stories that haven't changed, add new stories, remove dropped ones.
+对于 `update`：读取现有 `sprint-status.yaml`，为未变更的 stories 保留状态，添加新 stories，移除已删除的。
 
 ---
 
-## Phase 4: Producer Feasibility Gate
+## Phase 4: Producer 可行性关卡
 
-**Review mode check** — apply before spawning PR-SPRINT:
-- `solo` → skip. Note: "PR-SPRINT skipped — Solo mode." Proceed to Phase 5 (QA plan gate).
-- `lean` → skip (not a PHASE-GATE). Note: "PR-SPRINT skipped — Lean mode." Proceed to Phase 5 (QA plan gate).
-- `full` → spawn as normal.
+**Review 模式检查** — 在生成 PR-SPRINT 之前应用：
+- `solo` → 跳过。注明："PR-SPRINT skipped — Solo mode." 继续到 Phase 5（QA 计划关卡）。
+- `lean` → 跳过（不是 PHASE-GATE）。注明："PR-SPRINT skipped — Lean mode." 继续到 Phase 5（QA 计划关卡）。
+- `full` → 正常生成。
 
-Before finalising the sprint plan, spawn `producer` via Task using gate **PR-SPRINT** (`.claude/docs/director-gates.md`).
+在最终确定 sprint 计划之前，使用 gate **PR-SPRINT**（`.claude/docs/director-gates.md`）通过 Task 生成 `producer`。
 
-Pass: proposed story list (titles, estimates, dependencies), total team capacity in hours/days, any carryover from the previous sprint, milestone constraints and deadline.
+传递：提议的 story 列表（标题、估算、依赖关系）、团队总容量（小时/天）、前一个 sprint 的任何遗留工作、milestone 约束和截止日期。
 
-Present the producer's assessment.
+展示 producer 的评估。
 
-If UNREALISTIC: revise the story selection (defer stories to Should Have or Nice to Have) and re-present the updated plan before asking for write approval.
+如果 UNREALISTIC：修订 story 选择（将 stories 推迟到 Should Have 或 Nice to Have）并在请求写入批准前重新展示更新后的计划。
 
-If CONCERNS, use `AskUserQuestion`:
-- Prompt: "Producer flagged concerns with this sprint plan. How do you want to proceed?"
-- Options:
+如果 CONCERNS，使用 `AskUserQuestion`：
+- 提示："Producer flagged concerns with this sprint plan. How do you want to proceed?"
+- 选项：
   - `[A] Proceed as planned — I accept the risk`
   - `[B] Adjust scope — defer some Should Have stories`
   - `[C] Extend the sprint timeline`
 
-If [A]: proceed to write approval.
-If [B]: revise the story list, re-present the updated plan, then proceed to write approval.
-If [C]: adjust sprint dates and capacity, re-present the updated plan, then proceed to write approval.
+如果 [A]：继续到写入批准。
+如果 [B]：修订 story 列表，重新展示更新后的计划，然后继续到写入批准。
+如果 [C]：调整 sprint 日期和容量，重新展示更新后的计划，然后继续到写入批准。
 
-After handling the producer's verdict, ask: "May I write the sprint plan to `production/sprints/sprint-[N].md` and `production/sprint-status.yaml`?" If yes, write both files (creating directories as needed). Verdict: **COMPLETE** — sprint plan and status file created. If no: Verdict: **BLOCKED** — user declined write.
+处理完 producer 的裁决后，询问："May I write the sprint plan to `production/sprints/sprint-[N].md` and `production/sprint-status.yaml`?" 如果同意，写入两个文件（按需创建目录）。裁决：**COMPLETE** — sprint 计划和状态文件已创建。如果不同意：裁决：**BLOCKED** — 用户拒绝写入。
 
-After writing, add:
+写入后，添加：
 
-> **Scope check:** If this sprint includes stories added beyond the original epic scope, run `/scope-check [epic]` to detect scope creep before implementation begins.
+> **Scope check:** 如果此 sprint 包含超出原始 epic 范围添加的 stories，在实现开始前运行 `/scope-check [epic]` 以检测范围蔓延。
 
 ---
 
-## Phase 5: QA Plan Gate
+## Phase 5: QA 计划关卡
 
-Before closing the sprint plan, check whether a QA plan exists for this sprint.
+在关闭 sprint 计划之前，检查此 sprint 是否存在 QA 计划。
 
-Use `Glob` to look for `production/qa/qa-plan-sprint-[N].md` or any file in `production/qa/` referencing this sprint number.
+使用 `Glob` 查找 `production/qa/qa-plan-sprint-[N].md` 或 `production/qa/` 中引用此 sprint 编号的任何文件。
 
-**If a QA plan is found**: note it in the sprint plan output — "QA Plan: `[path]`" — and proceed.
+**如果找到 QA 计划**：在 sprint 计划输出中注明 — "QA Plan: `[path]`" — 然后继续。
 
-**If no QA plan exists**: do not silently proceed. Surface this explicitly:
+**如果不存在 QA 计划**：不要静默继续。明确指出：
 
 > "This sprint has no QA plan. A sprint plan without a QA plan means test requirements are undefined — developers won't know what 'done' looks like from a QA perspective, and the sprint cannot pass the Production → Polish gate without one.
 >
 > Run `/qa-plan sprint` now, before starting any implementation. It takes one session and produces the test case requirements each story needs."
 
-Use `AskUserQuestion`:
-- Prompt: "No QA plan found for this sprint. How do you want to proceed?"
-- Options:
+使用 `AskUserQuestion`：
+- 提示："No QA plan found for this sprint. How do you want to proceed?"
+- 选项：
   - `[A] Run /qa-plan sprint now — I'll do that before starting implementation (Recommended)`
   - `[B] Skip for now — I understand QA sign-off will be blocked at the Production → Polish gate`
 
-If [A]: close with "Sprint plan written. Run `/qa-plan sprint` next — then begin implementation."
-If [B]: add a warning block to the sprint plan document:
+如果 [A]：以 "Sprint plan written. Run `/qa-plan sprint` next — then begin implementation." 结束。
+如果 [B]：在 sprint 计划文档中添加警告块：
 
 ```markdown
 > ⚠️ **No QA Plan**: This sprint was started without a QA plan. Run `/qa-plan sprint`
@@ -263,19 +262,19 @@ If [B]: add a warning block to the sprint plan document:
 
 ---
 
-## Phase 6: Next Steps
+## Phase 6: 后续步骤
 
-After the sprint plan is written and QA plan status is resolved:
+sprint 计划写入且 QA 计划状态解决后：
 
-- `/qa-plan sprint` — **required before implementation begins** — defines test cases per story so developers implement against QA specs, not a blank slate
-- `/story-readiness [story-file]` — validate a story is ready before starting it
-- `/dev-story [story-file]` — begin implementing the first story
-- `/sprint-status` — check progress mid-sprint
-- `/scope-check [epic]` — verify no scope creep before implementation begins
+- `/qa-plan sprint` — **实现开始前必需** — 定义每个 story 的测试用例，使开发者针对 QA 规范而非空白状态进行实现
+- `/story-readiness [story-file]` — 在开始之前验证 story 是否就绪
+- `/dev-story [story-file]` — 开始实现第一个 story
+- `/sprint-status` — 在 sprint 中期检查进度
+- `/scope-check [epic]` — 在实现开始前验证无范围蔓延
 
-**Review mode configuration:** All director gates (producer feasibility, QA review, code review) respect the project review mode. The review mode is set in Phase 0 when the file does not exist (for `new` sprints), or can be overridden per-run with `--review full|lean|solo` as an argument. The file `production/review-mode.txt` contains one of:
-- `lean` — skip automated director gates (default if file is absent — fastest for solo dev)
-- `full` — run all director gates as spawned sub-agents
-- `solo` — skip all gates unconditionally (single-developer, no review)
+**Review 模式配置：** 所有 director gates（producer 可行性、QA 审查、代码审查）都遵循项目 review 模式。review 模式在 Phase 0 文件不存在时（对于 `new` sprint）设置，也可以通过参数 `--review full|lean|solo` 每次运行覆盖。文件 `production/review-mode.txt` 包含以下之一：
+- `lean` — 跳过自动化 director gates（如果文件不存在则为默认值 — 对 solo 开发最快）
+- `full` — 作为生成的子 agent 运行所有 director gates
+- `solo` — 无条件跳过所有 gates（单开发者，无审查）
 
-This file is read by `/sprint-plan`, `/story-readiness`, `/story-done`, and other skills at startup.
+此文件由 `/sprint-plan`、`/story-readiness`、`/story-done` 和其他 skill 在启动时读取。

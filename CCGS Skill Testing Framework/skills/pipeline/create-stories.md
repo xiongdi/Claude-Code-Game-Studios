@@ -2,17 +2,9 @@
 
 ## Skill Summary
 
-`/create-stories` breaks a single epic into developer-ready story files. It reads
-the EPIC.md, the corresponding GDD, governing ADRs, the control manifest, and the
-TR registry. Each story gets structured frontmatter including: Title, Epic, Layer,
-Priority, Status, TR-ID, ADR references, Acceptance Criteria, and Definition of
-Done. Stories are classified by type (Logic / Integration / Visual/Feel / UI /
-Config/Data) which determines the required test evidence path.
+`/create-stories` 将单个 epic 拆分为开发者就绪的 story 文件。它读取 EPIC.md、对应的 GDD、governing ADR、control manifest 和 TR registry。每个 story 获得结构化的 frontmatter，包括：Title、Epic、Layer、Priority、Status、TR-ID、ADR references、Acceptance Criteria 和 Definition of Done。Story 按类型分类（Logic / Integration / Visual/Feel / UI / Config/Data），类型决定所需的测试证据路径。
 
-In `full` review mode, a QL-STORY-READY check runs per story after creation. In
-`lean` or `solo` mode, QL-STORY-READY is skipped. The skill asks "May I write"
-before writing each story file. Stories are written to
-`production/epics/[layer]/story-[name].md`.
+在 `full` review 模式下，QL-STORY-READY 检查在每个 story 创建后运行。在 `lean` 或 `solo` 模式下，QL-STORY-READY 被跳过。在写入每个 story 文件之前会询问 "May I write"。Story 写入 `production/epics/[layer]/story-[name].md`。
 
 ---
 

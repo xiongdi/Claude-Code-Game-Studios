@@ -1,87 +1,87 @@
 # Agent Test Spec: unity-dots-specialist
 
 ## Agent Summary
-Domain: ECS architecture (IComponentData, ISystem, SystemAPI), Jobs system (IJob, IJobEntity, Burst), Burst compiler constraints, DOTS gameplay systems, and hybrid renderer.
-Does NOT own: MonoBehaviour gameplay code (gameplay-programmer), UI implementation (unity-ui-specialist).
-Model tier: Sonnet (default).
-No gate IDs assigned.
+Domain: ECS 架构（IComponentData、ISystem、SystemAPI）、Jobs 系统（IJob、IJobEntity、Burst）、Burst 编译器约束、DOTS 游戏系统和 hybrid renderer。
+Does NOT own: MonoBehaviour 游戏逻辑代码（gameplay-programmer）、UI 实现（unity-ui-specialist）。
+Model tier: Sonnet (default)。
+No gate IDs assigned。
 
 ---
 
 ## Static Assertions (Structural)
 
-- [ ] `description:` field is present and domain-specific (references ECS / Jobs / Burst / IComponentData)
-- [ ] `allowed-tools:` list includes Read, Write, Edit, Bash, Glob, Grep
-- [ ] Model tier is Sonnet (default for specialists)
-- [ ] Agent definition does not claim authority over MonoBehaviour gameplay or UI systems
+- [ ] `description:` 字段存在且为领域特定（引用 ECS / Jobs / Burst / IComponentData）
+- [ ] `allowed-tools:` 列表包含 Read, Write, Edit, Bash, Glob, Grep
+- [ ] Model tier 为 Sonnet（specialist 默认值）
+- [ ] Agent 定义不声称对 MonoBehaviour 游戏逻辑或 UI 系统拥有权限
 
 ---
 
 ## Test Cases
 
-### Case 1: In-domain request — appropriate output
-**Input:** "Convert the player movement system to ECS."
+### Case 1: 领域内请求 — 适当的输出
+**Input:** "将玩家移动系统转换为 ECS。"
 **Expected behavior:**
-- Produces:
-  - `PlayerMovementData : IComponentData` struct with velocity, speed, and input vector fields
-  - `PlayerMovementSystem : ISystem` with `OnUpdate()` using `SystemAPI.Query<>` or `IJobEntity`
-  - Bakes the player's initial state from an authoring MonoBehaviour via `IBaker`
-- Uses `RefRW<LocalTransform>` for position updates (not deprecated `Translation`)
-- Marks the job `[BurstCompile]` and notes what must be unmanaged for Burst compatibility
-- Does NOT modify the input polling system — reads from an existing `PlayerInputData` component
+- 生成：
+  - 包含 velocity、speed 和 input vector 字段的 `PlayerMovementData : IComponentData` 结构体
+  - 使用 `SystemAPI.Query<>` 或 `IJobEntity` 的带 `OnUpdate()` 的 `PlayerMovementSystem : ISystem`
+  - 通过 `IBaker` 从编写用 MonoBehaviour 烘焙玩家初始状态
+- 对位置更新使用 `RefRW<LocalTransform>`（而非已弃用的 `Translation`）
+- 将 job 标记为 `[BurstCompile]` 并注明为 Burst 兼容性必须是非托管的内容
+- 不修改输入轮询系统 — 从现有的 `PlayerInputData` 组件读取
 
-### Case 2: MonoBehaviour push-back
-**Input:** "Just use MonoBehaviour for the player movement — it's simpler."
+### Case 2: MonoBehaviour 回推
+**Input:** "对玩家移动就用 MonoBehaviour 吧 — 更简单。"
 **Expected behavior:**
-- Acknowledges the simplicity argument
-- Explains the DOTS trade-off: more setup upfront, but the ECS/Burst approach provides the performance characteristics documented in the project's ADR or requirements
-- Does NOT implement a MonoBehaviour version if the project has committed to DOTS
-- If no commitment exists, flags the architecture decision to `lead-programmer` / `technical-director` for resolution
-- Does not make the MonoBehaviour vs. DOTS decision unilaterally
+- 承认简单性论点
+- 解释 DOTS 权衡：前期设置更多，但 ECS/Burst 方法提供项目 ADR 或需求中记录的性能特征
+- 如果项目已承诺使用 DOTS，则不实现 MonoBehaviour 版本
+- 如果不存在承诺，将架构决策标记给 `lead-programmer` / `technical-director` 解决
+- 不单方面做出 MonoBehaviour 与 DOTS 的决策
 
-### Case 3: Burst-incompatible managed memory
-**Input:** "This Burst job accesses a `List<EnemyData>` to find the nearest enemy."
+### Case 3: Burst 不兼容的托管内存
+**Input:** "这个 Burst job 访问 `List<EnemyData>` 来寻找最近的敌人。"
 **Expected behavior:**
-- Flags `List<T>` as a managed type that is incompatible with Burst compilation
-- Does NOT approve the Burst job with managed memory access
-- Provides the correct replacement: `NativeArray<EnemyData>`, `NativeList<EnemyData>`, or `NativeHashMap<>` depending on the use case
-- Notes that `NativeArray` must be disposed explicitly or via `[DeallocateOnJobCompletion]`
-- Produces the corrected job using unmanaged native containers
+- 将 `List<T>` 标记为与 Burst 编译不兼容的托管类型
+- 不批准带托管内存访问的 Burst job
+- 提供正确的替代方案：根据用例使用 `NativeArray<EnemyData>`、`NativeList<EnemyData>` 或 `NativeHashMap<>`
+- 注意 `NativeArray` 必须显式释放或通过 `[DeallocateOnJobCompletion]` 释放
+- 使用非托管原生容器生成修正后的 job
 
-### Case 4: Hybrid access — DOTS system needs MonoBehaviour data
-**Input:** "The DOTS movement system needs to read the camera transform managed by a MonoBehaviour CameraController."
+### Case 4: 混合访问 — DOTS 系统需要 MonoBehaviour 数据
+**Input:** "DOTS 移动系统需要读取由 MonoBehaviour CameraController 管理的相机变换。"
 **Expected behavior:**
-- Identifies this as a hybrid access scenario
-- Provides the correct hybrid pattern: store the camera transform in a singleton `IComponentData` (updated from the MonoBehaviour side each frame via `EntityManager.SetComponentData`)
-- Alternatively suggests the `CompanionComponent` / managed component approach
-- Does NOT access the MonoBehaviour from inside a Burst job — flags that as unsafe
-- Provides the bridge code on both the MonoBehaviour side (writing to ECS) and the DOTS system side (reading from ECS)
+- 将此识别为混合访问场景
+- 提供正确的混合模式：将相机变换存储在单例 `IComponentData` 中（每帧从 MonoBehaviour 端通过 `EntityManager.SetComponentData` 更新）
+- 或者建议 `CompanionComponent` / 托管组件方法
+- 不在 Burst job 内部访问 MonoBehaviour — 将其标记为不安全
+- 在 MonoBehaviour 端（写入 ECS）和 DOTS 系统端（从 ECS 读取）都提供桥接代码
 
-### Case 5: Context pass — performance targets
-**Input:** Technical preferences from context: 60fps target, max 2ms CPU script budget per frame. Request: "Design the ECS chunk layout for 10,000 enemy entities."
+### Case 5: 上下文传递 — 性能目标
+**Input:** 来自上下文的技术偏好：60fps 目标，每帧最大 2ms CPU 脚本预算。请求："为 10,000 个敌人实体设计 ECS chunk 布局。"
 **Expected behavior:**
-- References the 2ms CPU budget explicitly in the design rationale
-- Designs the `IComponentData` chunk layout for cache efficiency:
-  - Groups frequently-queried together components in the same archetype
-  - Separates rarely-used data into separate components to keep hot data compact
-  - Estimates entity iteration time against the 2ms budget
-- Provides memory layout analysis (bytes per entity, entities per chunk at 16KB chunk size)
-- Does NOT design a layout that will obviously exceed the stated 2ms budget without flagging it
+- 在设计理由中明确引用 2ms CPU 预算
+- 为缓存效率设计 `IComponentData` chunk 布局：
+  - 将频繁一起查询的组件分组到同一 archetype 中
+  - 将很少使用的数据分离到独立组件中，以保持热数据紧凑
+  - 根据 2ms 预算估算实体迭代时间
+- 提供内存布局分析（每实体字节数、16KB chunk 大小时每 chunk 实体数）
+- 不设计明显超出所述 2ms 预算且不标记的布局
 
 ---
 
 ## Protocol Compliance
 
-- [ ] Stays within declared domain (ECS, Jobs, Burst, DOTS gameplay systems)
-- [ ] Redirects MonoBehaviour-only gameplay to gameplay-programmer
-- [ ] Returns structured output (IComponentData structs, ISystem implementations, IBaker authoring classes)
-- [ ] Flags managed memory access in Burst jobs as a compile error and provides unmanaged alternatives
-- [ ] Provides hybrid access patterns when DOTS systems need to interact with MonoBehaviour systems
-- [ ] Designs chunk layouts against provided performance budgets
+- [ ] 保持在声明领域内（ECS、Jobs、Burst、DOTS 游戏系统）
+- [ ] 将纯 MonoBehaviour 游戏逻辑重定向到 gameplay-programmer
+- [ ] 返回结构化输出（IComponentData 结构体、ISystem 实现、IBaker 编写类）
+- [ ] 将 Burst job 中的托管内存访问标记为编译错误并提供非托管替代方案
+- [ ] 当 DOTS 系统需要与 MonoBehaviour 系统交互时提供混合访问模式
+- [ ] 根据提供的性能预算设计 chunk 布局
 
 ---
 
 ## Coverage Notes
-- ECS conversion (Case 1) must include a unit test using the ECS test framework (`World`, `EntityManager`)
-- Burst incompatibility (Case 3) is safety-critical — the agent must catch this before the code is written
-- Chunk layout (Case 5) verifies the agent applies quantitative performance reasoning to architecture decisions
+- ECS 转换（Case 1）必须包含使用 ECS 测试框架（`World`、`EntityManager`）的单元测试
+- Burst 不兼容（Case 3）是安全关键的 — agent 必须在代码编写前捕获此问题
+- Chunk 布局（Case 5）验证 agent 将定量性能推理应用于架构决策

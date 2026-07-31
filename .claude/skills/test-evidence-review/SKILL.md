@@ -9,164 +9,137 @@ model: sonnet
 
 # Test Evidence Review
 
-`/smoke-check` verifies that test files **exist** and **pass**. This skill
-goes further — it reviews the **quality** of those tests and evidence documents.
-A test file that exists and passes may still leave critical behaviour uncovered.
-A manual evidence doc that exists may lack the sign-offs required for closure.
+`/smoke-check` 验证测试文件 **存在** 且 **通过**。此 skill 走得更远 — 它审查这些测试和证据文档的 **质量**。一个存在且通过的测试文件仍可能遗漏关键行为。一个存在的证据文档可能缺少关闭所需的签字。
 
-**Output:** Summary report (in conversation) + optional `production/qa/evidence-review-[date].md`
+**输出：** 总结报告（在对话中）+ 可选的 `production/qa/evidence-review-[date].md`
 
-**When to run:**
-- Before QA hand-off sign-off (`/team-qa` Phase 5)
-- On any story where test quality is in question
-- As part of milestone review for Logic and Integration story quality audit
+**何时运行：**
+- 在 QA 交接签字之前（`/team-qa` 阶段 5）
+- 在任何测试质量有疑问的 story 上
+- 作为里程碑审查的一部分，用于 Logic 和 Integration story 质量审计
 
 ---
 
-## 1. Parse Arguments
+## 1. 解析参数
 
-**Modes:**
-- `/test-evidence-review [story-path]` — review a single story's evidence
-- `/test-evidence-review sprint` — review all stories in the current sprint
-- `/test-evidence-review [system-name]` — review all stories in an epic/system
-- No argument — ask which scope: "Single story", "Current sprint", "A system"
-
----
-
-## 2. Load Stories in Scope
-
-Based on the argument:
-
-**Single story**: Read the story file directly. Extract: Story Type, Test
-Evidence section, story slug, system name.
-
-**Sprint**: Read the most recently modified file in `production/sprints/`.
-Extract the list of story file paths from the sprint plan. Read each story file.
-
-**System**: Glob `production/epics/[system-name]/story-*.md`. Read each.
-
-For each story, collect:
-- `Type:` field (Logic / Integration / Visual/Feel / UI / Config/Data)
-- `## Test Evidence` section — the stated expected test file path or evidence doc
-- Story slug (from file name)
-- System name (from directory path)
-- Acceptance Criteria list (all checkbox items)
+**模式：**
+- `/test-evidence-review [story-path]` — 审查单个 story 的证据
+- `/test-evidence-review sprint` — 审查当前 sprint 中的所有 story
+- `/test-evidence-review [system-name]` — 审查 epic/system 中的所有 story
+- 无参数 — 询问范围："Single story"、"Current sprint"、"A system"
 
 ---
 
-## 3. Locate Evidence Files
+## 2. 加载范围内的 Story
 
-For each story, find the evidence:
+根据参数：
 
-**Logic stories**: Glob `tests/unit/[system]/[story-slug]_test.*`
-  - If not found, also try: Grep in `tests/unit/[system]/` for files
-    containing the story slug
+**单个 story**：直接读取 story 文件。提取：Story Type、Test Evidence 部分、story slug、system name。
 
-**Integration stories**: Glob `tests/integration/[system]/[story-slug]_test.*`
-  - Also check `production/session-logs/` for playtest records mentioning the story
+**Sprint**：读取 `production/sprints/` 中最近修改的文件。从 sprint 计划中提取 story 文件路径列表。读取每个 story 文件。
 
-**Visual/Feel and UI stories**: Glob `production/qa/evidence/[story-slug]-evidence.*`
+**System**：Glob `production/epics/[system-name]/story-*.md`。读取每个。
 
-**Config/Data stories**: Glob `production/qa/smoke-*.md` (any smoke check report)
-
-Note what was found (path) or not found (gap) for each story.
-
----
-
-## 4. Review Automated Test Quality (Logic / Integration)
-
-For each test file found, read it and evaluate:
-
-### Assertion coverage
-
-Count the number of distinct assertions (lines containing assert, expect,
-check, verify, or engine-specific assertion patterns). Low assertion count is
-a quality signal — a test that makes only 1 assertion per test function may
-not cover the range of expected behaviour.
-
-Thresholds:
-- **3+ assertions per test function** → normal
-- **1-2 assertions per test function** → note as potentially thin
-- **0 assertions** (test exists but no asserts) → flag as BLOCKING — the
-  test passes vacuously and proves nothing
-
-### Edge case coverage
-
-For each acceptance criterion in the story that contains a number, threshold,
-or "when X happens" conditional: check whether a test function name or
-test body references that specific case.
-
-Heuristics:
-- Grep test file for "zero", "max", "null", "empty", "min", "invalid",
-  "boundary", "edge" — presence of any is a positive signal
-- If the story has a Formulas section with specific bounds: check whether
-  tests exercise at minimum/maximum values
-
-### Naming quality
-
-Test function names should describe: the scenario + the expected result.
-Pattern: `test_[scenario]_[expected_outcome]`
-
-Flag functions named generically (`test_1`, `test_run`, `testBasic`) as
-**naming issues** — they make failures harder to diagnose.
-
-### Formula traceability
-
-For Logic stories where the GDD has a Formulas section: check that the test
-file contains at least one test whose name or comment references the formula
-name or a formula value. A test that exercises a formula without mentioning
-it by name is harder to maintain when the formula changes.
+对于每个 story，收集：
+- `Type:` 字段（Logic / Integration / Visual/Feel / UI / Config/Data）
+- `## Test Evidence` 部分 — 声明的预期测试文件路径或证据文档
+- Story slug（从文件名）
+- System name（从目录路径）
+- Acceptance Criteria 列表（所有复选框项）
 
 ---
 
-## 5. Review Manual Evidence Quality (Visual/Feel / UI)
+## 3. 定位证据文件
 
-For each evidence document found, read it and evaluate:
+对于每个 story，找到证据：
 
-### Criterion linkage
+**Logic story**：Glob `tests/unit/[system]/[story-slug]_test.*`
+  - 如果未找到，也尝试：在 `tests/unit/[system]/` 中 Grep 包含 story slug 的文件
 
-The evidence doc should reference each acceptance criterion from the story.
-Check: does the evidence doc contain each criterion (or a clear rephrasing)?
-Missing criteria mean a criterion was never verified.
+**Integration story**：Glob `tests/integration/[system]/[story-slug]_test.*`
+  - 也检查 `production/session-logs/` 中提及 story 的试玩记录
 
-### Sign-off completeness
+**Visual/Feel 和 UI story**：Glob `production/qa/evidence/[story-slug]-evidence.*`
 
-Check for three sign-off lines (or equivalent fields):
-- Developer sign-off
-- Designer / art-lead sign-off (for Visual/Feel)
-- QA lead sign-off
+**Config/Data story**：Glob `production/qa/smoke-*.md`（任何烟雾测试报告）
 
-If any are missing or blank: flag as INCOMPLETE — the story cannot be fully
-closed without all required sign-offs.
-
-### Screenshot / artefact completeness
-
-For Visual/Feel stories: check whether screenshot file paths are referenced
-in the evidence doc. If referenced, Glob for them to confirm they exist.
-
-For UI stories: check whether a walkthrough sequence (step-by-step interaction
-log) is present.
-
-### Date coverage
-
-Evidence doc should have a date. If the date is earlier than the story's
-last major change (heuristic: compare against sprint start date from the sprint
-plan), flag as POTENTIALLY STALE — the evidence may not cover the final
-implementation.
+记录每个 story 发现了什么（路径）或未发现什么（缺口）。
 
 ---
 
-## 6. Build the Review Report
+## 4. 审查自动化测试质量（Logic / Integration）
 
-For each story, assign a verdict:
+对于每个找到的测试文件，读取并评估：
 
-| Verdict | Meaning |
+### 断言覆盖
+
+计算不同断言的数量（包含 assert、expect、check、verify 或引擎特定断言模式的行）。低断言数量是一个质量信号 — 每个测试函数只有 1 个断言的测试可能无法覆盖预期行为的范围。
+
+阈值：
+- **每个测试函数 3+ 断言** → 正常
+- **每个测试函数 1-2 断言** → 注明可能较薄弱
+- **0 断言**（测试存在但无断言） → 标记为 BLOCKING — 测试空洞通过，不证明任何事
+
+### 边缘情况覆盖
+
+对于 story 中包含数字、阈值或 "when X happens" 条件每个验收标准：检查测试函数名或测试体是否引用该特定情况。
+
+启发式方法：
+- Grep 测试文件中的 "zero"、"max"、"null"、"empty"、"min"、"invalid"、"boundary"、"edge" — 存在任何一个是积极信号
+- 如果 story 有带特定边界的 Formulas 部分：检查测试是否在最小/最大值处执行
+
+### 命名质量
+
+测试函数名应描述：场景 + 预期结果。模式：`test_[scenario]_[expected_outcome]`
+
+将通用命名的函数（`test_1`、`test_run`、`testBasic`）标记为 **命名问题** — 它们使失败更难诊断。
+
+### 公式可追溯性
+
+对于 GDD 有 Formulas 部分的 Logic story：检查测试文件是否包含至少一个名称或注释引用公式名称或公式值的测试。按公式名称执行测试的维护成本在公式变更时更高。
+
+---
+
+## 5. 审查手动证据质量（Visual/Feel / UI）
+
+对于每个找到的证据文档，读取并评估：
+
+### 标准关联
+
+证据文档应引用 story 中的每个验收标准。检查：证据文档是否包含每个标准（或清晰的重新表述）？缺失的标准意味着该标准从未被验证。
+
+### 签字完整性
+
+检查三行签字（或等效字段）：
+- 开发者签字
+- 设计师 / 美术负责人签字（对于 Visual/Feel）
+- QA 负责人签字
+
+如果有任何缺失或空白：标记为 INCOMPLETE — 没有所有必需签字，story 无法完全关闭。
+
+### 截图 / 产物完整性
+
+对于 Visual/Feel story：检查证据文档中是否引用了截图文件路径。如果引用了，Glob 查找它们以确认存在。
+
+对于 UI story：检查是否存在演练序列（逐步交互日志）。
+
+### 日期覆盖
+
+证据文档应有日期。如果日期早于 story 的最后重大变更（启发式方法：与 sprint 计划中的 sprint 开始日期比较），标记为 POTENTIALLY STALE — 证据可能不覆盖最终实现。
+
+---
+
+## 6. 构建审查报告
+
+对于每个 story，分配一个结论：
+
+| 结论 | 含义 |
 |---------|---------|
-| **ADEQUATE** | Test/evidence exists, passes quality checks, all criteria covered |
-| **INCOMPLETE** | Test/evidence exists but has quality gaps (thin assertions, missing sign-offs) |
-| **MISSING** | No test or evidence found for a story type that requires it |
+| **ADEQUATE** | 测试/证据存在，通过质量检查，所有标准已覆盖 |
+| **INCOMPLETE** | 测试/证据存在但存在质量缺口（薄弱断言、缺失签字） |
+| **MISSING** | 对于需要它的 story 类型，未找到测试或证据 |
 
-The overall sprint/system verdict is the worst story verdict present.
+整个 sprint/system 的结论是最差的 story 结论。
 
 ```markdown
 ## Test Evidence Review
@@ -217,35 +190,27 @@ The overall sprint/system verdict is the worst story verdict present.
 
 ---
 
-## 7. Write Output (Optional)
+## 7. 写入输出（可选）
 
-Present the report in conversation.
+在对话中展示报告。
 
-Ask: "May I write this test evidence review to
-`production/qa/evidence-review-[date].md`?"
+询问："May I write this test evidence review to `production/qa/evidence-review-[date].md`?"
 
-This is optional — the report is useful standalone. Write only if the user
-wants a persistent record.
+这是可选的 — 报告本身就有用。仅在用户想要持久记录时写入。
 
-After the report:
+报告之后：
 
-- For BLOCKING items: "These must be resolved before `/story-done` can mark the
-  story Complete. Would you like to address any of them now?"
-- For thin assertions: "Consider running `/test-helpers [system]` to see
-  scaffolded assertion patterns for common cases."
-- For missing sign-offs: "Manual sign-off is required from [role]. Share
-  `[evidence-path]` with them to complete sign-off."
+- 对于 BLOCKING 项："These must be resolved before `/story-done` can mark the story Complete. Would you like to address any of them now?"
+- 对于薄弱断言："Consider running `/test-helpers [system]` to see scaffolded assertion patterns for common cases."
+- 对于缺失签字："Manual sign-off is required from [role]. Share `[evidence-path]` with them to complete sign-off."
 
-Verdict: **COMPLETE** — evidence review finished. Use CONCERNS if BLOCKING items were found.
+结论：**COMPLETE** — 证据审查完成。如果发现 BLOCKING 项则使用 CONCERNS。
 
 ---
 
-## Collaborative Protocol
+## 协作协议
 
-- **Report quality issues, do not fix them** — this skill reads and evaluates;
-  it does not modify test files or evidence documents
-- **ADEQUATE means adequate for shipping, not perfect** — avoid nitpicking
-  tests that are functioning and comprehensive enough to give confidence
-- **BLOCKING vs. ADVISORY distinction is important** — only flag BLOCKING when
-  the gap leaves a story criterion genuinely unverified
-- **Ask before writing** — the report file is optional; always confirm before writing
+- **报告质量问题，不修复它们** — 此 skill 读取和评估；它不修改测试文件或证据文档
+- **ADEQUATE 意味着足以发布，而非完美** — 避免对功能正常且足够全面的测试吹毛求疵
+- **BLOCKING 与 ADVISORY 的区别很重要** — 仅在缺口真正导致 story 标准未验证时才标记 BLOCKING
+- **写入前先询问** — 报告文件是可选的；写入前始终确认

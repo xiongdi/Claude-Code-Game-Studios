@@ -1,82 +1,82 @@
-# Agent Test Spec: ue-replication-specialist
+# Agent 测试规格：ue-replication-specialist
 
-## Agent Summary
-- **Domain**: Property replication (UPROPERTY Replicated/ReplicatedUsing), RPCs (Server/Client/NetMulticast), client prediction and reconciliation, net relevancy and always-relevant settings, net serialization (FArchive/NetSerialize), bandwidth optimization and replication frequency tuning
-- **Does NOT own**: Gameplay logic being replicated (gameplay-programmer), server infrastructure and hosting (devops-engineer), GAS-specific prediction (ue-gas-specialist handles GAS net prediction)
-- **Model tier**: Sonnet
-- **Gate IDs**: None; escalates security-relevant replication concerns to lead-programmer
-
----
-
-## Static Assertions (Structural)
-
-- [ ] `description:` field is present and domain-specific (references replication, RPCs, client prediction, bandwidth)
-- [ ] `allowed-tools:` list matches the agent's role (Read/Write for C++ and Blueprint source files; no infrastructure or deployment tools)
-- [ ] Model tier is Sonnet (default for specialists)
-- [ ] Agent definition does not claim authority over server infrastructure, game server architecture, or gameplay logic correctness
+## Agent 摘要
+- **领域**：属性复制（UPROPERTY Replicated/ReplicatedUsing）、RPC（Server/Client/NetMulticast）、客户端预测和协调、网络相关性和始终相关设置、网络序列化（FArchive/NetSerialize）、带宽优化和复制频率调优
+- **不负责**：被复制的游戏逻辑（gameplay-programmer）、服务器基础设施和托管（devops-engineer）、GAS 特定预测（ue-gas-specialist 处理 GAS 网络预测）
+- **模型层级**：Sonnet
+- **Gate ID**：无；将安全相关的复制问题升级给 lead-programmer
 
 ---
 
-## Test Cases
+## 静态断言（结构性）
 
-### Case 1: In-domain request — replicated player health with client prediction
-**Input**: "Set up replicated player health that clients can predict locally (e.g., when taking self-inflicted damage) and have corrected by the server."
-**Expected behavior**:
-- Produces a UPROPERTY(ReplicatedUsing=OnRep_Health) declaration in the appropriate Character or AttributeSet class
-- Describes the OnRep_Health function: apply visual/audio feedback, reconcile predicted value with server-authoritative value
-- Explains the client prediction pattern: local client applies tentative damage immediately, server authoritative value arrives via OnRep and corrects any discrepancy
-- Notes that if GAS is in use, the built-in GAS prediction handles this — recommend coordinating with ue-gas-specialist
-- Output is a concrete code structure (property declaration + OnRep outline), not a conceptual description only
-
-### Case 2: Out-of-domain request — game server architecture
-**Input**: "Design our game server infrastructure — how many dedicated servers we need, regional deployment, and matchmaking architecture."
-**Expected behavior**:
-- Does not produce server infrastructure architecture, hosting recommendations, or matchmaking design
-- States clearly: "Server infrastructure and deployment architecture is owned by devops-engineer; I handle the Unreal replication layer within a running game session"
-- Does not conflate in-game replication with server hosting concerns
-
-### Case 3: Domain boundary — RPC without server authority validation
-**Input**: "We have a Server RPC called ServerSpendCurrency that deducts in-game currency. The client calls it and the server just deducts without checking anything."
-**Expected behavior**:
-- Flags this as a critical security vulnerability: unvalidated server RPCs are exploitable by cheaters sending arbitrary RPC calls
-- Provides the required fix: server-side validation before the deduct — check that the player actually has the currency, verify the transaction is valid, reject and log if not
-- Uses the pattern: `if (!HasAuthority()) return;` guard plus explicit state validation before mutation
-- Notes this should be reviewed by lead-programmer given the economy implications
-- Does NOT produce the "fixed" code without explaining why the original was dangerous
-
-### Case 4: Bandwidth optimization — high-frequency movement replication
-**Input**: "Our player movement is replicated using a Vector3 position every tick. With 32 players, we're exceeding our bandwidth budget."
-**Expected behavior**:
-- Identifies tick-rate replication of full-precision Vector3 as bandwidth-expensive
-- Proposes quantized replication: use FVector_NetQuantize or FVector_NetQuantize100 instead of raw FVector to reduce bytes per update
-- Recommends reducing replication frequency via SetNetUpdateFrequency() for non-owning clients
-- Notes that Unreal's built-in Character Movement Component already has optimized movement replication — recommends using or extending it rather than rolling a custom system
-- Produces a concrete bandwidth estimate comparison if possible, or explains the tradeoff
-
-### Case 5: Context pass — designing within a network budget
-**Input context**: Project network budget is 64 KB/s per player, with 32 players = 2 MB/s total server outbound. Current movement replication already uses 40 KB/s per player.
-**Input**: "We want to add real-time inventory replication so all clients can see other players' equipment changes immediately."
-**Expected behavior**:
-- Acknowledges the existing 40 KB/s movement cost leaves only 24 KB/s for everything else per player
-- Does NOT design a naive full-inventory replication approach (would exceed budget)
-- Recommends a delta-only or event-driven approach: replicate only changed slots rather than the full inventory array
-- Uses FGameplayItemSlot or equivalent with ReplicatedUsing to trigger targeted updates
-- Explicitly states the proposed approach's bandwidth estimate relative to the remaining 24 KB/s budget
+- [ ] `description:` 字段存在且领域特定（引用复制、RPC、客户端预测、带宽）
+- [ ] `allowed-tools:` 列表与 agent 角色匹配（C++ 和 Blueprint 源文件的 Read/Write；无基础设施或部署工具）
+- [ ] 模型层级为 Sonnet（专业人员默认值）
+- [ ] Agent 定义不声称对服务器基础设施、游戏服务器架构或游戏逻辑正确性有权限
 
 ---
 
-## Protocol Compliance
+## 测试用例
 
-- [ ] Stays within declared domain (property replication, RPCs, client prediction, bandwidth)
-- [ ] Redirects server infrastructure requests to devops-engineer without producing infrastructure design
-- [ ] Flags unvalidated server RPCs as security issues and recommends lead-programmer review
-- [ ] Returns structured findings (property declarations, bandwidth estimates, optimization options) not freeform advice
-- [ ] Uses project-provided bandwidth budget numbers when evaluating replication design choices
+### 用例 1：领域内请求 — 带客户端预测的复制玩家生命值
+**输入**："设置复制的玩家生命值，客户端可以在本地预测（例如，当受到自伤时）并由服务器纠正。"
+**预期行为**：
+- 在适当的 Character 或 AttributeSet 类中生成 UPROPERTY(ReplicatedUsing=OnRep_Health) 声明
+- 描述 OnRep_Health 函数：应用视觉/音频反馈，协调预测值与服务器权威值
+- 解释客户端预测模式：本地客户端立即应用临时伤害，服务器权威值通过 OnRep 到达并纠正任何差异
+- 注意如果正在使用 GAS，内置的 GAS 预测会处理此情况 — 建议与 ue-gas-specialist 协调
+- 输出是具体的代码结构（属性声明 + OnRep 大纲），而非仅概念描述
+
+### 用例 2：领域外请求 — 游戏服务器架构
+**输入**："设计我们的游戏服务器基础设施 — 我们需要多少专用服务器、区域部署和匹配架构。"
+**预期行为**：
+- 不生成服务器基础设施架构、托管建议或匹配设计
+- 明确指出："服务器基础设施和部署架构由 devops-engineer 负责；我处理运行中游戏会话内的 Unreal 复制层"
+- 不将游戏内复制与服务器托管问题混为一谈
+
+### 用例 3：领域边界 — 无服务器权威验证的 RPC
+**输入**："我们有一个名为 ServerSpendCurrency 的 Server RPC，用于扣除游戏内货币。客户端调用它，服务器就直接扣除而不做任何检查。"
+**预期行为**：
+- 将此标记为关键安全漏洞：未经验证的服务器 RPC 可被作弊者利用，发送任意 RPC 调用
+- 提供所需的修复：扣除前的服务器端验证 — 检查玩家是否确实拥有货币，验证交易是否有效，如果无效则拒绝并记录
+- 使用模式：`if (!HasAuthority()) return;` 守卫加上变异前的显式状态验证
+- 注意鉴于经济影响，这应该由 lead-programmer 审查
+- 不会在不解释原始代码为何危险的情况下生成"修复后"的代码
+
+### 用例 4：带宽优化 — 高频移动复制
+**输入**："我们的玩家移动使用 Vector3 位置每 tick 复制。有 32 名玩家时，我们超出了带宽预算。"
+**预期行为**：
+- 识别全精度 Vector3 的 tick 速率复制是带宽昂贵的
+- 提出量化复制：使用 FVector_NetQuantize 或 FVector_NetQuantize100 代替原始 FVector 以减少每次更新的字节数
+- 建议通过 SetNetUpdateFrequency() 降低非拥有客户端的复制频率
+- 注意 Unreal 内置的 Character Movement Component 已经有优化的移动复制 — 建议使用或扩展它，而非构建自定义系统
+- 如果可能，生成具体的带宽估计比较，或解释权衡
+
+### 用例 5：上下文传递 — 在网络预算内设计
+**输入上下文**：项目网络预算为每玩家 64 KB/s，32 名玩家 = 总服务器出站 2 MB/s。当前移动复制已使用每玩家 40 KB/s。
+**输入**："我们希望添加实时库存复制，以便所有客户端可以立即看到其他玩家的装备变化。"
+**预期行为**：
+- 确认现有的 40 KB/s 移动成本每玩家仅剩 24 KB/s 用于其他所有用途
+- 不会设计天真的全库存复制方法（会超出预算）
+- 推荐仅增量或事件驱动的方法：仅复制更改的槽位而非完整库存数组
+- 使用 FGameplayItemSlot 或等效物配合 ReplicatedUsing 来触发定向更新
+- 明确说明提议的方法相对于剩余 24 KB/s 预算的带宽估计
 
 ---
 
-## Coverage Notes
-- Case 3 (RPC security) is a shipping-critical test — unvalidated RPCs are a top-ten multiplayer exploit vector
-- Case 5 is the most important context-awareness test; agent must use actual budget numbers, not generic advice
-- Case 1 GAS branch: if GAS is configured, agent should detect it and defer to ue-gas-specialist for GAS-managed attributes
-- No automated runner; review manually or via `/skill-test`
+## 协议合规
+
+- [ ] 保持在声明领域内（属性复制、RPC、客户端预测、带宽）
+- [ ] 将服务器基础设施请求重定向到 devops-engineer，不生成基础设施设计
+- [ ] 将未经验证的服务器 RPC 标记为安全问题并建议 lead-programmer 审查
+- [ ] 返回结构化发现（属性声明、带宽估计、优化选项），而非自由格式建议
+- [ ] 在评估复制设计选择时使用项目提供的带宽预算数字
+
+---
+
+## 覆盖说明
+- 用例 3（RPC 安全）是发布关键测试 — 未经验证的 RPC 是十大多人游戏漏洞利用向量之一
+- 用例 5 是最重要的上下文感知测试；agent 必须使用实际预算数字，而非通用建议
+- 用例 1 GAS 分支：如果配置了 GAS，agent 应该检测到它并 defer 给 ue-gas-specialist 处理 GAS 管理的属性
+- 无自动化运行器；手动或通过 `/skill-test` 审查

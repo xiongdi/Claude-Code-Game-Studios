@@ -2,11 +2,7 @@
 
 ## Skill Summary
 
-Orchestrates the live-ops team through a 7-phase planning pipeline to produce a
-season or event plan. Coordinates live-ops-designer, economy-designer,
-analytics-engineer, community-manager, narrative-director, and writer. Phases 3
-and 4 (economy design and analytics) run simultaneously. Ends with a consolidated
-season plan requiring user approval before handoff to production.
+协调 live-ops 团队完成一个 7 阶段规划流程，产出赛季或活动计划。协调 live-ops-designer、economy-designer、analytics-engineer、community-manager、narrative-director 和 writer。第 3 和第 4 阶段（经济设计和分析）同时运行。以一个需要用户审批的整合赛季计划结束，然后交接给制作。
 
 ---
 

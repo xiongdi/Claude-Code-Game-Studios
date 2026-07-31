@@ -1,69 +1,68 @@
-# Unreal Engine 5.7 — CommonUI Plugin
+# Unreal Engine 5.7 — CommonUI 插件
 
-**Last verified:** 2026-02-13
-**Status:** Production-Ready
-**Plugin:** `CommonUI` (built-in, enable in Plugins)
-
----
-
-## Overview
-
-**CommonUI** is a cross-platform UI framework that automatically handles input routing
-for gamepad, mouse, and touch. It's designed for games that need to work seamlessly
-across PC, console, and mobile platforms with minimal platform-specific code.
-
-**Use CommonUI for:**
-- Multi-platform games (console + PC)
-- Automatic gamepad/mouse/touch input routing
-- Input-agnostic UI (same UI works with any input method)
-- Widget focus and navigation
-- Action bars and input hints
-
-**DON'T use CommonUI for:**
-- PC-only games with mouse-only UI (standard UMG is simpler)
-- Simple UI with no navigation requirements
+**最后验证时间：** 2026-02-13
+**状态：** 生产就绪
+**插件：** `CommonUI`（内置，在 Plugins 中启用）
 
 ---
 
-## Key Differences from Standard UMG
+## 概述
 
-| Feature | Standard UMG | CommonUI |
+**CommonUI** 是一个跨平台 UI 框架，自动处理 gamepad、mouse 和 touch 的输入路由。
+它旨在让游戏在 PC、主机和移动平台上无缝运行，只需最少的平台特定代码。
+
+**将 CommonUI 用于：**
+- 多平台游戏（主机 + PC）
+- 自动 gamepad/mouse/touch 输入路由
+- 输入无关的 UI（相同 UI 适用于任何输入方式）
+- 控件焦点和导航
+- 操作栏和输入提示
+
+**不要将 CommonUI 用于：**
+- 仅 PC 且只用 mouse 的 UI（标准 UMG 更简单）
+- 无导航需求的简单 UI
+
+---
+
+## 与标准 UMG 的关键区别
+
+| 功能 | 标准 UMG | CommonUI |
 |---------|--------------|----------|
-| **Input Handling** | Manual per widget | Automatic routing |
-| **Focus Management** | Basic | Advanced navigation |
-| **Platform Switching** | Manual detection | Automatic |
-| **Input Prompts** | Hardcode icons | Dynamic per platform |
-| **Screen Stack** | Manual | Built-in activatable widgets |
+| **输入处理** | 每个控件手动处理 | 自动路由 |
+| **焦点管理** | 基础 | 高级导航 |
+| **平台切换** | 手动检测 | 自动 |
+| **输入提示** | 硬编码图标 | 按平台动态显示 |
+| **屏幕堆栈** | 手动 | 内置可激活控件 |
 
 ---
 
-## Setup
+## 设置
 
-### 1. Enable Plugin
+### 1. 启用插件
 
 `Edit > Plugins > CommonUI > Enabled > Restart`
 
-### 2. Configure Project Settings
+### 2. 配置项目设置
 
-`Project Settings > Plugins > CommonUI`:
-- **Default Input Type**: Gamepad (or auto-detect)
-- **Platform-Specific Settings**: Configure input icons per platform
+`Project Settings > Plugins > CommonUI`：
+- **Default Input Type**：Gamepad（或自动检测）
+- **Platform-Specific Settings**：按平台配置输入图标
 
-### 3. Create Common Input Settings Asset
+### 3. 创建 Common Input Settings 资源
 
 1. Content Browser > Input > Common Input Settings
-2. Configure input data per platform:
-   - Default Gamepad Data
-   - Default Mouse & Keyboard Data
-   - Default Touch Data
+2. 按平台配置输入数据：
+   - 默认 Gamepad 数据
+   - 默认 Mouse & Keyboard 数据
+   - 默认 Touch 数据
 
 ---
 
-## Core Widgets
+## 核心控件
 
-### CommonActivatableWidget (Screen Management)
+### CommonActivatableWidget（屏幕管理）
 
-Base class for screens/menus that can be activated/deactivated.
+用于可激活/停用屏幕/菜单的基类。
 
 ```cpp
 #include "CommonActivatableWidget.h"
@@ -75,18 +74,18 @@ class UMyMenuWidget : public UCommonActivatableWidget {
 protected:
     virtual void NativeOnActivated() override {
         Super::NativeOnActivated();
-        // Menu is now visible and focused
+        // 菜单现在可见且获得焦点
         UE_LOG(LogTemp, Warning, TEXT("Menu activated"));
     }
 
     virtual void NativeOnDeactivated() override {
         Super::NativeOnDeactivated();
-        // Menu is now hidden
+        // 菜单现在隐藏
         UE_LOG(LogTemp, Warning, TEXT("Menu deactivated"));
     }
 
     virtual UWidget* NativeGetDesiredFocusTarget() const override {
-        // Return widget that should receive focus (e.g., first button)
+        // 返回应获得焦点的控件（例如第一个按钮）
         return PlayButton;
     }
 
@@ -98,9 +97,9 @@ private:
 
 ---
 
-### CommonButtonBase (Input-Aware Button)
+### CommonButtonBase（输入感知按钮）
 
-Replaces standard UMG Button. Automatically handles gamepad/mouse/keyboard input.
+替代标准 UMG Button。自动处理 gamepad/mouse/keyboard 输入。
 
 ```cpp
 #include "CommonButtonBase.h"
@@ -116,10 +115,10 @@ protected:
     virtual void NativeConstruct() override {
         Super::NativeConstruct();
 
-        // Bind button click (works with any input method)
+        // 绑定按钮点击（适用于任何输入方式）
         PlayButton->OnClicked().AddUObject(this, &UMyMenuWidget::OnPlayClicked);
 
-        // Set button text
+        // 设置按钮文本
         PlayButton->SetButtonText(FText::FromString(TEXT("Play")));
     }
 
@@ -131,9 +130,9 @@ protected:
 
 ---
 
-### CommonTextBlock (Styled Text)
+### CommonTextBlock（带样式的文本）
 
-Text widget with CommonUI styling support.
+带 CommonUI 样式支持的文本控件。
 
 ```cpp
 UPROPERTY(meta = (BindWidget))
@@ -144,26 +143,26 @@ TitleText->SetText(FText::FromString(TEXT("Main Menu")));
 
 ---
 
-### CommonActionWidget (Input Prompts)
+### CommonActionWidget（输入提示）
 
-Displays input prompts (e.g., "Press A to Continue", automatically shows correct button icon).
+显示输入提示（例如"按 A 继续"，自动显示正确的按钮图标）。
 
 ```cpp
 UPROPERTY(meta = (BindWidget))
 TObjectPtr<UCommonActionWidget> ConfirmActionWidget;
 
-// Bind to input action
+// 绑定到输入操作
 ConfirmActionWidget->SetInputAction(ConfirmInputActionData);
-// Automatically shows correct icon (A on Xbox, X on PlayStation, Enter on PC)
+// 自动显示正确图标（Xbox 上为 A，PlayStation 上为 X，PC 上为 Enter）
 ```
 
 ---
 
-## Widget Stack (Screen Management)
+## 控件堆栈（屏幕管理）
 
 ### CommonActivatableWidgetStack
 
-Manages a stack of screens (e.g., Main Menu → Settings → Controls).
+管理屏幕堆栈（例如 主菜单 → 设置 → 控制）。
 
 ```cpp
 #include "Widgets/CommonActivatableWidgetContainer.h"
@@ -171,12 +170,12 @@ Manages a stack of screens (e.g., Main Menu → Settings → Controls).
 UPROPERTY(meta = (BindWidget))
 TObjectPtr<UCommonActivatableWidgetStack> WidgetStack;
 
-// Push new screen onto stack
+// 将新屏幕推入堆栈
 void ShowSettingsMenu() {
     WidgetStack->AddWidget(USettingsMenuWidget::StaticClass());
 }
 
-// Pop current screen (go back)
+// 弹出当前屏幕（返回）
 void GoBack() {
     WidgetStack->DeactivateWidget();
 }
@@ -184,23 +183,23 @@ void GoBack() {
 
 ---
 
-## Input Actions (CommonUI Style)
+## 输入操作（CommonUI 风格）
 
-### Define Input Actions
+### 定义输入操作
 
-Create **Common Input Action Data Table**:
+创建 **Common Input Action Data Table**：
 1. Content Browser > Miscellaneous > Data Table
-2. Row Structure: `CommonInputActionDataBase`
-3. Add rows for actions (Confirm, Cancel, Navigate, etc.)
+2. Row Structure：`CommonInputActionDataBase`
+3. 为操作添加行（Confirm、Cancel、Navigate 等）
 
-Example row:
-- **Action Name**: Confirm
-- **Default Input**: Gamepad Face Button Bottom (A/Cross)
-- **Alternate Inputs**: Enter (keyboard), Left Mouse Button
+示例行：
+- **Action Name**：Confirm
+- **Default Input**：Gamepad Face Button Bottom（A/Cross）
+- **Alternate Inputs**：Enter（keyboard）、Left Mouse Button
 
 ---
 
-### Bind Input Actions in Widget
+### 在控件中绑定输入操作
 
 ```cpp
 #include "Input/CommonUIActionRouterBase.h"
@@ -213,9 +212,9 @@ protected:
     virtual void NativeOnActivated() override {
         Super::NativeOnActivated();
 
-        // Bind input action
+        // 绑定输入操作
         FBindUIActionArgs BindArgs(ConfirmInputAction, FSimpleDelegate::CreateUObject(this, &UMyWidget::OnConfirm));
-        BindArgs.bDisplayInActionBar = true; // Show in action bar
+        BindArgs.bDisplayInActionBar = true; // 在操作栏中显示
         RegisterUIActionBinding(BindArgs);
     }
 
@@ -231,76 +230,76 @@ private:
 
 ---
 
-## Focus & Navigation
+## 焦点与导航
 
-### Automatic Gamepad Navigation
+### 自动 Gamepad 导航
 
-CommonUI automatically handles gamepad navigation (D-Pad/Stick to move between buttons).
+CommonUI 自动处理 gamepad 导航（D-Pad/摇杆在按钮间移动）。
 
 ```cpp
-// In Widget Blueprint:
-// - Widgets are automatically navigable if they inherit from CommonButton/CommonUserWidget
-// - Focus order is determined by widget hierarchy and layout
+// 在 Widget Blueprint 中：
+// - 如果控件继承自 CommonButton/CommonUserWidget，则自动可导航
+// - 焦点顺序由控件层级和布局决定
 ```
 
-### Custom Focus Navigation
+### 自定义焦点导航
 
 ```cpp
-// Override focus navigation
+// 覆盖焦点导航
 virtual UWidget* NativeGetDesiredFocusTarget() const override {
-    return FirstButton; // Return widget that should receive focus
+    return FirstButton; // 返回应获得焦点的控件
 }
 ```
 
 ---
 
-## Input Mode (Game vs UI)
+## 输入模式（游戏 vs UI）
 
-### Switch Input Mode
+### 切换输入模式
 
 ```cpp
 #include "CommonUIExtensions.h"
 
-// Switch to UI-only mode (pause game, show cursor)
+// 切换到仅 UI 模式（暂停游戏，显示光标）
 UCommonUIExtensions::PushStreamedGameplayUIInputConfig(this, FrontendInputConfig);
 
-// Return to game mode (hide cursor, resume gameplay)
+// 返回游戏模式（隐藏光标，恢复玩法）
 UCommonUIExtensions::PopInputConfig(this);
 ```
 
 ---
 
-## Platform-Specific Input Icons
+## 平台特定输入图标
 
-### Configure Input Icons
+### 配置输入图标
 
-1. Create **Common Input Base Controller Data** asset for each platform:
-   - Gamepad (Xbox, PlayStation, Switch)
+1. 为每个平台创建 **Common Input Base Controller Data** 资源：
+   - Gamepad（Xbox、PlayStation、Switch）
    - Mouse & Keyboard
    - Touch
 
-2. Assign platform-specific icons:
-   - Gamepad Face Button Bottom: `A` (Xbox), `Cross` (PlayStation)
-   - Confirm Key: `Enter` icon
+2. 分配平台特定图标：
+   - Gamepad Face Button Bottom：`A`（Xbox）、`Cross`（PlayStation）
+   - Confirm Key：`Enter` 图标
 
-3. Assign to **Common Input Settings** asset
+3. 分配给 **Common Input Settings** 资源
 
-### Automatically Display Correct Icons
+### 自动显示正确图标
 
 ```cpp
-// CommonActionWidget automatically shows correct icon for current platform
+// CommonActionWidget 自动显示当前平台的正确图标
 UPROPERTY(meta = (BindWidget))
 TObjectPtr<UCommonActionWidget> JumpActionWidget;
 
 JumpActionWidget->SetInputAction(JumpInputActionData);
-// Shows "A" on Xbox, "Cross" on PlayStation, "Space" on PC
+// 在 Xbox 上显示 "A"，PlayStation 上显示 "Cross"，PC 上显示 "Space"
 ```
 
 ---
 
-## Common Patterns
+## 常见模式
 
-### Main Menu with Navigation
+### 带导航的主菜单
 
 ```cpp
 UCLASS()
@@ -326,18 +325,18 @@ protected:
     }
 
     virtual UWidget* NativeGetDesiredFocusTarget() const override {
-        return PlayButton; // Focus "Play" button when menu opens
+        return PlayButton; // 菜单打开时聚焦 "Play" 按钮
     }
 
-    void OnPlayClicked() { /* Start game */ }
-    void OnSettingsClicked() { /* Open settings */ }
-    void OnQuitClicked() { /* Quit game */ }
+    void OnPlayClicked() { /* 开始游戏 */ }
+    void OnSettingsClicked() { /* 打开设置 */ }
+    void OnQuitClicked() { /* 退出游戏 */ }
 };
 ```
 
 ---
 
-### Pause Menu with Back Action
+### 带返回操作的暂停菜单
 
 ```cpp
 UCLASS()
@@ -346,44 +345,44 @@ class UPauseMenuWidget : public UCommonActivatableWidget {
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
-    FDataTableRowHandle BackInputAction; // Assign "Cancel" action in Blueprint
+    FDataTableRowHandle BackInputAction; // 在 Blueprint 中分配 "Cancel" 操作
 
     virtual void NativeOnActivated() override {
         Super::NativeOnActivated();
 
-        // Bind "Back" input (B/Circle/Escape)
+        // 绑定 "Back" 输入（B/Circle/Escape）
         FBindUIActionArgs BindArgs(BackInputAction, FSimpleDelegate::CreateUObject(this, &UPauseMenuWidget::OnBack));
         RegisterUIActionBinding(BindArgs);
     }
 
     void OnBack() {
-        DeactivateWidget(); // Close pause menu
+        DeactivateWidget(); // 关闭暂停菜单
     }
 };
 ```
 
 ---
 
-## Performance Tips
+## 性能技巧
 
-- Use **CommonActivatableWidgetStack** for screen management (automatically handles activation/deactivation)
-- Avoid creating/destroying widgets every frame (reuse widgets)
-- Use **Lazy Widgets** for complex menus (only create when needed)
+- 使用 **CommonActivatableWidgetStack** 进行屏幕管理（自动处理激活/停用）
+- 避免每帧创建/销毁控件（复用控件）
+- 对复杂菜单使用 **Lazy Widgets**（仅在需要时创建）
 
 ---
 
-## Debugging
+## 调试
 
-### CommonUI Debug Commands
+### CommonUI 调试命令
 
 ```cpp
-// Console commands:
-// CommonUI.DumpActivatableTree - Show active widget hierarchy
-// CommonUI.DumpActionBindings - Show registered input actions
+// 控制台命令：
+// CommonUI.DumpActivatableTree - 显示活动控件层级
+// CommonUI.DumpActionBindings - 显示已注册的输入操作
 ```
 
 ---
 
-## Sources
+## 来源
 - https://docs.unrealengine.com/5.7/en-US/commonui-plugin-for-advanced-user-interfaces-in-unreal-engine/
 - https://docs.unrealengine.com/5.7/en-US/commonui-quickstart-guide-for-unreal-engine/

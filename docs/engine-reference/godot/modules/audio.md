@@ -4,14 +4,14 @@ Last verified: 2026-02-12 | Engine: Godot 4.6
 
 ## What Changed Since ~4.3 (LLM Cutoff)
 
-No major breaking changes to the audio API in 4.4–4.6. The core audio system
-remains stable. Key updates are workflow improvements:
+4.4–4.6 版本中 audio API 没有重大破坏性更改。核心 audio 系统
+保持稳定。关键更新是工作流改进：
 
 ### 4.6 Changes
-- **No audio-specific breaking changes** in this release
+- **此版本没有 audio 特定的破坏性更改**
 
 ### 4.5 Changes
-- **No audio-specific breaking changes** in this release
+- **此版本没有 audio 特定的破坏性更改**
 
 ## Current API Patterns
 

@@ -1,84 +1,84 @@
 # Agent Test Spec: game-designer
 
 ## Agent Summary
-**Domain owned:** Core loop design, progression systems, combat mechanics rules, economy design, player-facing rules and interactions.
-**Does NOT own:** Code implementation (lead-programmer / gameplay-programmer), visual art (art-director), narrative lore and story (narrative-director — coordinates with), balance formula math (systems-designer — collaborates with).
-**Model tier:** Sonnet (individual system design authoring and review).
-**Gate IDs handled:** Design review verdicts on mechanic specs (no named gate ID prefix — uses APPROVED / NEEDS REVISION vocabulary).
+**拥有的领域：** 核心循环设计、进度系统、战斗机制规则、经济设计、玩家面向规则和交互。
+**不负责：** 代码实现（lead-programmer / gameplay-programmer）、视觉美术（art-director）、叙事 lore 和故事（narrative-director — 与其协调）、平衡公式数学（systems-designer — 与其协作）。
+**模型层级：** Sonnet（单个系统设计和创作与审查）。
+**处理的 gate ID：** 机制规格的 design review 裁决（无命名 gate ID 前缀 — 使用 APPROVED / NEEDS REVISION 词汇）。
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
-Verified by reading the agent's `.claude/agents/game-designer.md` frontmatter:
+通过读取 agent 的 `.claude/agents/game-designer.md` frontmatter 验证：
 
-- [ ] `description:` field is present and domain-specific (references core loop, progression, combat rules, economy, player-facing design — not generic)
-- [ ] `allowed-tools:` list is read-focused; includes Read for GDDs and design docs; no Bash unless design tooling requires it
-- [ ] Model tier is `claude-sonnet-4-6` per coordination-rules.md
-- [ ] Agent definition does not claim authority over code implementation, visual art style, or standalone narrative lore decisions
-
----
-
-## Test Cases
-
-### Case 1: In-domain request — appropriate output format
-**Scenario:** A mechanic spec for a "Stamina-Based Dodge" system is submitted for review. The spec defines: the player has a stamina pool (100 units), each dodge costs 25 stamina, stamina regenerates at 20 units/second when not dodging, and the dodge grants 0.3 seconds of invincibility. The core loop interaction is clearly described, rules are unambiguous, and edge cases (stamina at 0, dodge during regen) are addressed.
-**Expected:** Returns `APPROVED` with rationale confirming the core loop clarity, unambiguous rules, and edge case coverage.
-**Assertions:**
-- [ ] Verdict is exactly one of APPROVED / NEEDS REVISION
-- [ ] Rationale references specific design quality criteria (clear rules, edge case coverage, core loop coherence)
-- [ ] Output stays within design scope — does not comment on how to implement it in code or what art assets it requires
-- [ ] Verdict is clearly labeled with context (e.g., "Mechanic Spec Review: APPROVED")
-
-### Case 2: Out-of-domain request — redirects or escalates
-**Scenario:** A team member asks game-designer to write the in-world lore explanation for why the stamina system exists (e.g., the narrative reason characters have stamina limits in the game world).
-**Expected:** Agent declines to write narrative/lore content and redirects to writer or narrative-director.
-**Assertions:**
-- [ ] Does not write narrative or lore content
-- [ ] Explicitly names `writer` or `narrative-director` as the correct handler
-- [ ] May note the design intent that the lore should support (e.g., "the stamina system should reinforce the physical realism theme"), but defers the writing to the narrative team
-
-### Case 3: Gate verdict — correct vocabulary
-**Scenario:** A mechanic spec for "Environmental Hazard Damage" is submitted. The spec defines three hazard types (fire, acid, electricity) but does not specify what happens when a player is simultaneously affected by multiple hazard types, what happens when a hazard is applied during the invincibility window from a dodge, or what the damage frequency is (per-second, per-tick, on-enter).
-**Expected:** Returns `NEEDS REVISION` with specific identification of the undefined edge cases: multi-hazard interaction, hazard-during-invincibility, and damage frequency specification.
-**Assertions:**
-- [ ] Verdict is exactly one of APPROVED / NEEDS REVISION — not freeform text
-- [ ] Rationale identifies the specific missing edge cases by name
-- [ ] Does not reject the entire mechanic — identifies the specific gaps to fill
-- [ ] Provides actionable guidance on what to define (not how to implement it)
-
-### Case 4: Conflict escalation — correct parent
-**Scenario:** systems-designer proposes a damage formula with 6 variables and complex scaling interactions, arguing it produces the best tuning granularity. game-designer believes the formula is too complex for players to intuit and want a simpler 2-variable version.
-**Expected:** game-designer owns the conceptual rule and player experience intention ("the damage should feel understandable to players"), but defers the formula granularity question to systems-designer. If the disagreement cannot be resolved between them (one wants complex, one wants simple), escalate to creative-director for a player experience ruling.
-**Assertions:**
-- [ ] Clearly states the player experience intention (intuitive damage, player agency)
-- [ ] Defers formula granularity decisions to `systems-designer`
-- [ ] Escalates unresolved disagreement to `creative-director` for player experience arbiter ruling
-- [ ] Does not unilaterally impose a formula structure on systems-designer
-
-### Case 5: Context pass — uses provided context
-**Scenario:** Agent receives a gate context block that includes the game's three pillars: "player authorship," "consequence permanence," and "world responsiveness." A new mechanic spec for "permadeath with legacy bonuses" is submitted for review.
-**Expected:** Assessment evaluates the mechanic against all three provided pillars — how does permadeath support player authorship, how do legacy bonuses express consequence permanence, and how does the world respond to a player's death? Uses the pillar vocabulary directly in the rationale.
-**Assertions:**
-- [ ] References all three provided pillars by name in the assessment
-- [ ] Evaluates the mechanic's contribution to each pillar explicitly
-- [ ] Does not generate generic game design advice — all feedback is tied to the provided pillar vocabulary
-- [ ] Identifies if any pillar creates a tension with the mechanic and flags it with a specific concern
+- [ ] `description:` 字段存在且特定于领域（引用核心循环、进度、战斗规则、经济、玩家面向设计 — 不是泛泛的）
+- [ ] `allowed-tools:` 列表以读取为中心；包含 Read 用于 GDD 和设计文档；除非设计工具需要否则不包含 Bash
+- [ ] 模型层级按 coordination-rules.md 为 `claude-sonnet-4-6`
+- [ ] Agent 定义不声称对代码实现、视觉美术风格或独立叙事 lore 决策拥有权限
 
 ---
 
-## Protocol Compliance
+## 测试用例
 
-- [ ] Returns verdicts using APPROVED / NEEDS REVISION vocabulary only
-- [ ] Stays within declared game design domain
-- [ ] Escalates design-vs-formula conflicts to creative-director when unresolved
-- [ ] Does not make binding code implementation, visual art, or standalone lore decisions
-- [ ] Provides actionable design feedback, not implementation prescriptions
+### 用例 1：领域内请求 — 适当的输出格式
+**场景：** 提交了一个"基于耐力的闪避"系统机制规格进行审查。该规格定义：玩家有耐力池（100 单位），每次闪避消耗 25 耐力，耐力在不闪避时以 20 单位/秒恢复，闪避提供 0.3 秒无敌。核心循环交互描述清晰，规则明确，边缘情况（耐力为 0、恢复期间闪避）已处理。
+**预期：** 返回 `APPROVED`，并附上确认核心循环清晰、规则明确和边缘情况覆盖的理由。
+**断言：**
+- [ ] 裁决恰好是 APPROVED / NEEDS REVISION 之一
+- [ ] 理由引用具体的设计质量标准（规则清晰、边缘情况覆盖、核心循环一致性）
+- [ ] 输出保持在设计范围内 — 不对如何在代码中实现或需要什么美术资源发表评论
+- [ ] 裁决清晰标注上下文（例如，"Mechanic Spec Review: APPROVED"）
+
+### 用例 2：领域外请求 — 重定向或升级
+**场景：** 团队成员要求 game-designer 为耐力系统存在编写游戏内 lore 解释（例如，角色在游戏世界中有耐力限制的叙事原因）。
+**预期：** Agent 拒绝编写叙事/lore 内容并重定向到 writer 或 narrative-director。
+**断言：**
+- [ ] 不编写叙事或 lore 内容
+- [ ] 明确命名 `writer` 或 `narrative-director` 为正确的处理者
+- [ ] 可能注明 lore 应支持的设计意图（例如，"耐力系统应强化物理现实主义主题"），但将写作推迟给叙事团队
+
+### 用例 3：Gate 裁决 — 正确词汇
+**场景：** 提交了一个"环境危害伤害"的机制规格。该规格定义了三种危害类型（火、酸、电），但没有指定当玩家同时受到多种危害类型影响时会发生什么，当在闪避无敌窗口期间施加危害时会发生什么，或伤害频率是什么（每秒、每 tick、进入时）。
+**预期：** 返回 `NEEDS REVISION``，并具体识别未定义的边缘情况：多危害交互、无敌期间的危害和伤害频率规格。
+**断言：**
+- [ ] 裁决恰好是 APPROVED / NEEDS REVISION 之一 — 不是自由格式文本
+- [ ] 理由按名称识别具体缺失的边缘情况
+- [ ] 不拒绝整个机制 — 识别需要填补的具体空白
+- [ ] 提供关于定义什么（而非如何实现）的可操作指导
+
+### 用例 4：冲突升级 — 正确的上级
+**场景：** systems-designer 提出了一个具有 6 个变量和复杂缩放交互的伤害公式，认为它产生最佳的调优粒度。game-designer 认为该公式对玩家来说太复杂难以直觉理解，想要一个更简单的 2 变量版本。
+**预期：** game-designer 拥有概念规则和玩家体验意图（"伤害应该让玩家感觉可理解"），但将公式粒度问题推迟给 systems-designer。如果他们之间的分歧无法解决（一个要复杂，一个要简单），升级到 creative-director 做出玩家体验裁决。
+**断言：**
+- [ ] 清晰陈述玩家体验意图（直观伤害、玩家能动性）
+- [ ] 将公式粒度决策推迟给 `systems-designer`
+- [ ] 将未解决的分歧升级到 `creative-director` 做出玩家体验仲裁裁决
+- [ ] 不在 systems-designer 上单方面强加公式结构
+
+### 用例 5：上下文传递 — 使用提供的上下文
+**场景：** Agent 收到一个 gate 上下文块，包含游戏的三个支柱："player authorship"、"consequence permanence"和"world responsiveness"。提交了一个"带有传承奖励的永久死亡"新机制规格进行审查。
+**预期：** 评估根据所有三个提供的支柱评估机制 — 永久死亡如何支持 player authorship，传承奖励如何表达 consequence permanence，世界如何对玩家的死亡做出反应？在理由中直接使用支柱词汇。
+**断言：**
+- [ ] 在评估中按名称引用所有三个提供的支柱
+- [ ] 明确评估机制对每个支柱的贡献
+- [ ] 不生成泛泛的游戏设计建议 — 所有反馈都与提供的支柱词汇相关
+- [ ] 识别任何与机制产生张力的支柱并用具体关注点标记
 
 ---
 
-## Coverage Notes
-- Economy design review (resource sinks, faucets, inflation prevention) is not covered — a dedicated case should be added.
-- Progression system review (XP curves, unlock gates, player power trajectory) is not covered.
-- Core loop validation across multiple interconnected systems (not just a single mechanic) is not covered — deferred to /review-all-gdds integration.
-- Coordination protocol with systems-designer on formula ownership boundary could benefit from additional cases.
+## 协议合规
+
+- [ ] 仅使用 APPROVED / NEEDS REVISION 词汇返回裁决
+- [ ] 在声明的游戏设计领域内保持
+- [ ] 在设计与公式冲突未解决时升级到 creative-director
+- [ ] 不做出约束性的代码实现、视觉美术或独立 lore 决策
+- [ ] 提供可操作的设计反馈，而非实现处方
+
+---
+
+## 覆盖说明
+- 经济设计审查（资源下沉、水龙头、通胀预防）未被覆盖 — 应添加专用用例。
+- 进度系统审查（XP 曲线、解锁门控、玩家力量轨迹）未被覆盖。
+- 跨多个相互连接系统的核心循环验证（不仅是单个机制）未被覆盖 — 推迟到 /review-all-gdds 集成。
+- 与 systems-designer 在公式所有权边界上的协调协议可能受益于额外用例。

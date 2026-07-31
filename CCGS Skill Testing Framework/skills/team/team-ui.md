@@ -2,15 +2,7 @@
 
 ## Skill Summary
 
-Orchestrates the UI team through the full UX pipeline for a single UI feature.
-Coordinates ux-designer, ui-programmer, art-director, the engine UI specialist,
-and accessibility-specialist through five structured phases: Context Gathering +
-UX Spec (Phase 1a/1b) → UX Review Gate (Phase 1c) → Visual Design (Phase 2) →
-Implementation (Phase 3) → Review in parallel (Phase 4) → Polish (Phase 5).
-Uses `AskUserQuestion` at each phase transition. Delegates all file writes to
-sub-agents and sub-skills (`/ux-design`, `ui-programmer`). Produces a summary report
-with verdict COMPLETE / BLOCKED and handoffs to `/ux-review`, `/code-review`,
-`/team-polish`.
+协调 UI 团队完成单个 UI 功能的完整 UX 流程。协调 ux-designer、ui-programmer、art-director、引擎 UI 专家和 accessibility-specialist 五个结构化阶段：Context Gathering + UX Spec（Phase 1a/1b）→ UX Review Gate（Phase 1c）→ Visual Design（Phase 2）→ Implementation（Phase 3）→ Review in parallel（Phase 4）→ Polish（Phase 5）。在每个阶段转换时使用 `AskUserQuestion`。将所有文件写入委托给 sub-agent 和 sub-skill（`/ux-design`、`ui-programmer`）。生成包含 COMPLETE / BLOCKED 裁决的摘要报告，并交接给 `/ux-review`、`/code-review`、`/team-polish`。
 
 ---
 

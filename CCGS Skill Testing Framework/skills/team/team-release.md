@@ -2,13 +2,7 @@
 
 ## Skill Summary
 
-Orchestrates the release team through a 7-phase pipeline from release candidate to
-deployment and post-release monitoring. Coordinates release-manager, qa-lead,
-devops-engineer, producer, security-engineer (optional, required for online/
-multiplayer), network-programmer (optional, required for multiplayer),
-analytics-engineer, and community-manager. Phase 3 agents run in parallel. Ends
-with a go/no-go decision; deployment (Phase 6) is skipped if the producer calls
-NO-GO. Closes with a post-release monitoring plan.
+协调发布团队完成一个 7 阶段流程，从 release candidate 到部署和发布后监控。协调 release-manager、qa-lead、devops-engineer、producer、security-engineer（可选，在线/多人游戏需要）、network-programmer（可选，多人游戏需要）、analytics-engineer 和 community-manager。第 3 阶段的 agent 并行运行。以 go/no-go 决策结束；如果 producer 判定 NO-GO，则跳过部署（第 6 阶段）。以发布后监控计划收尾。
 
 ---
 

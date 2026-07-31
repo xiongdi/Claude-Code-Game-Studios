@@ -2,15 +2,7 @@
 
 ## Skill Summary
 
-Orchestrates the narrative team through a five-phase pipeline: narrative direction
-(narrative-director) → world foundation + dialogue drafting (world-builder and writer
-in parallel) → level narrative integration (level-designer) → consistency review
-(narrative-director) → polish + localization compliance (writer, localization-lead,
-and world-builder in parallel). Uses `AskUserQuestion` at each phase transition to
-present proposals as selectable options. Produces a narrative summary report and
-delivers narrative documents via subagents that each enforce the "May I write?"
-protocol. Verdict is COMPLETE when all phases succeed, or BLOCKED when a dependency
-is unresolved.
+协调叙事团队完成一个五阶段流程：narrative direction（narrative-director）→ world foundation + dialogue drafting（world-builder 和 writer 并行）→ level narrative integration（level-designer）→ consistency review（narrative-director）→ polish + localization compliance（writer、localization-lead 和 world-builder 并行）。在每个阶段转换时使用 `AskUserQuestion`，将提案呈现为可选项。生成叙事摘要报告，通过各 sub-agent 交付叙事文档，每个 sub-agent 强制执行 "May I write?" 协议。当所有阶段成功时裁决为 COMPLETE，当依赖未解决时裁决为 BLOCKED。
 
 ---
 

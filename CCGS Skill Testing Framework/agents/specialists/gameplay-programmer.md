@@ -1,80 +1,80 @@
-# Agent Test Spec: gameplay-programmer
+# Agent 测试规格：gameplay-programmer
 
-## Agent Summary
-Domain: Game mechanics code, player systems, combat implementation, and interactive features.
-Does NOT own: UI implementation (ui-programmer), AI behavior trees (ai-programmer), engine/rendering systems (engine-programmer).
-Model tier: Sonnet (default).
-No gate IDs assigned.
-
----
-
-## Static Assertions (Structural)
-
-- [ ] `description:` field is present and domain-specific (references game mechanics / player systems)
-- [ ] `allowed-tools:` list includes Read, Write, Edit, Bash, Glob, Grep — excludes tools only needed by orchestration agents
-- [ ] Model tier is Sonnet (default for specialists)
-- [ ] Agent definition does not claim authority over UI, AI behavior, or engine/rendering code
+## Agent 摘要
+领域：游戏机制代码、玩家系统、战斗实现和交互功能。
+不负责：UI 实现（ui-programmer）、AI 行为树（ai-programmer）、引擎/渲染系统（engine-programmer）。
+模型层级：Sonnet（默认值）。
+未分配 Gate ID。
 
 ---
 
-## Test Cases
+## 静态断言（结构性）
 
-### Case 1: In-domain request — appropriate output
-**Input:** "Implement a melee combo system where three consecutive light attacks chain into a finisher."
-**Expected behavior:**
-- Produces code or a code scaffold following the project's language (GDScript/C#) and coding standards
-- Defines combo state tracking, input window timing, and finisher trigger logic as separate, testable methods
-- References the relevant GDD section if one is provided in context
-- Does NOT implement UI feedback (delegates to ui-programmer) or AI reaction (delegates to ai-programmer)
-- Output includes doc comments on all public methods per coding standards
-
-### Case 2: Out-of-domain request — redirects correctly
-**Input:** "Build the main menu screen with pause and settings panels."
-**Expected behavior:**
-- Does NOT produce menu implementation code
-- Explicitly states this is outside its domain
-- Redirects the request to `ui-programmer`
-- May note that if the pause menu requires reading gameplay state it can provide the state API surface
-
-### Case 3: Domain boundary — threading flag
-**Input:** "The combo system is causing frame stutters; can you add threading to spread the input processing?"
-**Expected behavior:**
-- Does NOT unilaterally implement threading or async systems
-- Flags the threading concern to `engine-programmer` with a clear description of the hot path
-- May produce a non-threaded refactor to reduce work per frame as a safe interim step
-- Documents the escalation so lead-programmer is aware
-
-### Case 4: Conflict with an Accepted ADR
-**Input:** "Change the damage calculation to use floating-point accumulation directly instead of the fixed-point formula in ADR-003."
-**Expected behavior:**
-- Identifies that the proposed change violates ADR-003 (Accepted status)
-- Does NOT silently implement the violation
-- Flags the conflict to `lead-programmer` with the ADR reference and the trade-off described
-- Will implement only after explicit override decision from lead-programmer or technical-director
-
-### Case 5: Context pass — implements to GDD spec
-**Input:** GDD for "PlayerCombat" provided in context. Request: "Implement the stamina drain formula from the combat GDD."
-**Expected behavior:**
-- Reads the formula section of the provided GDD
-- Implements the exact formula as written — does NOT invent new variables or adjust coefficients
-- Makes stamina drain a data-driven value (external config), not a hardcoded constant
-- Notes any edge cases from the GDD's edge-cases section and handles them in code
+- [ ] `description:` 字段存在且领域特定（引用游戏机制/玩家系统）
+- [ ] `allowed-tools:` 列表包括 Read、Write、Edit、Bash、Glob、Grep——排除仅编排 Agent 需要的工具
+- [ ] 模型层级为 Sonnet（专家默认值）
+- [ ] Agent 定义不声称对 UI、AI 行为或引擎/渲染代码拥有权限
 
 ---
 
-## Protocol Compliance
+## 测试用例
 
-- [ ] Stays within declared domain (mechanics, player systems, combat)
-- [ ] Redirects out-of-domain requests to correct agent (ui-programmer, ai-programmer, engine-programmer)
-- [ ] Returns structured findings (code scaffold, method signatures, inline comments) not freeform opinions
-- [ ] Does not modify files outside `src/gameplay/` or `src/core/` without explicit delegation
-- [ ] Flags ADR violations rather than overriding them silently
-- [ ] Makes gameplay values data-driven, never hardcoded
+### 用例 1：领域内请求 — 适当的输出
+**输入：** "实现一个近战连击系统，三次连续轻击链接到终结技。"
+**预期行为：**
+- 生成遵循项目语言（GDScript/C#）和编码标准的代码或代码脚手架
+- 将连击状态跟踪、输入窗口时序和终结技触发逻辑定义为独立的、可测试的方法
+- 如果在上下文中提供了相关 GDD 部分，则引用它
+- 不实现 UI 反馈（委托给 ui-programmer）或 AI 反应（委托给 ai-programmer）
+- 输出按照编码标准在所有公共方法上包含文档注释
+
+### 用例 2：领域外请求 — 正确重定向
+**输入：** "构建带暂停和设置面板的主菜单屏幕。"
+**预期行为：**
+- 不生成菜单实现代码
+- 明确声明这在其领域之外
+- 将请求重定向给 `ui-programmer`
+- 可能注明如果暂停菜单需要读取游戏状态，它可以提供状态 API 接口
+
+### 用例 3：领域边界 — 线程标记
+**输入：** "连击系统导致帧卡顿；你能添加线程来分散输入处理吗？"
+**预期行为：**
+- 不单方面实现线程或异步系统
+- 将线程问题标记给 `engine-programmer`，清楚描述热点路径
+- 可能生成非线程重构以减少每帧工作作为安全的临时步骤
+- 记录升级以便 lead-programmer 知晓
+
+### 用例 4：与已接受 ADR 冲突
+**输入：** "将伤害计算改为直接使用浮点积累，而不是 ADR-003 中的定点公式。"
+**预期行为**：
+- 识别提议的变更违反 ADR-003（Accepted 状态）
+- 不默默实现违规
+- 将冲突标记给 `lead-programmer`，附带 ADR 引用和描述的权衡
+- 仅在 lead-programmer 或 technical-director 明确覆盖决策后才会实现
+
+### 用例 5：上下文传递 — 按 GDD 规格实现
+**输入：** 上下文中提供了"PlayerCombat"的 GDD。请求："实现战斗 GDD 中的耐力消耗公式。"
+**预期行为**：
+- 读取所提供 GDD 的公式部分
+- 实现所写的确切公式——不发明新变量或调整系数
+- 使耐力消耗成为数据驱动值（外部配置），而非硬编码常量
+- 注明 GDD 边缘情况部分中的任何边缘情况并在代码中处理它们
 
 ---
 
-## Coverage Notes
-- Combo system test (Case 1) should be validated with a unit test in `tests/unit/gameplay/`
-- Threading escalation (Case 3) verifies the agent does not over-reach into engine territory
-- ADR conflict (Case 4) confirms the agent respects the architecture governance process
-- Cases 1 and 5 together verify the agent implements to spec rather than improvising
+## 协议合规
+
+- [ ] 保持在声明领域内（机制、玩家系统、战斗）
+- [ ] 将领域外请求重定向给正确的 Agent（ui-programmer、ai-programmer、engine-programmer）
+- [ ] 返回结构化发现（代码脚手架、方法签名、内联注释），而非自由形式意见
+- [ ] 未经明确委托不修改 `src/gameplay/` 或 `src/core/` 之外的文件
+- [ ] 标记 ADR 违规，而非默默覆盖它们
+- [ ] 使游戏值数据驱动，绝不硬编码
+
+---
+
+## 覆盖说明
+- 连击系统测试（用例 1）应在 `tests/unit/gameplay/` 中用单元测试验证
+- 线程升级（用例 3）验证 Agent 不越界进入引擎领域
+- ADR 冲突（用例 4）确认 Agent 尊重架构治理流程
+- 用例 1 和 5 一起验证 Agent 按规格实现，而非即兴发挥

@@ -2,167 +2,160 @@
 
 ## Skill Summary
 
-`/scope-check` is a Haiku-tier read-only skill that analyzes a feature, sprint,
-or story for scope creep risk. It reads sprint and story files and compares them
-against the active milestone goals. It is designed for fast, low-cost checks
-before or during planning. No director gates are invoked. No files are written.
-Verdicts: ON SCOPE, CONCERNS, or SCOPE CREEP DETECTED.
+`/scope-check` 是 Haiku 层级的只读技能，用于分析功能、sprint 或 story 的范围蔓延风险。它读取 sprint 和 story 文件，并与活动里程碑目标进行比较。设计用于规划前或规划期间的快速、低成本检查。不触发任何 director gate。不写入任何文件。判定结果：ON SCOPE、CONCERNS 或 SCOPE CREEP DETECTED。
 
 ---
 
-## Static Assertions (Structural)
+## Static Assertions（结构性）
 
-Verified automatically by `/skill-test static` — no fixture needed.
+由 `/skill-test static` 自动验证 — 无需 fixture。
 
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 phase headings
-- [ ] Contains verdict keywords: ON SCOPE, CONCERNS, SCOPE CREEP DETECTED
-- [ ] Does NOT require "May I write" language (read-only skill)
-- [ ] Has a next-step handoff (what to do based on verdict)
+- [ ] 具有必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 具有 ≥2 个 phase 标题
+- [ ] 包含判定关键词：ON SCOPE、CONCERNS、SCOPE CREEP DETECTED
+- [ ] 不要求 "May I write" 语言（只读技能）
+- [ ] 具有下一步交接说明（基于判定如何处理）
 
 ---
 
 ## Director Gate Checks
 
-None. Scope check is a read-only advisory skill; no gates are invoked.
+无。范围检查是只读建议性技能；不触发任何 gate。
 
 ---
 
 ## Test Cases
 
-### Case 1: Happy Path — Sprint stories align with milestone goals
+### Case 1: Happy Path — Sprint story 与里程碑目标对齐
 
 **Fixture:**
-- `production/milestones/milestone-03.md` lists 3 goals: combat system, enemy AI, level loading
-- `production/sprints/sprint-006.md` contains 5 stories, all tagged to one of the 3 goals
-- `production/session-state/active.md` references milestone-03 as the active milestone
+- `production/milestones/milestone-03.md` 列出 3 个目标：战斗系统、敌人 AI、关卡加载
+- `production/sprints/sprint-006.md` 包含 5 个 story，全部标记到 3 个目标之一
+- `production/session-state/active.md` 引用 milestone-03 为活动里程碑
 
 **Input:** `/scope-check`
 
 **Expected behavior:**
-1. Skill reads active milestone goals from milestone-03
-2. Skill reads sprint-006 stories and checks each against milestone goals
-3. All 5 stories map to one of the 3 goals
-4. Skill outputs a mapping table: story → milestone goal
-5. Verdict is ON SCOPE
+1. Skill 从 milestone-03 读取活动里程碑目标
+2. Skill 读取 sprint-006 story 并对照里程碑目标检查每个
+3. 所有 5 个 story 映射到 3 个目标之一
+4. Skill 输出映射表：story → 里程碑目标
+5. 判定为 ON SCOPE
 
 **Assertions:**
-- [ ] Each story is mapped to a milestone goal in the output
-- [ ] Verdict is ON SCOPE when all stories map to milestone goals
-- [ ] No files are written
-- [ ] Skill does not modify sprint or milestone files
+- [ ] 输出中将每个 story 映射到里程碑目标
+- [ ] 所有 story 映射到里程碑目标时判定为 ON SCOPE
+- [ ] 不写入任何文件
+- [ ] Skill 不修改 sprint 或里程碑文件
 
 ---
 
-### Case 2: Scope Creep Detected — Stories introducing systems not in milestone
+### Case 2: Scope Creep Detected — 引入里程碑外系统的 story
 
 **Fixture:**
-- `production/milestones/milestone-03.md` goals: combat, enemy AI, level loading
-- `production/sprints/sprint-006.md` contains 5 stories:
-  - 3 stories map to milestone goals
-  - 2 stories reference "online leaderboard" and "achievement system" (not in milestone-03)
+- `production/milestones/milestone-03.md` 目标：战斗、敌人 AI、关卡加载
+- `production/sprints/sprint-006.md` 包含 5 个 story：
+  - 3 个 story 映射到里程碑目标
+  - 2 个 story 引用 "online leaderboard" 和 "achievement system"（不在 milestone-03 中）
 
 **Input:** `/scope-check`
 
 **Expected behavior:**
-1. Skill reads milestone goals and sprint stories
-2. Skill identifies 2 stories with no matching milestone goal
-3. Skill names the out-of-scope stories: "Online Leaderboard Feature", "Achievement System Setup"
-4. Verdict is SCOPE CREEP DETECTED
+1. Skill 读取里程碑目标和 sprint story
+2. Skill 识别 2 个没有匹配里程碑目标的 story
+3. Skill 命名范围外的 story："Online Leaderboard Feature"、"Achievement System Setup"
+4. 判定为 SCOPE CREEP DETECTED
 
 **Assertions:**
-- [ ] Out-of-scope stories are named explicitly in the output
-- [ ] Verdict is SCOPE CREEP DETECTED when any story has no milestone goal match
-- [ ] Skill does not automatically remove the stories — findings are advisory
-- [ ] Output recommends deferring the out-of-scope stories to a later milestone
+- [ ] 范围外的 story 在输出中明确命名
+- [ ] 任何 story 无里程碑目标匹配时判定为 SCOPE CREEP DETECTED
+- [ ] Skill 不自动移除 story — 结果为建议性
+- [ ] 输出建议将范围外的 story 推迟到后续里程碑
 
 ---
 
-### Case 3: No Milestone Defined — CONCERNS; scope cannot be validated
+### Case 3: No Milestone Defined — CONCERNS；无法验证范围
 
 **Fixture:**
-- `production/session-state/active.md` has no milestone reference
-- `production/milestones/` directory exists but is empty
-- `production/sprints/sprint-006.md` has 4 stories
+- `production/session-state/active.md` 无里程碑引用
+- `production/milestones/` 目录存在但为空
+- `production/sprints/sprint-006.md` 有 4 个 story
 
 **Input:** `/scope-check`
 
 **Expected behavior:**
-1. Skill reads active.md — finds no milestone reference
-2. Skill checks `production/milestones/` — no milestone files found
-3. Skill outputs: "No active milestone defined — scope cannot be validated"
-4. Verdict is CONCERNS
+1. Skill 读取 active.md — 未找到里程碑引用
+2. Skill 检查 `production/milestones/` — 未找到里程碑文件
+3. Skill 输出："No active milestone defined — scope cannot be validated"
+4. 判定为 CONCERNS
 
 **Assertions:**
-- [ ] Skill does not error when no milestone is defined
-- [ ] Output explicitly states that scope validation requires a milestone reference
-- [ ] Verdict is CONCERNS (not ON SCOPE or SCOPE CREEP DETECTED without data)
-- [ ] Output suggests running `/milestone-review` or creating a milestone
+- [ ] 未定义里程碑时 Skill 不出错
+- [ ] 输出明确说明范围验证需要里程碑引用
+- [ ] 无数据时判定为 CONCERNS（非 ON SCOPE 或 SCOPE CREEP DETECTED）
+- [ ] 输出建议运行 `/milestone-review` 或创建里程碑
 
 ---
 
-### Case 4: Single Story Check — Evaluated against its parent epic
+### Case 4: Single Story Check — 对照其父 epic 评估
 
 **Fixture:**
-- User targets a single story: `production/epics/combat/story-parry-timing.md`
-- Story references parent epic: `epic-combat.md`
-- `production/epics/combat/epic-combat.md` has scope: "melee combat mechanics"
-- Story title: "Implement parry timing window" — matches epic scope
+- 用户定位单个 story：`production/epics/combat/story-parry-timing.md`
+- Story 引用父 epic：`epic-combat.md`
+- `production/epics/combat/epic-combat.md` 范围："melee combat mechanics"
+- Story 标题："Implement parry timing window" — 匹配 epic 范围
 
 **Input:** `/scope-check production/epics/combat/story-parry-timing.md`
 
 **Expected behavior:**
-1. Skill reads the specified story file
-2. Skill reads the parent epic to get scope definition
-3. Skill evaluates story against epic scope — "parry timing" matches "melee combat"
-4. Verdict is ON SCOPE
+1. Skill 读取指定的 story 文件
+2. Skill 读取父 epic 获取范围定义
+3. Skill 对照 epic 范围评估 story — "parry timing" 匹配 "melee combat"
+4. 判定为 ON SCOPE
 
 **Assertions:**
-- [ ] Single-file argument is accepted (story path, not sprint)
-- [ ] Skill reads the parent epic referenced in the story file
-- [ ] Story is evaluated against epic scope (not milestone scope) in single-story mode
-- [ ] Verdict is ON SCOPE when story matches epic scope
+- [ ] 接受单文件参数（story 路径，非 sprint）
+- [ ] Skill 读取 story 文件中引用的父 epic
+- [ ] 在单 story 模式下 story 对照 epic 范围（非里程碑范围）评估
+- [ ] story 匹配 epic 范围时判定为 ON SCOPE
 
 ---
 
-### Case 5: Gate Compliance — No gate; PR may be consulted separately
+### Case 5: Gate Compliance — 无 gate；PR 可单独咨询
 
 **Fixture:**
-- Sprint has 2 SCOPE CREEP stories and 3 ON SCOPE stories
-- `review-mode.txt` contains `full`
+- Sprint 有 2 个 SCOPE CREEP story 和 3 个 ON SCOPE story
+- `review-mode.txt` 内容为 `full`
 
 **Input:** `/scope-check`
 
 **Expected behavior:**
-1. Skill reads milestone and sprint; identifies 2 scope creep items
-2. No director gate is invoked regardless of review mode
-3. Skill presents findings with SCOPE CREEP DETECTED verdict
-4. Output notes: "Consider raising scope concerns with the Producer before sprint begins"
-5. Skill ends without writing any files
+1. Skill 读取里程碑和 sprint；识别 2 个范围蔓延项
+2. 无论审查模式如何，不触发任何 director gate
+3. Skill 以 SCOPE CREEP DETECTED 判定呈现结果
+4. 输出注明："Consider raising scope concerns with the Producer before sprint begins"
+5. Skill 结束时不写入任何文件
 
 **Assertions:**
-- [ ] No director gate is invoked in any review mode
-- [ ] Producer consultation is suggested (not mandated)
-- [ ] No files are written
-- [ ] Verdict is SCOPE CREEP DETECTED
+- [ ] 任何审查模式下都不触发 director gate
+- [ ] 建议（非强制）咨询 Producer
+- [ ] 不写入任何文件
+- [ ] 判定为 SCOPE CREEP DETECTED
 
 ---
 
 ## Protocol Compliance
 
-- [ ] Reads milestone goals and sprint/story files before analysis
-- [ ] Maps each story to a milestone goal (or flags as unmapped)
-- [ ] Does not write any files
-- [ ] No director gates are invoked
-- [ ] Runs on Haiku model tier (fast, low-cost)
-- [ ] Verdict is one of: ON SCOPE, CONCERNS, SCOPE CREEP DETECTED
+- [ ] 分析前读取里程碑目标和 sprint/story 文件
+- [ ] 将每个 story 映射到里程碑目标（或标记为未映射）
+- [ ] 不写入任何文件
+- [ ] 不触发任何 director gate
+- [ ] 在 Haiku 模型层级运行（快速、低成本）
+- [ ] 判定为以下之一：ON SCOPE、CONCERNS、SCOPE CREEP DETECTED
 
 ---
 
 ## Coverage Notes
 
-- The case where the sprint file itself does not exist is not tested; the
-  skill would output a CONCERNS verdict with a message about missing sprint data.
-- Partial scope overlap (story touches a milestone goal but also introduces
-  new scope) is not explicitly tested; implementation may classify this as
-  CONCERNS rather than SCOPE CREEP DETECTED.
+- sprint 文件本身不存在的情况未测试；skill 会输出 CONCERNS 判定并附带缺失 sprint 数据的消息。
+- 部分范围重叠（story 触及里程碑目标但也引入新范围）未显式测试；实现可能将其分类为 CONCERNS 而非 SCOPE CREEP DETECTED。

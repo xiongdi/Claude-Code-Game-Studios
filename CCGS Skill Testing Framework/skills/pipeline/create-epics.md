@@ -2,15 +2,9 @@
 
 ## Skill Summary
 
-`/create-epics` reads all approved GDDs and translates them into EPIC.md files,
-one per system. Epics are organized by layer (Foundation → Core → Feature →
-Presentation) and processed in priority order within each layer. Each EPIC.md
-includes scope, governing ADRs, GDD requirements, engine risk level, and a
-Definition of Done. The skill asks "May I write" before creating each EPIC file.
+`/create-epics` 读取所有已批准的 GDD 并将其转换为 EPIC.md 文件，每个系统一个。Epic 按层级组织（Foundation → Core → Feature → Presentation），并在每个层级内按优先级顺序处理。每个 EPIC.md 包含 scope、governing ADR、GDD 需求、引擎风险级别和 Definition of Done。在创建每个 EPIC 文件之前会询问 "May I write"。
 
-In `full` review mode, a PR-EPIC gate (producer) runs after drafting epics and
-before writing any files. In `lean` or `solo` mode, PR-EPIC is skipped and noted.
-Epics are written to `production/epics/[layer]/EPIC-[name].md`.
+在 `full` review 模式下，PR-EPIC 门控（producer）在起草 epic 之后、写入任何文件之前运行。在 `lean` 或 `solo` 模式下，PR-EPIC 被跳过并注明。Epic 写入 `production/epics/[layer]/EPIC-[name].md`。
 
 ---
 

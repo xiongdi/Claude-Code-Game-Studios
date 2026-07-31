@@ -2,14 +2,7 @@
 
 ## Skill Summary
 
-Orchestrates the full combat team pipeline end-to-end for a single combat feature.
-Coordinates game-designer, gameplay-programmer, ai-programmer, technical-artist,
-sound-designer, the primary engine specialist, and qa-tester through six structured
-phases: Design → Architecture (with engine specialist validation) → Implementation
-(parallel) → Integration → Validation → Sign-off. Uses `AskUserQuestion` at each
-phase transition. Delegates all file writes to sub-agents. Produces a summary report
-with verdict COMPLETE / NEEDS WORK / BLOCKED and handoffs to `/code-review`,
-`/balance-check`, and `/team-polish`.
+协调完整的战斗团队端到端流程，完成单个战斗功能。协调 game-designer、gameplay-programmer、ai-programmer、technical-artist、sound-designer、主要引擎专家和 qa-tester 六个结构化阶段：Design → Architecture（含引擎专家验证）→ Implementation（并行）→ Integration → Validation → Sign-off。在每个阶段转换时使用 `AskUserQuestion`。将所有文件写入委托给 sub-agent。生成包含 COMPLETE / NEEDS WORK / BLOCKED 裁决的摘要报告，并交接给 `/code-review`、`/balance-check`、`/team-polish`。
 
 ---
 

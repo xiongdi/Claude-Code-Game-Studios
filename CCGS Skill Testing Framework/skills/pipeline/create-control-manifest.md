@@ -2,16 +2,9 @@
 
 ## Skill Summary
 
-`/create-control-manifest` reads all Accepted ADRs from `docs/architecture/` and
-generates a control manifest — a summary document that captures all architectural
-constraints, required patterns, and forbidden patterns in one place. The manifest
-is the reference document that story authors use when writing story files, ensuring
-stories inherit the correct architectural rules without having to read all ADRs
-individually.
+`/create-control-manifest` 从 `docs/architecture/` 读取所有 Accepted ADR，并生成一份 control manifest —— 一份汇总文档，在一个地方捕获所有架构约束、必需模式和禁止模式。该 manifest 是 story 作者编写 story 文件时使用的参考文档，确保 story 无需逐个阅读所有 ADR 即可继承正确的架构规则。
 
-The skill only includes Accepted ADRs; Proposed ADRs are excluded and noted. It
-has no director gates. The skill asks "May I write" before writing
-`docs/architecture/control-manifest.md`.
+该 skill 仅包含 Accepted ADR；Proposed ADR 被排除并注明。它没有 director gate。在写入 `docs/architecture/control-manifest.md` 之前会询问 "May I write"。
 
 ---
 
