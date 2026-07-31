@@ -36,7 +36,7 @@
 | `tools-programmer` | 开发工具 | Sonnet | 编辑器扩展、管线工具、调试实用程序 |
 | `ui-programmer` | UI 实现 | Sonnet | UI 框架、屏幕、小部件、数据绑定 |
 | `technical-artist` | 技术美术 | Sonnet | Shader、VFX、优化、美术管线工具 |
-| `sound-designer` | 音效设计 | Haiku | SFX 设计文档、音频事件列表、混音备注 |
+| `sound-designer` | 音效设计 | Sonnet | SFX 设计文档、音频事件列表、混音备注 |
 | `writer` | 对话/传说 | Sonnet | 对话写作、传说条目、物品描述 |
 | `world-builder` | 世界/传说设计 | Sonnet | 世界规则、派系设计、历史、地理 |
 | `qa-tester` | 测试执行 | Haiku | 编写测试用例、Bug 报告、测试检查清单 |
@@ -83,5 +83,6 @@
 | Agent | 子系统 | 模型 | 使用场景 |
 | ---- | ---- | ---- | ---- |
 | `godot-gdscript-specialist` | GDScript | Sonnet | 静态类型、设计模式、signals、协程、GDScript 性能 |
+| `godot-csharp-specialist` | C# / .NET | Sonnet | .NET 模式、[Signal] 委托、async、可空类型、类型安全节点访问 |
 | `godot-shader-specialist` | Shaders/渲染 | Sonnet | Godot shading language、visual shaders、particles、后处理 |
 | `godot-gdextension-specialist` | GDExtension | Sonnet | C++/Rust 绑定、原生性能、custom nodes、构建系统 |

@@ -52,11 +52,11 @@
 在派生门控 [GATE-ID] 之前：
 1. 如果技能用 --review [mode] 调用，使用那个
 2. 否则读取 production/review-mode.txt
-3. 否则默认为 full
+3. 否则默认为 lean
 
 应用解析的模式：
 - solo → 跳过所有门控。输出注明："[GATE-ID] skipped — Solo mode"
-- lean → 跳过除非这是 PHASE-GATE（CD-PHASE-GATE、TD-PHASE-GATE、PR-PHASE-GATE）
+- lean → 跳过除非这是 PHASE-GATE（CD-PHASE-GATE、TD-PHASE-GATE、PR-PHASE-GATE、AD-PHASE-GATE）
          输出注明："[GATE-ID] skipped — Lean mode"
 - full → 正常派生
 ```
@@ -593,7 +593,7 @@ Agent: `art-director` | 模型层级: Sonnet | 领域: 视觉身份、美术圣�
 或当影响视觉风格的技术美术决策时
 
 **传递的上下文**：
-- 美术圣经路径（如存在于 `design/art-bible.md`）
+- 美术圣经路径（如存在于 `design/art/art-bible.md`）
 - 正在审查的特定资源类型、风格决策或视觉方向
 - 参考图像或风格描述
 - 平台和性能约束
@@ -631,7 +631,7 @@ Agent: `art-director` | 模型层级: Sonnet | 领域: 视觉身份、美术圣�
 
 1. 分配门控 ID：`[DIRECTOR-PREFIX]-[DESCRIPTIVE-SLUG]`
    - 前缀：`CD-` `TD-` `PR-` `LP-` `QL-` `ND-` `AD-`
-   - 为新 Agent 添加新前缀：`AudioDirector` → `AU-`、`UX` → `UX-`
+   - 为新 Agent 添加新前缀：`audio-director` → `AU-`、`ux-designer` → `UX-`
 2. 在适当的导演部分下添加门控，包含所有五个字段：
    Trigger、Context to pass、Prompt、Verdicts 和任何特殊处理说明
 3. 仅通过 ID 在技能中引用 — 永远不要将提示文本复制到技能中
@@ -646,6 +646,6 @@ Agent: `art-director` | 模型层级: Sonnet | 领域: 视觉身份、美术圣�
 | **Systems Design** | TD-SYSTEM-BOUNDARY、CD-SYSTEMS、PR-SCOPE、CD-GDD-ALIGN（每 GDD） | ND-CONSISTENCY、AD-VISUAL |
 | **Technical Setup** | TD-ARCHITECTURE、TD-ADR（每 ADR）、LP-FEASIBILITY、AD-ART-BIBLE | TD-ENGINE-RISK |
 | **Pre-Production** | PR-EPIC、QL-STORY-READY（每 story）、PR-SPRINT、所有四个 PHASE-GATE（通过 gate-check） | CD-PLAYTEST |
-| **Production** | LP-CODE-REVIEW（每 story）、QL-STORY-READY、PR-SPRINT（每 sprint） | PR-MILESTONE、QL-TEST-COVERAGE、AD-VISUAL |
+| **Production** | LP-CODE-REVIEW（每 story）、QL-STORY-READY、PR-SPRINT（每 sprint）、QL-TEST-COVERAGE（每 sprint 结束） | PR-MILESTONE、AD-VISUAL |
 | **Polish** | QL-TEST-COVERAGE、CD-PLAYTEST、PR-MILESTONE | AD-VISUAL |
 | **Release** | 所有四个 PHASE-GATE（通过 gate-check） | QL-TEST-COVERAGE |

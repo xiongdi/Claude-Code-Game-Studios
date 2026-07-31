@@ -3,14 +3,14 @@
   <p align="center">
     将一个 Claude Code 会话转变为完整的游戏开发工作室。
     <br />
-    49 个 Agent。72 项技能。一个协调的 AI 团队。
+    49 个 Agent。73 项技能。一个协调的 AI 团队。
   </p>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
   <a href=".claude/agents"><img src="https://img.shields.io/badge/agents-49-blueviolet" alt="49 Agents"></a>
-  <a href=".claude/skills"><img src="https://img.shields.io/badge/skills-72-green" alt="72 Skills"></a>
+  <a href=".claude/skills"><img src="https://img.shields.io/badge/skills-73-green" alt="73 Skills"></a>
   <a href=".claude/hooks"><img src="https://img.shields.io/badge/hooks-12-orange" alt="12 Hooks"></a>
   <a href=".claude/rules"><img src="https://img.shields.io/badge/rules-11-red" alt="11 Rules"></a>
   <a href="https://docs.anthropic.com/en/docs/claude-code"><img src="https://img.shields.io/badge/built%20for-Claude%20Code-f5f5f5?logo=anthropic" alt="Built for Claude Code"></a>
@@ -53,10 +53,10 @@
 | 类别 | 数量 | 描述 |
 |----------|-------|-------------|
 | **Agents** | 49 | 跨越设计、编程、美术、音频、叙事、QA 和制作的专职子 Agent |
-| **Skills** | 72 | 覆盖每个工作流程阶段的 Slash 命令（`/start`、`/design-system`、`/create-epics`、`/create-stories`、`/dev-story`、`/story-done` 等） |
+| **Skills** | 73 | 覆盖每个工作流程阶段的 Slash 命令（`/start`、`/design-system`、`/create-epics`、`/create-stories`、`/dev-story`、`/story-done` 等） |
 | **Hooks** | 12 | 在提交、推送、资源更改、会话生命周期、Agent 审计追踪和差距检测上自动验证 |
 | **Rules** | 11 | 编辑游戏玩法、引擎、AI、UI、网络代码等时执行的路径作用域编码标准 |
-| **Templates** | 39 | GDD、UX 规范、ADR、Sprint 计划、HUD 设计、无障碍等文档模板 |
+| **Templates** | 41 | GDD、UX 规范、ADR、Sprint 计划、HUD 设计、无障碍等文档模板 |
 
 ## 工作室层级
 
@@ -94,7 +94,7 @@ Agent 按三个层级组织，与真实工作室的运作方式一致：
 
 ## Slash Commands
 
-在 Claude Code 中输入 `/` 访问全部 72 项技能：
+在 Claude Code 中输入 `/` 访问全部 73 项技能：
 
 **入门与导航**
 `/start` `/help` `/project-stage-detect` `/setup-engine` `/adopt`
@@ -115,7 +115,7 @@ Agent 按三个层级组织，与真实工作室的运作方式一致：
 `/create-epics` `/create-stories` `/dev-story` `/sprint-plan` `/sprint-status` `/story-readiness` `/story-done` `/estimate`
 
 **评审与分析**
-`/design-review` `/code-review` `/balance-check` `/content-audit` `/scope-check` `/perf-profile` `/tech-debt` `/gate-check` `/consistency-check`
+`/design-review` `/code-review` `/balance-check` `/content-audit` `/scope-check` `/perf-profile` `/tech-debt` `/gate-check` `/consistency-check` `/security-audit`
 
 **QA 与测试**
 `/qa-plan` `/smoke-check` `/soak-test` `/regression-suite` `/test-setup` `/test-helpers` `/test-evidence-review` `/test-flakiness` `/skill-test` `/skill-improve`
@@ -124,7 +124,7 @@ Agent 按三个层级组织，与真实工作室的运作方式一致：
 `/milestone-review` `/retrospective` `/bug-report` `/bug-triage` `/reverse-document` `/playtest-report`
 
 **发布**
-`/release-checklist` `/launch-checklist` `/changelog` `/patch-notes` `/hotfix`
+`/release-checklist` `/launch-checklist` `/changelog` `/patch-notes` `/hotfix` `/day-one-patch`
 
 **创意与内容**
 `/prototype` `/onboard` `/localize`
@@ -174,13 +174,13 @@ CLAUDE.md                           # 主配置
 .claude/
   settings.json                     # Hooks、权限、安全规则
   agents/                           # 49 个 Agent 定义（Markdown + YAML frontmatter）
-  skills/                           # 72 个 Slash 命令（每个技能一个子目录）
+  skills/                           # 73 个 Slash 命令（每个技能一个子目录）
   hooks/                            # 12 个 Hook 脚本（Bash，跨平台）
   rules/                            # 11 个路径作用域编码标准
   statusline.sh                     # 状态行脚本（上下文%、模型、阶段、Epic 面包屑）
   docs/
     workflow-catalog.yaml           # 7 阶段管线定义（由 /help 读取）
-    templates/                      # 39 个文档模板
+    templates/                      # 41 个文档模板
 src/                                # 游戏源代码
 assets/                             # 美术、音频、VFX、Shader、数据文件
 design/                             # GDD、叙事文档、关卡设计
@@ -277,7 +277,7 @@ Agent 遵循结构化委托模型：
 
 ## 平台支持
 
-已在 **Windows 10** 和 Git Bash 上测试。所有 Hook 使用 POSIX 兼容模式（`grep -E`，不是 `grep -P`）并在缺少工具时包含回退。在 macOS 和 Linux 上无需修改即可工作。
+已在 **Windows 10** 和 Git Bash 上测试。所有 Hook 使用 POSIX 兼容模式（`grep -E`，不是 `grep -P`）并在缺少工具时包含回退，因此应该能在 macOS 和 Linux 上运行。`notify.sh` hook 使用 PowerShell 显示 Windows Toast 通知，在其他平台上是空操作 — macOS/Linux 的桌面通知尚未接入。跨平台测试正在进行中；如遇任何平台特定的问题请提交 issue。
 
 ## 社区
 

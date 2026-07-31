@@ -15,7 +15,7 @@
 CCGS Skill Testing Framework/
 ├── README.md              ← 你在这里
 ├── CLAUDE.md              ← 告诉 Claude 如何使用此框架
-├── catalog.yaml           ← 主注册表：所有 72 个技能 + 49 个 agents，覆盖追踪
+├── catalog.yaml           ← 主注册表：所有 73 个技能 + 49 个 agents，覆盖追踪
 ├── quality-rubric.md      ← /skill-test category 的类别特定通过/失败指标
 │
 ├── skills/                ← 技能的行为规格文件（每个技能一个）
@@ -56,7 +56,7 @@ CCGS Skill Testing Framework/
 
 ```
 /skill-test static [skill-name]     # 检查一个技能（7项检查）
-/skill-test static all              # 检查所有 72 个技能
+/skill-test static all              # 检查所有 73 个技能
 ```
 
 ### 运行行为规格测试

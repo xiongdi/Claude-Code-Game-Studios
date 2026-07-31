@@ -7,7 +7,7 @@
 > **引擎**: [Godot 4.6 / Unity 6 / Unreal Engine 5]
 > **UI框架**: [Godot Control nodes / Unity UI Toolkit / Unreal UMG]
 > **相关文档**:
-> - `docs/art-bible.md` — 视觉标准（颜色、排版、图标）
+> - `design/art/art-bible.md` — 视觉标准（颜色、排版、图标）
 > - `docs/accessibility-requirements.md` — 每个功能的无障碍承诺
 > - `docs/ux/ux-spec-[screen].md` — 引用模式的各个屏幕规格
 

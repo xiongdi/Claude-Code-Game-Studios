@@ -1,6 +1,6 @@
 # Claude Code Game Studios — 游戏工作室 Agent 架构
 
-通过 48 个协调配合的 Claude Code 子 Agent 管理独立游戏开发。
+通过 49 个协调配合的 Claude Code 子 Agent 管理独立游戏开发。
 每个 Agent 负责特定领域，强化职责分离与质量把控。
 
 ## 技术栈

@@ -7,7 +7,7 @@
 > **目标平台**: [此 HUD 必须工作的所有平台 — 例如 PC、PS5、Xbox Series X、Steam Deck]
 > **相关 GDD**: [通过 HUD 暴露信息的每个系统 — 例如 `design/gdd/combat.md`、`design/gdd/progression.md`、`design/gdd/quests.md`]
 > **无障碍等级**: 基础 | 标准 | 全面 | 卓越
-> **风格参考**: [如果存在，链接到艺术圣经 HUD 章节 — 例如 `design/gdd/art-bible.md § HUD Visual Language`]
+> **风格参考**: [如果存在，链接到艺术圣经 HUD 章节 — 例如 `design/art/art-bible.md § HUD Visual Language`]
 
 > **注意 — 范围边界**：此文档指定活跃游戏过程中叠加在游戏世界上方的所有元素
 > — 生命条、弹药计数器、小地图、任务追踪器、字幕、伤害数字和通知 toast。

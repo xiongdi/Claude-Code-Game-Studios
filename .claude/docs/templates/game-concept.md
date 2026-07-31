@@ -287,11 +287,14 @@ MDA（机制-动态-美学）框架确保我们从玩家的情感体验向后设
 
 ## 下一步
 
+## 下一步
+
 - [ ] 获得 creative-director 对概念的批准
 - [ ] 基于引擎选择填写 CLAUDE.md 技术栈（`/setup-engine`）
 - [ ] 创建游戏支柱文档（`/design-review` 验证）
-- [ ] 将概念分解为系统（`/map-systems` — 映射依赖关系、分配优先级、指导每个系统的 GDD 写作）
-- [ ] 创建第一个架构决策记录（`/architecture-decision`）
-- [ ] 原型核心循环（`/prototype [核心机制]`）
+- [ ] **原型核心想法**（`/prototype [核心机制]`）— 在写 GDD 之前，验证概念值得设计
+- [ ] 如果原型 PROCEED：将概念分解为系统（`/map-systems`）
+- [ ] 设计每个系统（`/design-system [system-name]`）— 在 Tuning Knobs 和 Formulas 章节中使用原型经验
+- [ ] 在 Pre-Production 中构建垂直切片（`/vertical-slice`）— 在投入生产前验证完整游戏循环
 - [ ] 通过游戏测试验证核心循环（`/playtest-report`）
 - [ ] 计划第一个里程碑（`/sprint-plan new`）

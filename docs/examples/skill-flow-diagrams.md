@@ -12,6 +12,9 @@
   /start ──────────────────────────────────────────────────────► 路由到 A/B/C/D
   /brainstorm ──────────────────────────────────────────────────► design/gdd/game-concept.md
   /setup-engine ────────────────────────────────────────────────► CLAUDE.md + technical-preferences.md
+  /prototype [核心机制] ────────────────────────────────────────► prototypes/[name]-concept/REPORT.md
+        │ PROCEED                                                  (在写 GDD 之前验证想法)
+        ▼
   /design-review [game-concept.md] ────────────────────────────► 概念已验证
   /gate-check ─────────────────────────────────────────────────► PASS → 推进到系统设计
         │
@@ -45,11 +48,13 @@
   /test-setup ─────────────────────────────────────────────────► 测试框架 + CI/CD 管道
   /test-helpers ───────────────────────────────────────────────► tests/helpers/[engine-specific].gd
 
-  [Stories + 原型]
+  [Vertical slice — 在 epic 之前，验证完整游戏循环]
+  /vertical-slice ─────────────────────────────────────────────► prototypes/[name]-vertical-slice/REPORT.md
+  /playtest-report ────────────────────────────────────────────► production/playtests/
+
+  [Stories + sprint plan — 仅在 vertical slice PROCEED 之后]
   /create-epics [layer] ───────────────────────────────────────► production/epics/*/EPIC.md
   /create-stories [epic-slug] ─────────────────────────────────► production/epics/*/story-*.md
-  /prototype [core-mechanic] ──────────────────────────────────► prototypes/[name]/
-  /playtest-report ────────────────────────────────────────────► tests/playtest/vertical-slice.md
   /sprint-plan new ────────────────────────────────────────────► production/sprints/sprint-01.md
   /gate-check ─────────────────────────────────────────────────► PASS → 推进到生产
         │
@@ -298,36 +303,6 @@ Story 如何从 backlog 到关闭（摘要视图）：
 ---
 
 ## 技能链：UX 管线详解（遗留参考）
-
-```
-design/gdd/*.md (提取的 UX 需求)
-design/player-journey.md (情绪弧线)
-        │
-        ▼
-/ux-design hud              → design/ux/hud.md
-/ux-design screen [name]    → design/ux/screens/[name].md
-/ux-design patterns         → design/ux/interaction-patterns.md
-        │
-        ▼
-/ux-review design/ux/
-        │
-        ├── APPROVED → 所有规格就绪用于 /team-ui
-        ├── NEEDS REVISION → 阻塞问题列出 → 修复 → 重新运行审查
-        └── MAJOR REVISION → 根本性 UX 问题 → 重大重新设计
-                │
-                ▼ (APPROVED 之后)
-        /team-ui
-                │
-                ├── 阶段1: 上下文加载 + /ux-design (如果规格缺失)
-                ├── 阶段2: 视觉设计 (art-director)
-                ├── 阶段3: 布局实施 (ui-programmer)
-                ├── 阶段4: 无障碍审计 (accessibility-specialist)
-                └── 阶段5: 最终审查
-```
-
----
-
-## Brownfield 入职流程
 
 对于有现有工作的项目（使用 `/start` 选项 D 或直接运行）：
 

@@ -45,6 +45,7 @@
 
     godot-specialist   -- Godot 4 lead: GDScript、node/scene、signals、resources
       godot-gdscript-specialist    -- GDScript: 静态类型、模式、signals、性能
+      godot-csharp-specialist      -- C#: .NET 模式、[Signal] 委托、async、类型安全节点访问
       godot-shader-specialist      -- Shaders: Godot shading language、visual shaders、VFX
       godot-gdextension-specialist -- Native: C++/Rust 绑定、GDExtension、构建系统
 ```
@@ -200,16 +201,28 @@ art-dir = art-director
 10. producer            -- 标记发布完成
 ```
 
-### 模式 8：快速原型
+### 模式 8：概念原型（早期 — GDD 之前）
 
 ```text
 1. game-designer        -- 定义假设和成功标准
-2. prototyper           -- 用 /prototype 搭建原型
-3. prototyper           -- 构建最小实现（小时，不是天）
+2. prototyper           -- 用 /prototype 搭建概念原型
+3. prototyper           -- 构建最小实现（1-3 天）
 4. game-designer        -- 根据标准评估原型
-5. prototyper           -- 记录发现报告
-6. creative-director    -- 继续生产 go/no-go 决策
-7. producer             -- 如获批准则安排生产工作
+5. prototyper           -- 在 REPORT.md 中记录发现
+6. creative-director    -- PROCEED / PIVOT / KILL 决策（仅 full 模式）
+7. game-designer        -- 如 PROCEED 则结合原型经验撰写 GDD
+```
+
+### 模式 8b：垂直切片（pre-production — GDD 和架构之后）
+
+```text
+1. game-designer        -- 对照 GDD 确认切片范围
+2. prototyper           -- 用 /vertical-slice 构建生产级端到端构建
+3. prototyper           -- 进行内部试玩会话（最少 1 次）
+4. prototyper           -- 在 REPORT.md 中记录发现
+5. creative-director    -- 投入 Production 的 go/no-go 决策（full 模式）
+6. producer             -- 如 PROCEED 则安排 Production epic/sprint
+```
 ```
 
 ### 模式 9：直播活动/赛季发布

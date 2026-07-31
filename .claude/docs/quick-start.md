@@ -2,11 +2,11 @@
 
 ## 这是什么？
 
-这是一套完整的 Claude Code Agent 架构，用于游戏开发。它将 48 个专业 AI Agent
+这是一套完整的 Claude Code Agent 架构，用于游戏开发。它将 49 个专业 AI Agent
 组织成与真实游戏开发团队一致的工作室层级，明确了职责、委托
 规则和协调协议。它包含 Godot、Unity 和 Unreal 的引擎专家 Agent —
 每个都有主要引擎子系统的专属子专家。所有设计 Agent 和模板都扎根于
- established 游戏设计理论（MDA Framework、Self-Determination Theory、
+established 游戏设计理论（MDA Framework、Self-Determination Theory、
 Flow State、Bartle Player Types）。使用与你的项目匹配的引擎集合。
 
 ## 如何使用
@@ -63,6 +63,7 @@ Agent 分为三个层级：
 | 管理 Addressable 资源 | `unity-addressables-specialist` |
 | 构建 UI Toolkit/UGUI 屏幕 | `unity-ui-specialist` |
 | 编写惯用 GDScript | `godot-gdscript-specialist` |
+| 编写 Godot C# 代码 | `godot-csharp-specialist` |
 | 创建 Godot shaders | `godot-shader-specialist` |
 | 构建 GDExtension 模块 | `godot-gdextension-specialist` |
 | 规划直播活动和赛季 | `live-ops-designer` |
@@ -84,6 +85,8 @@ Agent 分为三个层级：
 | `/quick-design` | 轻量级设计规格用于小更改 — 调优、调整、小添加 |
 | `/review-all-gdds` | 跨 GDD 一致性和游戏设计整体性审查 |
 | `/propagate-design-change` | 当 GDD 修订时，找到受影响的 ADR 并生成影响报告 |
+| `/art-bible` | 引导式逐节 Art Bible 创作 — 在资产生产开始前创建视觉身份规格 |
+| `/asset-spec` | 从 GDD 或角色档案生成每资产视觉规格和 AI 生成提示 |
 | `/ux-design` | 引导逐章节创作 UX 规格（屏幕/流程、HUD 或模式库） |
 | `/ux-review` | 验证 UX 规格是否符合 GDD 一致性、无障碍和模式合规 |
 | `/create-architecture` | 引导创作主架构文档 |
@@ -108,6 +111,7 @@ Agent 分为三个层级：
 | `/tech-debt` | 扫描、追踪、优先化和报告技术债务 |
 | `/gate-check` | 验证开发阶段之间前进的就绪状态（PASS/CONCERNS/FAIL） |
 | `/consistency-check` | 扫描所有 GDD 与实体注册表，检测跨文档不一致（相互矛盾的属性、名称、规则） |
+| `/security-audit` | 审计游戏的安全漏洞：存档篡改、作弊向量、网络利用、数据暴露 |
 | `/reverse-document` | 从现有实现生成设计或架构文档 |
 | `/milestone-review` | 审查里程碑进度并生成状态报告 |
 | `/retrospective` | 运行结构化 Sprint 或里程碑回顾 |
@@ -119,7 +123,9 @@ Agent 分为三个层级：
 | `/changelog` | 从 git 提交和 Sprint 数据自动生成变更日志 |
 | `/patch-notes` | 从 git 历史和内部数据生成玩家面向的补丁说明 |
 | `/hotfix` | 带审计追踪的紧急修复，绕过正常 Sprint 流程 |
-| `/prototype` | 搭建一次性原型以验证机制（放宽标准，隔离工作树） |
+| `/day-one-patch` | 为金主后发现但发布前或发布时已知的 issues 准备聚焦的 day-one 补丁 |
+| `/prototype` | 概念原型 — 在写 GDD 之前验证核心想法（阶段 1） |
+| `/vertical-slice` | 生产级端到端构建 — 验证完整游戏循环（阶段 4） |
 | `/localize` | 本地化工作流：字符串提取、验证、翻译就绪 |
 | `/team-combat` | 编排完整战斗团队管线 |
 | `/team-narrative` | 编排完整叙事团队管线 |
@@ -140,6 +146,7 @@ Agent 分为三个层级：
 | `/test-flakiness` | 从 CI 运行历史检测 flaky 测试，标记隔离或修复 |
 | `/test-evidence-review` | 测试文件和手动证据的质量审查 — ADEQUATE/INCOMPLETE/MISSING |
 | `/skill-test` | 验证技能文件是否符合合规性和正确性（静态/规格/审计） |
+| `/skill-improve` | 使用 test-fix-retest 循环改进技能 — 诊断、建议修复、重写、验证 |
 
 ### 4. 使用模板创建新文档
 
@@ -215,12 +222,11 @@ Agent 分为三个层级：
      当前文档，以便 Agent 提供正确的 API 建议
 3. **验证概念** — 运行 `/design-review design/gdd/game-concept.md`
 4. **分解为系统** — 运行 `/map-systems` 映射所有系统和依赖
-5. **设计每个系统** — 运行 `/design-system [system-name]`（或 `/map-systems next`）
-   按依赖顺序编写 GDD
-6. **测试核心循环** — 运行 `/prototype [core-mechanic]`
-7. **试玩验证** — 运行 `/playtest-report` 验证假设
-8. **规划第一个 Sprint** — 运行 `/sprint-plan new`
-9. 开始构建
+5. **原型核心机制** — 运行 `/prototype [核心机制]`（1-3 天 — 在写 GDD 之前）
+6. **设计每个系统** — 运行 `/design-system [system-name]` 按依赖顺序编写 GDD，
+   结合原型发现
+7. **规划第一个 Sprint** — 在架构和 `/vertical-slice` 之后，运行 `/sprint-plan new`
+8. 开始构建
 
 ### 路径 B："我知道我要构建什么"
 
@@ -263,8 +269,8 @@ Agent 分为三个层级：
 CLAUDE.md                          -- 主配置（首先阅读这个，约 60 行）
 .claude/
   settings.json                    -- Claude Code hooks 和项目设置
-  agents/                          -- 48 个 Agent 定义（YAML frontmatter）
-  skills/                          -- 68 个 Slash 命令定义（YAML frontmatter）
+  agents/                          -- 49 个 Agent 定义（YAML frontmatter）
+  skills/                          -- 73 个 Slash 命令定义（YAML frontmatter）
   hooks/                           -- 12 个 Hook 脚本（.sh），由 settings.json 连接
   rules/                           -- 11 个路径特定规则文件
   docs/
@@ -277,5 +283,5 @@ CLAUDE.md                          -- 主配置（首先阅读这个，约 60 �
     workflow-catalog.yaml          -- 7 阶段管线定义（由 /help 读取）
     setup-requirements.md          -- 系统前提条件（Git Bash、jq、Python）
     settings-local-template.md     -- 个人 settings.local.json 指南
-    templates/                     -- 37 个文档模板
+    templates/                     -- 41 个文档模板
 ```

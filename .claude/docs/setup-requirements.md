@@ -15,8 +15,8 @@
 
 | 工具 | 使用者 | 用途 | 安装 |
 | ---- | ---- | ---- | ---- |
-| **jq** | Hooks（4/8 个） | 提交/推送/资源/agent hooks 中的 JSON 解析 | 见下文 |
-| **Python 3** | Hooks（2/8 个） | 数据文件的 JSON 验证 | [python.org](https://www.python.org/) |
+| **jq** | Hooks（7/12 个） | 提交/推送/资源/agent hooks 中的 JSON 解析 | 见下文 |
+| **Python 3** | Hooks（2/12 个） | 数据文件的 JSON 验证 | [python.org](https://www.python.org/) |
 | **Bash** | 所有 hooks | Shell 脚本执行 | Git for Windows 自带 |
 
 ### 安装 jq

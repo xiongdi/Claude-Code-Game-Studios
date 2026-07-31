@@ -132,4 +132,4 @@
 - [ ] 首先设计MVP层系统（使用 `/design-system [system-name]`）
 - [ ] 对每个完成的GDD运行 `/design-review`
 - [ ] 当MVP系统设计好时运行 `/gate-check pre-production`
-- [ ] 尽早对最高风险系统进行原型设计（`/prototype [system]`）
+- [ ] 在投入生产前对最高风险系统进行 `/vertical-slice` 验证

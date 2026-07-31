@@ -1,6 +1,6 @@
 # 可用技能（Slash Commands）
 
-68 个按阶段组织的 Slash 命令。在 Claude Code 中输入 `/` 访问其中任何一个。
+73 个按阶段组织的 Slash 命令。在 Claude Code 中输入 `/` 访问其中任何一个。
 
 ## 入门与导航
 
@@ -22,6 +22,14 @@
 | `/quick-design` | 轻量级设计规格用于小更改 — 调优、调整、小添加 |
 | `/review-all-gdds` | 跨 GDD 一致性和游戏设计整体性审查 |
 | `/propagate-design-change` | 当 GDD 修订时，找到受影响的 ADR 并生成影响报告 |
+
+## 美术与资源
+
+| 命令 | 用途 |
+|---------|---------|
+| `/art-bible` | 引导式逐节 Art Bible 创作 — 在资产生产开始前创建视觉身份规格 |
+| `/asset-spec` | 从 GDD、关卡文档或角色档案生成每资产视觉规格和 AI 生成提示 |
+| `/asset-audit` | 审计资源的命名约定、文件大小预算和管线合规 |
 
 ## UX 与界面设计
 
@@ -59,13 +67,13 @@
 | `/design-review` | 审查游戏设计文档的完整性和一致性 |
 | `/code-review` | 文件或更改集的架构代码审查 |
 | `/balance-check` | 分析游戏平衡数据、公式和配置 — 标记异常值 |
-| `/asset-audit` | 审计资源的命名约定、文件大小预算和管线合规 |
 | `/content-audit` | GDD 指定的内容计数与已实现内容的审计 |
 | `/scope-check` | 分析功能或 Sprint 范围与原始计划的对比，标记范围蔓延 |
 | `/perf-profile` | 带瓶颈识别的结构化性能分析 |
 | `/tech-debt` | 扫描、追踪、优先化和报告技术债务 |
 | `/gate-check` | 验证开发阶段之间前进的就绪状态（PASS/CONCERNS/FAIL） |
 | `/consistency-check` | 扫描所有 GDD 与实体注册表，检测跨文档不一致（相互矛盾的属性、名称、规则） |
+| `/security-audit` | 审计游戏的安全漏洞：存档篡改、作弊向量、网络利用、数据暴露和输入验证缺口 |
 
 ## QA 与测试
 
@@ -80,6 +88,7 @@
 | `/test-evidence-review` | 测试文件和手动证据的质量审查 |
 | `/test-flakiness` | 从 CI 运行历史检测 flaky 测试，标记隔离或修复 |
 | `/skill-test` | 验证技能文件是否符合结构和行为正确性 |
+| `/skill-improve` | 使用 test-fix-retest 循环改进技能 — 诊断、建议修复、重写、验证 |
 
 ## 制作
 
@@ -101,12 +110,14 @@
 | `/changelog` | 从 git 提交和 Sprint 数据自动生成变更日志 |
 | `/patch-notes` | 从 git 历史和内部数据生成玩家面向的补丁说明 |
 | `/hotfix` | 带审计追踪的紧急修复，绕过正常 Sprint 流程 |
+| `/day-one-patch` | 为金主后发现但发布前或发布时已知的 issues 准备聚焦的 day-one 补丁 |
 
 ## 创意与内容
 
 | 命令 | 用途 |
 |---------|---------|
-| `/prototype` | 一次性原型以验证机制（放宽标准，隔离工作树） |
+| `/prototype` | 概念原型 — brainstorm 后立即构建一次性构建验证核心想法（阶段 1） |
+| `/vertical-slice` | Pre-Production 验证 — 投入 Production 前构建生产级端到端构建（阶段 4） |
 | `/onboard` | 为新贡献者或 Agent 生成上下文入门文档 |
 | `/localize` | 本地化工作流：字符串提取、验证、翻译就绪 |
 
