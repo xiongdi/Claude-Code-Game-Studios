@@ -1,6 +1,6 @@
-# Skill Test Spec: /skill-test
+# 技能测试规格: /skill-test
 
-## Skill Summary
+## 技能摘要
 
 `/skill-test` 验证技能文件的结构正确性、行为合规性和类别评分。它以三种模式运行：
 
@@ -12,7 +12,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -24,13 +24,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/skill-test` 是一个元工具技能。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Static Mode — Well-formed skill, all 7 checks pass, COMPLIANT
 
@@ -156,7 +156,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] Static 模式恰好检查 7 个结构断言
 - [ ] Spec 模式单独评估规格文件中的每个测试用例
@@ -167,7 +167,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - skill-test 技能是自引用的（它可以测试自己）。为避免测试设计中的无限递归，skill-test 自身 SKILL.md 的 static 模式用例未单独进行 fixture 测试。
 - 具体的 7 个结构检查在技能正文中定义；只有检查 4（May I write）在此单独测试，因为它具有最细致的逻辑。

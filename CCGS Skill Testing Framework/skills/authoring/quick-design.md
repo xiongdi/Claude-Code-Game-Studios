@@ -1,6 +1,6 @@
-# Skill Test Spec: /quick-design
+# 技能测试规格: /quick-design
 
-## Skill Summary
+## 技能摘要
 
 `/quick-design` 为太小而不需要完整 8 章节 GDD 的功能生成轻量级设计规格。目标范围是单个系统功能的设计时间少于 4 小时。quick-design 规格不使用完整的 8 章节 GDD 格式，而是使用精简的 3 章节格式：Overview、Rules 和 Acceptance Criteria。
 
@@ -22,13 +22,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无 director gate——此 skill 不派生任何 director gate agent。quick-design 的轻量级性质意味着 director gate 开销被有意省略。对于 sub-4 小时单系统功能不需要完整 GDD 审查。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——小型 UI 更改产生 3 章节规格
 
@@ -145,7 +145,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 范围检查在起草前运行（如果范围太大则重定向到 `/design-system`）
 - [ ] 使用 3 章节格式（Overview、Rules、Acceptance Criteria）——不是 8 章节 GDD 格式
@@ -156,7 +156,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 范围阈值启发式（sub-4h，单系统）是判断问题——
   skill 的内部检查是权威定义，不通过计算小时数独立测试。

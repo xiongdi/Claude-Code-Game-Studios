@@ -1,6 +1,6 @@
 # Godot Rendering — 快速参考
 
-Last verified: 2026-02-12 | Engine: Godot 4.6
+最后验证: 2026-02-12 | 引擎: Godot 4.6
 
 ## 自 ~4.3 版本（LLM 截止）以来的变更
 

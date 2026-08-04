@@ -1,21 +1,21 @@
-# Godot Audio — Quick Reference
+# Godot Audio — 快速参考
 
-Last verified: 2026-02-12 | Engine: Godot 4.6
+最后验证: 2026-02-12 | 引擎: Godot 4.6
 
-## What Changed Since ~4.3 (LLM Cutoff)
+## 自 ~4.3 版本（LLM 截止）以来的变更
 
 4.4–4.6 版本中 audio API 没有重大破坏性更改。核心 audio 系统
 保持稳定。关键更新是工作流改进：
 
-### 4.6 Changes
+### 4.6 变更
 - **此版本没有 audio 特定的破坏性更改**
 
-### 4.5 Changes
+### 4.5 变更
 - **此版本没有 audio 特定的破坏性更改**
 
-## Current API Patterns
+## 当前 API 模式
 
-### Playing Audio
+### 播放音频
 ```gdscript
 @onready var sfx_player: AudioStreamPlayer = %SFXPlayer
 @onready var music_player: AudioStreamPlayer = %MusicPlayer

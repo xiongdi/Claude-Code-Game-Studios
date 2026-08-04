@@ -1,6 +1,6 @@
-# Skill Test Spec: /consistency-check
+# 技能测试规格: /consistency-check
 
-## Skill Summary
+## 技能摘要
 
 `/consistency-check` 扫描 `design/gdd/` 中的所有 GDD，检查文档之间的内部冲突。它生成一个结构化的结果表，列名为：System A vs System B、Conflict Type、Severity（HIGH / MEDIUM / LOW）。冲突类型包括：公式不匹配、所有权竞争、过时引用和依赖缺口。
 
@@ -21,13 +21,13 @@ Skill 在分析期间为只读。没有 director gate。如果用户请求，可
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无 director gate — 此 skill 不生成任何 director gate agent。一致性检查是机械扫描；扫描本身不需要创意或技术负责人审查。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 4 个 GDD 无冲突
 
@@ -158,7 +158,7 @@ Skill 在分析期间为只读。没有 director gate。如果用户请求，可
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 此 skill 检查 GDD 之间的结构一致性。深度设计理论分析（pillar drift、主导策略）由 `/review-all-gdds` 处理。
 - 公式冲突检测依赖于 GDD 之间一致的公式表示法 — 同一机制的非正式描述可能无法被检测到。

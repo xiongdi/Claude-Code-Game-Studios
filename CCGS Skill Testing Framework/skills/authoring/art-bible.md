@@ -1,6 +1,6 @@
-# Skill Test Spec: /art-bible
+# 技能测试规格: /art-bible
 
-## Skill Summary
+## 技能摘要
 
 `/art-bible` 是一个引导式逐章节 art bible 编写 skill。它生成涵盖以下内容的全面视觉方向文档：Visual Style 概述、Color Palette、Typography、Character Design Rules、Environment Style 和 UI Visual Language。该 skill 遵循 skeleton-first 模式：立即创建包含所有章节标题的文件，然后通过讨论填写每个章节，并在用户批准后逐个写入磁盘。
 
@@ -21,7 +21,7 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 | Gate ID      | 触发条件                       | 模式保护                    |
 |--------------|--------------------------------|-----------------------|
@@ -29,7 +29,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——full 模式，art bible 起草完成，AD-ART-BIBLE 批准
 
@@ -154,7 +154,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 立即创建骨架文件，包含所有章节标题
 - [ ] 一次讨论和起草一个章节
@@ -165,7 +165,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - AD-ART-BIBLE 返回 REJECT（不仅仅是 CONCERNS）的情况不单独测试；
   skill 会阻塞写入并询问用户如何继续（修改或覆盖）。

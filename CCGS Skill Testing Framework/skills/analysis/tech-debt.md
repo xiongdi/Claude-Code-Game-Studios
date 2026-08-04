@@ -1,6 +1,6 @@
-# Skill Test Spec: /tech-debt
+# 技能测试规格: /tech-debt
 
-## Skill Summary
+## 技能摘要
 
 `/tech-debt` 跟踪、分类和优先处理整个代码库的技术债务。它读取 `docs/tech-debt-register.md` 获取现有债务登记，并扫描 `src/` 中的源文件查找内联 `TODO` 和 `FIXME` 注释。它按严重级别合并和排序项目。不触发任何 director gate。Skill 在更新前会询问 "May I write to `docs/tech-debt-register.md`?"。判定结果：REGISTER UPDATED 或 NO NEW DEBT FOUND。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。技术债务跟踪是内部代码库分析技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 内联 TODO 加现有登记项合并
 
@@ -156,7 +156,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - `src/` 为空或不存在的情况未测试；行为对内联扫描遵循 NO NEW DEBT FOUND 路径，但登记项目仍会被读取和呈现。
 - 无严重级别标记的 TODO 注释默认视为 LOW 严重级别；此分类细节是实现问题，此处不测试。

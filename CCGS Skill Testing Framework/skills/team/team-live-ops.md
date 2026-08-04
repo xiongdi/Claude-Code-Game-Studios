@@ -1,12 +1,12 @@
-# Skill Test Spec: /team-live-ops
+# 技能测试规格: /team-live-ops
 
-## Skill Summary
+## 技能摘要
 
 协调 live-ops 团队完成一个 7 阶段规划流程，产出赛季或活动计划。协调 live-ops-designer、economy-designer、analytics-engineer、community-manager、narrative-director 和 writer。第 3 和第 4 阶段（经济设计和分析）同时运行。以一个需要用户审批的整合赛季计划结束，然后交接给制作。
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 - [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
 - [ ] Has ≥2 phase headings
@@ -21,7 +21,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — All 7 phases complete, season plan produced
 
@@ -166,7 +166,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - Phase 5 parallel spawning (narrative-director + writer) follows the same pattern as Phases 3/4 but is not separately tested here — it uses the same parallel Task protocol validated in Case 4.
 - The "economy-rules.md absent" edge case is not separately tested — it would surface as a BLOCKED result from economy-designer and follow the standard error recovery path tested implicitly in Case 4.

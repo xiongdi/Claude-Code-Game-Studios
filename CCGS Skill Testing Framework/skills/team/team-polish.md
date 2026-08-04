@@ -1,12 +1,12 @@
-# Skill Test Spec: /team-polish
+# 技能测试规格: /team-polish
 
-## Skill Summary
+## 技能摘要
 
 协调打磨团队完成一个六阶段流程：performance assessment（performance-analyst）→ optimization（performance-analyst，当发现引擎级根因时可选 engine-programmer）→ visual polish（technical-artist，与 Phase 2 并行）→ audio polish（sound-designer，与 Phase 2 并行）→ hardening（qa-tester）→ sign-off（orchestrator 收集所有结果并发布 READY FOR RELEASE 或 NEEDS MORE WORK）。在每个阶段转换时使用 `AskUserQuestion`。engine-programmer 仅在 Phase 1 识别出引擎级根因时按条件派生。裁决为 READY FOR RELEASE 或 NEEDS MORE WORK。
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 - [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
 - [ ] Has ≥2 phase headings
@@ -23,7 +23,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Full pipeline completes, READY FOR RELEASE verdict
 
@@ -194,7 +194,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - The tools-programmer optional agent (for content pipeline tool verification) is not
   separately tested — it follows the same conditional spawn pattern as engine-programmer

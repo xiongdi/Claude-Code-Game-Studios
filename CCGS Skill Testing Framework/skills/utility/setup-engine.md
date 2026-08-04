@@ -1,6 +1,6 @@
-# Skill Test Spec: /setup-engine
+# 技能测试规格: /setup-engine
 
-## Skill Summary
+## 技能摘要
 
 `/setup-engine` 通过填充 `technical-preferences.md` 来配置项目的引擎、语言、渲染后端、物理引擎、专家 agent 分配和命名约定。它接受可选的引擎参数（例如，`/setup-engine godot`）以跳过引擎选择步骤。对于 `technical-preferences.md` 的每个部分，该技能会展示一个草稿并在更新前询问 "May I write to `technical-preferences.md`?"。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/setup-engine` 是一个技术配置技能。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Godot 4 + GDScript — Full engine configuration
 
@@ -152,7 +152,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在请求写入前展示配置草稿
 - [ ] 在写入前询问 "May I write to `technical-preferences.md`?"
@@ -163,7 +163,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - Godot 4 + C#（而不是 GDScript）遵循与 Case 1 相同的流程，但使用不同的命名约定和 godot-csharp-specialist 分配。此变体未单独测试。
 - 引擎版本特定的指导（例如，来自 VERSION.md 的 Godot 4.6 知识差距警告）由技能呈现，但在此不进行断言测试。

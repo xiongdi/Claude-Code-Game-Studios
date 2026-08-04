@@ -1,6 +1,6 @@
-# Skill Test Spec: /code-review
+# 技能测试规格: /code-review
 
-## Skill Summary
+## 技能摘要
 
 `/code-review` 对 `src/` 中的源文件执行架构代码审查，检查 `CLAUDE.md` 中的编码标准（公共 API 的文档注释、依赖注入优于单例、数据驱动的值、可测试性）。审查结果为建议性（advisory）。不触发任何 director gate。不修改任何代码。判定结果：APPROVED、CONCERNS 或 NEEDS CHANGES。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。代码审查是只读的建议性技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 源文件遵循所有编码标准
 
@@ -160,7 +160,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 未显式测试目录中所有文件的批量审查行为；假设逐文件应用相同检查并汇总判定。
 - 测试覆盖率检查（验证对应测试文件是否存在）是延伸目标，此处不测试；这主要是 `/test-evidence-review` 的领域。

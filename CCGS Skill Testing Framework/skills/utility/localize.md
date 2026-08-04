@@ -1,6 +1,6 @@
-# Skill Test Spec: /localize
+# 技能测试规格: /localize
 
-## Skill Summary
+## 技能摘要
 
 `/localize` 管理完整的本地化管道：它从源文件中提取所有面向玩家的字符串，管理 `assets/localization/` 中的翻译文件，并验证所有区域设置文件的完整性。对于新语言，它创建一个以所有当前字符串作为键、值为空的区域设置文件骨架。对于现有区域设置文件，它生成一个显示添加、删除和更改键的差异报告。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/localize` 是一个管道工具。不适用 director gate。localization lead agent 可能单独审查，但不会在此 skill 中调用。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: New Language — String Extraction and Locale Skeleton Created
 
@@ -145,7 +145,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在对区域设置文件进行操作前从源代码提取字符串
 - [ ] 创建所有键为空值的新区域设置文件（不是自动翻译）
@@ -156,7 +156,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 仅当所有区域设置文件的所有键都有非空值时才能实现 LOCALIZATION COMPLETE；新语言骨架创建总是导致 GAPS FOUND。
 - 引擎特定的区域设置格式（Godot `.translation`、Unity `.po` 文件）由技能正文处理；`.csv` 在测试中用作规范格式。

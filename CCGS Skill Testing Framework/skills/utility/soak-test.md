@@ -1,6 +1,6 @@
-# Skill Test Spec: /soak-test
+# 技能测试规格: /soak-test
 
-## Skill Summary
+## 技能摘要
 
 `/soak-test` 生成一个结构化的 soak 测试协议——一个扩展运行时测试计划，旨在暴露内存泄漏、性能漂移和仅在持续游戏过程中才会出现的稳定性问题。该技能生成一个文档，指定测试持续时间、被测系统、监控检查点（例如，每 30 分钟内存采样）、通过/失败阈值以及提前终止条件。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/soak-test` 是一个 QA 计划工具。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Online gameplay feature, 2-hour soak protocol
 
@@ -144,7 +144,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在生成协议前收集系统、持续时间和条件
 - [ ] 包括定期间隔的监控检查点
@@ -155,7 +155,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 针对特定引擎子系统（渲染管线、物理模拟）的 soak 测试遵循相同的协议结构，未单独测试。
 - 用户提供短于最短有用 soak 周期（例如，5 分钟）的持续时间的情况未测试；skill 会注明这对于有意义的结果来说太短了。

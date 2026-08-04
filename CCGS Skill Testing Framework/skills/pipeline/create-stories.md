@@ -1,6 +1,6 @@
-# Skill Test Spec: /create-stories
+# 技能测试规格: /create-stories
 
-## Skill Summary
+## 技能摘要
 
 `/create-stories` 将单个 epic 拆分为开发者就绪的 story 文件。它读取 EPIC.md、对应的 GDD、governing ADR、control manifest 和 TR registry。每个 story 获得结构化的 frontmatter，包括：Title、Epic、Layer、Priority、Status、TR-ID、ADR references、Acceptance Criteria 和 Definition of Done。Story 按类型分类（Logic / Integration / Visual/Feel / UI / Config/Data），类型决定所需的测试证据路径。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 Verified automatically by `/skill-test static` — no fixture needed.
 
@@ -22,7 +22,7 @@ Verified automatically by `/skill-test static` — no fixture needed.
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 In `full` mode: QL-STORY-READY check runs per story after creation. Stories that
 fail the check are noted as NEEDS WORK before the "May I write" ask.
@@ -34,7 +34,7 @@ In `solo` mode: QL-STORY-READY is skipped with equivalent notes.
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Epic with 3 stories, all ADRs Accepted
 
@@ -173,7 +173,7 @@ In `solo` mode: QL-STORY-READY is skipped with equivalent notes.
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - Integration story test evidence (playtest doc alternative) follows the same
   approval pattern as Logic stories — not independently fixture-tested.

@@ -1,12 +1,12 @@
-# Skill Test Spec: /team-combat
+# 技能测试规格: /team-combat
 
-## Skill Summary
+## 技能摘要
 
 协调完整的战斗团队端到端流程，完成单个战斗功能。协调 game-designer、gameplay-programmer、ai-programmer、technical-artist、sound-designer、主要引擎专家和 qa-tester 六个结构化阶段：Design → Architecture（含引擎专家验证）→ Implementation（并行）→ Integration → Validation → Sign-off。在每个阶段转换时使用 `AskUserQuestion`。将所有文件写入委托给 sub-agent。生成包含 COMPLETE / NEEDS WORK / BLOCKED 裁决的摘要报告，并交接给 `/code-review`、`/balance-check`、`/team-polish`。
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 - [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
 - [ ] Has ≥2 phase headings (Phase 1 through Phase 6 are all present)
@@ -21,7 +21,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — All agents succeed, full pipeline runs to completion
 
@@ -161,7 +161,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - The NEEDS WORK verdict path (qa-tester finds failures in Phase 5) is not separately tested
   here; it follows the same error recovery and partial report protocol as Case 2.

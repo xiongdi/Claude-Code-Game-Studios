@@ -1,6 +1,6 @@
-# Skill Test Spec: /create-epics
+# 技能测试规格: /create-epics
 
-## Skill Summary
+## 技能摘要
 
 `/create-epics` 读取所有已批准的 GDD 并将其转换为 EPIC.md 文件，每个系统一个。Epic 按层级组织（Foundation → Core → Feature → Presentation），并在每个层级内按优先级顺序处理。每个 EPIC.md 包含 scope、governing ADR、GDD 需求、引擎风险级别和 Definition of Done。在创建每个 EPIC 文件之前会询问 "May I write"。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 Verified automatically by `/skill-test static` — no fixture needed.
 
@@ -21,7 +21,7 @@ Verified automatically by `/skill-test static` — no fixture needed.
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 In `full` mode: PR-EPIC (producer) gate runs after epics are drafted and before
 any epic file is written. If PR-EPIC returns CONCERNS, epics are revised before
@@ -33,7 +33,7 @@ In `solo` mode: PR-EPIC is skipped. Output notes: "PR-EPIC skipped — solo mode
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Two approved GDDs create two EPIC files
 
@@ -174,7 +174,7 @@ In `solo` mode: PR-EPIC is skipped. Output notes: "PR-EPIC skipped — solo mode
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - Processing of Core, Feature, and Presentation layers follows the same per-epic
   pattern as Foundation — layer-specific ordering is not independently tested.

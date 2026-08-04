@@ -1,12 +1,12 @@
-# Skill Test Spec: /team-ui
+# 技能测试规格: /team-ui
 
-## Skill Summary
+## 技能摘要
 
 协调 UI 团队完成单个 UI 功能的完整 UX 流程。协调 ux-designer、ui-programmer、art-director、引擎 UI 专家和 accessibility-specialist 五个结构化阶段：Context Gathering + UX Spec（Phase 1a/1b）→ UX Review Gate（Phase 1c）→ Visual Design（Phase 2）→ Implementation（Phase 3）→ Review in parallel（Phase 4）→ Polish（Phase 5）。在每个阶段转换时使用 `AskUserQuestion`。将所有文件写入委托给 sub-agent 和 sub-skill（`/ux-design`、`ui-programmer`）。生成包含 COMPLETE / BLOCKED 裁决的摘要报告，并交接给 `/ux-review`、`/code-review`、`/team-polish`。
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 - [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
 - [ ] Has ≥2 phase headings (Phase 1a through Phase 5 are all present)
@@ -23,7 +23,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Full pipeline from UX spec through polish succeeds
 
@@ -180,7 +180,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - The HUD-specific path (`/ux-design hud` + `hud-design.md` template + visual budget check in Phase 5)
   is not separately tested here; it shares the same phase structure but uses different templates.

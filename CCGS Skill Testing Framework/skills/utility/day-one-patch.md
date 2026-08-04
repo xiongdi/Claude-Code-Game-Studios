@@ -1,6 +1,6 @@
-# Skill Test Spec: /day-one-patch
+# 技能测试规格: /day-one-patch
 
-## Skill Summary
+## 技能摘要
 
 `/day-one-patch` 为发布时已知但从 v1.0 版本推迟的问题准备一个 day-one 补丁计划。它读取 `production/bugs/` 中的未解决 bug 报告、story 文件中的推迟验收标准（标记为 `Status: Done` 但带有推迟 AC 注释的 story），并生成一个按优先级排序的补丁计划，包含每个问题的预计修复时间。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/day-one-patch` 是一个发布计划工具。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 3 Known Issues, Patch Plan With Fix Estimates
 
@@ -145,7 +145,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在生成计划前从 `production/bugs/` 读取未解决的 bug
 - [ ] 扫描 story 文件中的推迟 AC 注释
@@ -156,7 +156,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 存在多个 CRITICAL bug 的情况与 Case 2 处理方式相同；所有 P0 问题一起升级。
 - 补丁的时间线估计（例如，"patch available in 3 天"）需要手动 QA 和构建时间估计；技能基于严重性使用粗略估计，而不是实际团队速度。

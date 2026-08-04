@@ -1,6 +1,6 @@
-# Skill Test Spec: /create-control-manifest
+# 技能测试规格: /create-control-manifest
 
-## Skill Summary
+## 技能摘要
 
 `/create-control-manifest` 从 `docs/architecture/` 读取所有 Accepted ADR，并生成一份 control manifest —— 一份汇总文档，在一个地方捕获所有架构约束、必需模式和禁止模式。该 manifest 是 story 作者编写 story 文件时使用的参考文档，确保 story 无需逐个阅读所有 ADR 即可继承正确的架构规则。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 Verified automatically by `/skill-test static` — no fixture needed.
 
@@ -21,7 +21,7 @@ Verified automatically by `/skill-test static` — no fixture needed.
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 No director gates — this skill spawns no director gate agents. The control
 manifest is a mechanical extraction from Accepted ADRs; no creative or technical
@@ -29,7 +29,7 @@ review gate is needed.
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 4 Accepted ADRs create a correct manifest
 
@@ -158,7 +158,7 @@ review gate is needed.
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - The exact section structure of the generated manifest (constraint tables, pattern
   lists) is defined by the skill body and not re-enumerated in test assertions.

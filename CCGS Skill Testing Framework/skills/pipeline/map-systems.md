@@ -1,6 +1,6 @@
-# Skill Test Spec: /map-systems
+# 技能测试规格: /map-systems
 
-## Skill Summary
+## 技能摘要
 
 `/map-systems` 将游戏概念分解为系统索引。它读取已批准的游戏概念和支柱，枚举显式和隐式系统，映射系统之间的依赖关系，分配优先级层级（MVP / Vertical Slice / Alpha / Full Vision），并将系统组织为分层设计顺序（Foundation → Core → Feature → Presentation）。输出在用户批准后写入 `design/systems-index.md`。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 Verified automatically by `/skill-test static` — no fixture needed.
 
@@ -21,7 +21,7 @@ Verified automatically by `/skill-test static` — no fixture needed.
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 In `full` mode: CD-SYSTEMS (creative-director) and TD-SYSTEM-BOUNDARY
 (technical-director) spawn in parallel after the systems decomposition is drafted
@@ -34,7 +34,7 @@ In `solo` mode: both gates are skipped with equivalent notes.
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Game concept exists, 5-8 systems identified
 
@@ -177,7 +177,7 @@ In `solo` mode: both gates are skipped with equivalent notes.
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - Circular dependency detection (System A depends on System B which depends on A)
   is part of the dependency mapping phase — not independently fixture-tested here.

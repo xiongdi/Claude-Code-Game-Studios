@@ -1,13 +1,13 @@
 # Godot — 已弃用 API
 
-Last verified: 2026-02-12
+最后验证: 2026-02-12
 
 如果 agent 建议使用 "Deprecated" 列中的任何 API，必须替换为 "Use Instead" 列中的内容。
 
 ## 节点与类
 
-| Deprecated | Use Instead | Since | Notes |
-|------------|-------------|-------|-------|
+| 已弃用 | 替代为 | 起始版本 | 备注 |
+|---------|--------|---------|------|
 | `TileMap` | `TileMapLayer` | 4.3 | 每层一个节点，而非多层节点 |
 | `VisibilityNotifier2D` | `VisibleOnScreenNotifier2D` | 4.0 | 为清晰而重命名 |
 | `VisibilityNotifier3D` | `VisibleOnScreenNotifier3D` | 4.0 | 为清晰而重命名 |
@@ -17,8 +17,8 @@ Last verified: 2026-02-12
 
 ## 方法与属性
 
-| Deprecated | Use Instead | Since | Notes |
-|------------|-------------|-------|-------|
+| 已弃用 | 替代为 | 起始版本 | 备注 |
+|---------|--------|---------|------|
 | `yield()` | `await signal` | 4.0 | GDScript 2.0 协程语法 |
 | `connect("signal", obj, "method")` | `signal.connect(callable)` | 4.0 | 基于 Callable 的连接 |
 | `instance()` | `instantiate()` | 4.0 | 重命名 |

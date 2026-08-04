@@ -1,6 +1,6 @@
-# Skill Test Spec: /regression-suite
+# 技能测试规格: /regression-suite
 
-## Skill Summary
+## 技能摘要
 
 `/regression-suite` 将测试覆盖率映射到 GDD 需求：它读取当前 sprint（或指定 epic）中 story 文件的验收标准，然后扫描 `tests/` 中对应的测试文件并检查每个 AC 是否有匹配的断言。它生成覆盖率报告，识别哪些 AC 完全覆盖、部分覆盖或未测试，以及哪些测试文件没有匹配的 AC（孤立测试）。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/regression-suite` 是 QA 分析实用工具。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Full Coverage——Sprint 中的所有 AC 都有对应测试
 
@@ -143,7 +143,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在扫描测试前从 sprint 文件读取 story AC
 - [ ] 通过系统名称和场景匹配 AC 到测试（不是仅文件名）
@@ -154,7 +154,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 将 AC 匹配到测试的启发式方法（通过系统名称 + 场景关键词）是近似的；
   精确定义在 skill 正文中。

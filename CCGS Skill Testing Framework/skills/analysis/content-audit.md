@@ -1,6 +1,6 @@
-# Skill Test Spec: /content-audit
+# 技能测试规格: /content-audit
 
-## Skill Summary
+## 技能摘要
 
 `/content-audit` 读取 `design/gdd/` 中的 GDD，检查其中指定的所有内容项（敌人、物品、关卡等）是否都在 `assets/` 中有对应。它生成一个缺口表：Content Type → Specified Count → Found Count → Missing Items。不触发任何 director gate。Skill 未经用户批准不写入。判定结果：COMPLETE、GAPS FOUND 或 MISSING CRITICAL CONTENT。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。内容审计是只读分析技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 所有指定内容都存在
 
@@ -151,7 +151,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - MISSING CRITICAL CONTENT 判定（对比 GAPS FOUND）在缺失项在 GDD 中被标记为 critical 时触发；此处未显式测试，但遵循相同的检测路径。
 - `assets/` 目录不存在的情况未测试；skill 会对所有指定项产生 MISSING CRITICAL CONTENT 判定。

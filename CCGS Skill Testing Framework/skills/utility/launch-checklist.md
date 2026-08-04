@@ -1,6 +1,6 @@
-# Skill Test Spec: /launch-checklist
+# 技能测试规格: /launch-checklist
 
-## Skill Summary
+## 技能摘要
 
 `/launch-checklist` 生成并评估一个完整的发布准备清单，涵盖：法律合规（EULA、隐私政策、ESRB/PEGI 评级）、平台认证状态、商店页面完整性（截图、描述、元数据）、构建验证（版本标签、可重现构建）、分析和崩溃报告配置以及首次运行体验验证。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/launch-checklist` 是一个准备状态审计工具。完整的发布管道由 `/team-release` 管理。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — All Checklist Items Verified, LAUNCH READY
 
@@ -150,7 +150,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 检查所有必需类别（法律、平台、商店、构建、分析、UX）
 - [ ] 对硬失败（未完成的认证、缺失的法律文档）使用 LAUNCH BLOCKED
@@ -161,7 +161,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 特定区域合规（GDPR 数据处理、COPPA 针对 13 岁以下受众）会被检查，但具体需求未在测试断言中枚举。
 - 商店页面完整性检查（截图、描述）依赖于 `production/store/` 中文件的存在；它无法验证视觉质量。

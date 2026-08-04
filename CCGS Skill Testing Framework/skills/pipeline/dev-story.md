@@ -1,6 +1,6 @@
-# Skill Test Spec: /dev-story
+# 技能测试规格: /dev-story
 
-## Skill Summary
+## 技能摘要
 
 `/dev-story` 读取一个 story 文件，加载所有必需上下文（引用的 ADR、注册表中的 TR-ID、control manifest、引擎偏好），实现 story，验证所有验收标准均已满足，并将 story 标记为 Complete。该 skill 根据引擎和文件类型将实现路由到正确的专家 agent —— 它不直接编写源代码。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 Verified automatically by `/skill-test static` — no fixture needed.
 
@@ -22,7 +22,7 @@ Verified automatically by `/skill-test static` — no fixture needed.
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 In `full` mode: LP-CODE-REVIEW gate runs after implementation is complete and all
 criteria are verified, before marking the story Complete.
@@ -34,7 +34,7 @@ In `solo` mode: LP-CODE-REVIEW is skipped with equivalent notes.
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Story implemented and marked Complete (full mode)
 
@@ -188,7 +188,7 @@ In `solo` mode: LP-CODE-REVIEW is skipped with equivalent notes.
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - Engine routing logic (Godot vs Unity vs Unreal) is not tested per engine —
   the routing pattern is consistent; engine selection is a config fact.

@@ -1,6 +1,6 @@
-# Skill Test Spec: /estimate
+# 技能测试规格: /estimate
 
-## Skill Summary
+## 技能摘要
 
 `/estimate` 使用相对大小量表（S / M / L / XL）估算任务或 story 的工作量，基于 story 复杂度、验收标准数量和过去 sprint 文件中的历史 sprint 速度。估算结果为建议性，从不自动写入。不触发任何 director gate。判定结果是工作量范围，而非 pass/fail — 每次运行都会产生估算。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。估算是建议性信息技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 技术栈清晰明确的 story
 
@@ -155,7 +155,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 此 skill 不产生 PASS/FAIL 判定；此处的"判定"是工作量范围本身。测试断言关注范围的准确性和理由的质量，而非二元结果。
 - 团队特定的速度校准（"M" 对团队意味着什么）是此处未测试的实现细节；它通过 sprint 历史配置。

@@ -1,6 +1,6 @@
-# Skill Test Spec: /create-architecture
+# 技能测试规格: /create-architecture
 
-## Skill Summary
+## 技能摘要
 
 `/create-architecture` 引导用户逐章节编写技术架构文档。它使用 skeleton-first 方法——文件先创建包含所有必需章节标题，然后任何内容才填充。每个章节在用户批准后单独讨论、起草和写入。如果架构文档已存在，该 skill 提供改造模式以更新特定章节。
 
@@ -23,7 +23,7 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 在 `full` 模式下：TD-ARCHITECTURE（technical-director）和 LP-FEASIBILITY
 （lead-programmer）在所有章节起草后、任何最终批准写入前并行派生。
@@ -35,7 +35,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——新架构文档，skeleton-first，full 模式 gate 批准
 
@@ -157,7 +157,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 骨架文件先创建，包含所有章节标题，在任何内容写入之前
 - [ ] 在编写过程中逐章节询问 "May I write [section]?"
@@ -168,7 +168,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 架构文档的必需章节列表在 skill 正文和 `/architecture-review` skill 中定义——不在此重新列举。
 - 架构文档中的引擎版本戳记（类似于 ADR 戳记）是编写工作流的一部分——通过 Case 1 隐式测试。

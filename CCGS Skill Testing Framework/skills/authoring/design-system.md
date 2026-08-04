@@ -1,6 +1,6 @@
-# Skill Test Spec: /design-system
+# 技能测试规格: /design-system
 
-## Skill Summary
+## 技能摘要
 
 `/design-system` 引导用户逐章节编写单个游戏系统的游戏设计文档（GDD）。所有 8 个必需章节都必须编写：Overview、Player Fantasy、Detailed Rules、Formulas、Edge Cases、Dependencies、Tuning Knobs 和 Acceptance Criteria。该 skill 使用 skeleton-first 方法——在填写任何内容之前创建包含所有 8 个章节标题的 GDD 文件——并在批准后逐个写入每个章节。
 
@@ -23,7 +23,7 @@ CD-GDD-ALIGN gate（creative-director）在 `full` 和 `lean` 模式下都运行
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 在 `full` 模式下：CD-GDD-ALIGN（creative-director）gate 在每个章节起草后、写入前运行。如果返回 MAJOR REVISION，该章节必须重写后才能继续。
 
@@ -34,7 +34,7 @@ CD-GDD-ALIGN gate（creative-director）在 `full` 和 `lean` 模式下都运行
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——新 GDD，skeleton-first，lean 模式下的 CD-GDD-ALIGN
 
@@ -159,7 +159,7 @@ CD-GDD-ALIGN gate（creative-director）在 `full` 和 `lean` 模式下都运行
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 骨架文件先创建，包含所有 8 个标题，在任何内容写入之前
 - [ ] CD-GDD-ALIGN 在 full 和 lean 模式下都运行（不仅是 full）
@@ -171,7 +171,7 @@ CD-GDD-ALIGN gate（creative-director）在 `full` 和 `lean` 模式下都运行
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 8 个必需章节根据 `CLAUDE.md` 中定义的项目设计文档标准进行验证——不在此重新列举。
 - Skill 内部的章节排序逻辑（先编写哪个章节）不单独测试——顺序遵循标准 GDD 模板。
