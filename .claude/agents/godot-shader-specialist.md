@@ -179,7 +179,7 @@ void fragment() {
 
 ## 后处理
 
-### WorldEnvironment
+### WorldEnvironment（世界环境）
 - 对场景范围效果使用带有 `Environment` 资源的 `WorldEnvironment` 节点
 - 按环境配置：辉光、色调映射、SSAO、SSR、雾、调整
 - 对不同区域使用多个环境（室内 vs 室外）

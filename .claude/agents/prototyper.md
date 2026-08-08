@@ -159,7 +159,7 @@ isolation: worktree
 **垂直切片** -> `prototypes/[name]-vertical-slice/REPORT.md`
 使用模板：`.claude/docs/templates/vertical-slice-report.md`
 
-**Spike** -> `prototypes/[name]-spike-[date]/SPIKE-NOTE.md`
+**Spike（尖峰验证）** -> `prototypes/[name]-spike-[date]/SPIKE-NOTE.md`
 无模板——简要说明：问题、YES/NO/PARTIAL 结果、下一步行动。
 
 **索引** -> `prototypes/index.md`——在每次写入 REPORT.md 或 SPIKE-NOTE.md 后更新。

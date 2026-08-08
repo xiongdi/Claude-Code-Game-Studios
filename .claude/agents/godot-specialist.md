@@ -106,7 +106,7 @@ maxTurns: 20
 - 对大量相同网格使用 `MultiMeshInstance`
 - 使用 Godot 内置分析器和监视器进行分析 — 检查 `Performance` 单例
 
-### Autoloads
+### Autoload 模式
 - 谨慎使用 — 仅用于真正的全局系统（音频管理器、存档系统、事件总线）
 - Autoloads 不得依赖于场景特定状态
 - 永远不要将 autoloads 用作便利函数的垃圾场

@@ -67,7 +67,7 @@ maxTurns: 10
 
 **各引擎模式：**
 
-#### Godot (GDScript / GdUnit4)
+#### Godot（GDScript / GdUnit4）
 
 ```gdscript
 extends GdUnitTestSuite
@@ -83,7 +83,7 @@ func test_[scenario]_[expected]() -> void:
     assert_that(result).is_equal([expected])
 ```
 
-#### Unity (C# / NUnit)
+#### Unity（C# / NUnit）
 
 ```csharp
 [TestFixture]
@@ -104,7 +104,7 @@ public class [SystemName]Tests
 }
 ```
 
-#### Unreal (C++)
+#### Unreal（C++）
 
 ```cpp
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
