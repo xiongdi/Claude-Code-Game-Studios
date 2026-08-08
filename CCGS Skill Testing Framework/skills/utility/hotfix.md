@@ -1,6 +1,6 @@
-# Skill Test Spec: /hotfix
+# 技能测试规格: /hotfix
 
-## Skill Summary
+## 技能摘要
 
 `/hotfix` 管理紧急修复工作流：它从 main 创建 hotfix 分支，对识别的文件应用有针对性的修复，运行 `/smoke-check` 验证修复不会引入回退，并提示用户确认合并回 main。每次代码更改都需要 "May I write to [filepath]?" 询问。Git 操作（分支创建、合并）作为 Bash 命令呈现给用户确认后再执行。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。Hotfix 对时间要求严格。Director 审查可能作为事后步骤单独进行。此技能中不调用任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Critical crash bug fixed, smoke check passes
 
@@ -143,7 +143,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在进行任何代码更改之前创建 hotfix 分支
 - [ ] 在修改任何源文件之前询问 "May I write"
@@ -154,7 +154,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 一次修复需要修改多个文件的情况遵循相同的每个文件 "May I write" 模式，未单独测试。
 - Hotfix 后的步骤（创建 bug 报告、更新 changelog）在交接中建议，但不作为此技能执行的一部分进行测试。

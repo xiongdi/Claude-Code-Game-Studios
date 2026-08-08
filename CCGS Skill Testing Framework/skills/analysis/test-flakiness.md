@@ -1,6 +1,6 @@
-# Skill Test Spec: /test-flakiness
+# 技能测试规格: /test-flakiness
 
-## Skill Summary
+## 技能摘要
 
 `/test-flakiness` 通过分析测试历史日志（如果可用）或扫描测试源代码中的常见 flakiness 模式（无种子的随机数、实时等待、外部 I/O）来检测非确定性测试。不触发任何 director gate。Skill 未经用户批准不写入。判定结果：NO FLAKINESS、SUSPECT TESTS FOUND 或 CONFIRMED FLAKY。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。Flakiness 检测是供 QA 负责人使用的建议性质量技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 干净的测试历史，无 flakiness
 
@@ -162,7 +162,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - SUSPECT 分类的通过率阈值（上面建议的 95%）是实现细节；测试验证间歇性失败被标记，而非精确阈值值。
 - 因环境问题（缺少资源、错误平台）失败的测试不属于 flakiness — skill 区分环境失败与测试本身的非确定性；此处未显式测试此区分。

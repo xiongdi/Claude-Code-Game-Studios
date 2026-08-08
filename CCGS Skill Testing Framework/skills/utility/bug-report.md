@@ -1,6 +1,6 @@
-# Skill Test Spec: /bug-report
+# 技能测试规格: /bug-report
 
-## Skill Summary
+## 技能摘要
 
 `/bug-report` 从用户描述创建结构化 bug 报告文档。它生成具有以下必需字段的报告：Title、Repro Steps、Expected Behavior、Actual Behavior、Severity（CRITICAL/HIGH/MEDIUM/LOW）、Affected System(s) 和 Build/Version。如果用户的初始描述缺少任何必需字段，该 skill 会提出后续问题以在产生草案前填补空白。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/bug-report` 是操作文档 skill。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——用户描述崩溃，生成完整报告
 
@@ -144,7 +144,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在起草报告前收集所有 7 个必需字段
 - [ ] 对任何缺失的必需字段提出后续问题
@@ -154,7 +154,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 用户提供的严重性对于描述的影响来说似乎太低的情况（例如，崩溃为 LOW）不在此测试；
   skill 可能建议更高的严重性但最终尊重用户输入。

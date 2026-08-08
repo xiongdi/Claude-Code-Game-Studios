@@ -1,6 +1,6 @@
-# Skill 测试规格：/team-live-ops
+# 技能测试规格: /team-live-ops
 
-## Skill 摘要
+## 技能摘要
 
 协调 live-ops 团队完成一个 7 阶段规划流程，产出赛季或活动计划。协调 live-ops-designer、economy-designer、analytics-engineer、community-manager、narrative-director 和 writer。第 3 和第 4 阶段（经济设计和分析）同时运行。以一个需要用户审批的整合赛季计划结束，然后交接给制作。
 

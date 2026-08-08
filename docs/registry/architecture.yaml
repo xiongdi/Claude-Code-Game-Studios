@@ -1,89 +1,88 @@
-# Architecture Decision Registry
+# 架构决策注册表
 #
-# PURPOSE: Single source of truth for key architectural stances that all ADRs
-# must agree on. Skills check this before writing new ADRs to detect conflicts
-# at authoring time — before stories are created against contradictory decisions.
+# 用途：关键架构立场的唯一真相来源，所有 ADR 必须与此一致。
+# 技能在编写新 ADR 前检查此表，以便在编写时检测冲突 —
+# 在针对矛盾决策创建 story 之前。
 #
-# RULES:
-#   - Register a stance when it constrains how OTHER systems must be built.
-#     An internal implementation detail that affects only one ADR does not need
-#     to be registered.
-#   - Never delete entries — set status: superseded_by: ADR-NNNN instead.
-#   - When a stance changes: update the entry, set revised: to today's date,
-#     add a comment with the old value, and run /architecture-review to check
-#     what ADRs are now invalidated.
-#   - adr: is the authoritative source. All other ADRs that depend on this
-#     stance list themselves in referenced_by.
+# 规则：
+#   - 当立场约束其他系统必须如何构建时注册。
+#     仅影响单个 ADR 的内部实现细节不需要注册。
+#   - 永远不要删除条目 — 改为设置 status: superseded_by: ADR-NNNN。
+#   - 当立场变更时：更新条目，设置 revised: 为今天日期，
+#     添加包含旧值的注释，并运行 /architecture-review 检查
+#     哪些 ADR 现在已失效。
+#   - adr: 是权威来源。所有依赖此立场的其他 ADR
+#     在 referenced_by 中列出自身。
 #
-# WRITTEN BY: /architecture-decision (Phase 5 — after ADR is approved)
-# READ BY:    /architecture-decision (Step 2 — before authoring begins)
-#             /architecture-review (Phase 4 — cross-ADR conflict baseline)
-#             /create-stories (to embed architectural constraints in stories)
-#             /dev-story (to check implementation against accepted stances)
+# 编写者：/architecture-decision（阶段 5 — ADR 被批准后）
+# 读取者：/architecture-decision（步骤 2 — 编写开始前）
+#          /architecture-review（阶段 4 — 跨 ADR 冲突基线）
+#          /create-stories（在 story 中嵌入架构约束）
+#          /dev-story（检查实现是否符合已接受的立场）
 #
-# SEARCH PATTERNS (for skills using Grep):
-#   All state owners:       Grep pattern="^  - state:" path="docs/registry/architecture.yaml"
-#   Who owns player_health: Grep pattern="state: player_health"
-#   All signal contracts:   Grep pattern="pattern: signal"
-#   Budget for combat:      Grep pattern="system: combat"
-#   All forbidden patterns: Grep pattern="^  - pattern:" (forbidden_patterns section)
-#   Superseded entries:     Grep pattern="status: superseded"
+# 搜索模式（供使用 Grep 的技能）：
+#   所有状态所有者：       Grep pattern="^  - state:" path="docs/registry/architecture.yaml"
+#   谁拥有 player_health：Grep pattern="state: player_health"
+#   所有信号契约：         Grep pattern="pattern: signal"
+#   战斗的预算：           Grep pattern="system: combat"
+#   所有禁止模式：         Grep pattern="^  - pattern:"（forbidden_patterns 部分）
+#   已取代的条目：         Grep pattern="status: superseded"
 
 version: 1
 last_updated: ""
 
-# ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
-# Who is the authoritative owner of each piece of shared game state.
-# Conflicts: two ADRs claiming to own the same state = data race / authority bug.
+# ─── 状态所有权 ─────────────────────────────────────────────────────────────
+# 谁是每块共享游戏状态的权威所有者。
+# 冲突：两个 ADR 声称拥有相同状态 = 数据竞争 / 权限错误。
 #
-# Register state when it is READ or WRITTEN by more than one system.
-# Internal-only state (never accessed by another system) does not need to be registered.
+# 当状态被多个系统读取或写入时注册。
+# 仅内部状态（从未被其他系统访问）不需要注册。
 #
-# Required fields: state, owner_system, adr, interface, referenced_by[], added
-# interface: how other systems access this state (read-only property, method call,
-#   signal, shared resource, etc.) — this is the contract other ADRs depend on.
+# 必需字段：state、owner_system、adr、interface、referenced_by[]、added
+# interface：其他系统如何访问此状态（只读属性、方法调用、
+#   信号、共享资源等）— 这是其他 ADR 依赖的契约。
 
 state_ownership: []
 
-# Example:
+# 示例：
 #
 # state_ownership:
 #   - state: player_health
 #     status: active           # active | superseded_by: ADR-NNNN
 #     owner_system: health-system
 #     adr: docs/architecture/adr-0001-health-system.md
-#     interface: "HealthComponent.current_health (read-only float, range 0–max_health)"
-#     write_access: health-system-only   # only owner can write; others read
+#     interface: "HealthComponent.current_health (只读浮点数，范围 0–max_health)"
+#     write_access: health-system-only   # 仅所有者可写；其他系统只读
 #     referenced_by:
 #       - docs/architecture/adr-0001-health-system.md
-#       - docs/architecture/adr-0003-combat-system.md   # reads to apply damage
-#       - docs/architecture/adr-0007-ui-system.md       # reads to display HUD
+#       - docs/architecture/adr-0003-combat-system.md   # 读取以应用伤害
+#       - docs/architecture/adr-0007-ui-system.md       # 读取以显示 HUD
 #     added: 2026-03-26
 #     revised: ""
 
 
-# ─── INTERFACE CONTRACTS ──────────────────────────────────────────────────────
-# How systems are required to communicate with each other.
-# Conflicts: one ADR expects signal, another expects direct call = integration bug.
+# ─── 接口契约 ──────────────────────────────────────────────────────────────
+# 系统之间必须如何通信。
+# 冲突：一个 ADR 期望信号，另一个期望直接调用 = 集成错误。
 #
-# Register a contract when the communication pattern between two systems is
-# explicitly decided in an ADR and other systems must follow the same pattern.
+# 当两个系统之间的通信模式在 ADR 中被明确决定且
+# 其他系统必须遵循相同模式时注册契约。
 #
-# pattern options: signal | direct_call | event_bus | shared_resource | rpc | none
+# pattern 选项：signal | direct_call | event_bus | shared_resource | rpc | none
 
 interfaces: []
 
-# Example:
+# 示例：
 #
 # interfaces:
 #   - contract: damage_delivery
 #     status: active
-#     pattern: signal          # how the producer notifies consumers
+#     pattern: signal          # 生产者如何通知消费者
 #     producer: combat-system
 #     consumers:
-#       - health-system        # receives damage_dealt signal, applies to health
-#       - ui-system            # receives damage_dealt signal, shows damage number
-#       - audio-system         # receives damage_dealt signal, plays SFX
+#       - health-system        # 接收 damage_dealt 信号，应用于生命值
+#       - ui-system            # 接收 damage_dealt 信号，显示伤害数字
+#       - audio-system         # 接收 damage_dealt 信号，播放音效
 #     adr: docs/architecture/adr-0003-combat-system.md
 #     signal_signature: "damage_dealt(amount: float, target: Node, is_crit: bool)"
 #     referenced_by:
@@ -93,16 +92,16 @@ interfaces: []
 #     revised: ""
 
 
-# ─── PERFORMANCE BUDGETS ──────────────────────────────────────────────────────
-# Frame time allocations per system, against a defined total frame budget.
-# Conflicts: allocations that sum to more than the total budget = unshippable.
+# ─── 性能预算 ──────────────────────────────────────────────────────────────
+# 每个系统的帧时间分配，基于定义的总帧预算。
+# 冲突：分配总和超过总预算 = 无法发布。
 #
-# Register a budget when an ADR explicitly claims a frame time allocation.
-# The registry lets /architecture-review verify the total doesn't exceed the target.
+# 当 ADR 明确声称帧时间分配时注册预算。
+# 注册表允许 /architecture-review 验证总量不超过目标。
 
 performance_budgets: []
 
-# Example:
+# 示例：
 #
 # performance_budgets:
 #   - target_fps: 60
@@ -116,32 +115,32 @@ performance_budgets: []
 #     status: active
 #     budget_ms: 2.0
 #     adr: docs/architecture/adr-0003-combat-system.md
-#     notes: "Includes physics queries, hitbox evaluation, and damage calculation"
+#     notes: "包括物理查询、碰撞箱评估和伤害计算"
 #     referenced_by:
 #       - docs/architecture/adr-0003-combat-system.md
 #     added: 2026-03-26
 #     revised: ""
 
 
-# ─── API DECISIONS ───────────────────────────────────────────────────────────
-# Which engine APIs are chosen for which purpose across the project.
-# Conflicts: two ADRs using different APIs for the same purpose = inconsistent
-# implementation that breaks when one system expects the other's API.
+# ─── API 决策 ──────────────────────────────────────────────────────────────
+# 项目中针对不同用途选择的引擎 API。
+# 冲突：两个 ADR 对同一用途使用不同 API = 不一致的
+# 实现，当一个系统期望另一个的 API 时会中断。
 #
-# Register an API decision when the choice is non-obvious and other ADRs might
-# make a different choice for the same purpose without knowing this was decided.
+# 当选择不明显且其他 ADR 可能对同一用途做出不同选择而
+# 不知道此决定已做出时，注册 API 决策。
 
 api_decisions: []
 
-# Example:
+# 示例：
 #
 # api_decisions:
 #   - purpose: physics_raycast
 #     status: active
 #     api: PhysicsServer3D.space_get_direct_state()
-#     not: RayCast3D node     # explicitly banned for this purpose
+#     not: RayCast3D node     # 明确禁止用于此目的
 #     adr: docs/architecture/adr-0002-physics-architecture.md
-#     reason: "Direct server calls avoid per-frame node overhead; 3× faster in profiling"
+#     reason: "直接服务器调用避免每帧节点开销；在分析中快 3 倍"
 #     referenced_by:
 #       - docs/architecture/adr-0002-physics-architecture.md
 #       - docs/architecture/adr-0003-combat-system.md
@@ -149,33 +148,33 @@ api_decisions: []
 #     revised: ""
 
 
-# ─── FORBIDDEN PATTERNS ──────────────────────────────────────────────────────
-# Architecture anti-patterns explicitly banned by accepted ADRs.
-# When writing a new ADR, check this list — if the proposed approach matches
-# a forbidden pattern, it must be reworked before the ADR can be Accepted.
+# ─── 禁止模式 ──────────────────────────────────────────────────────────────
+# 已接受的 ADR 明确禁止的架构反模式。
+# 编写新 ADR 时检查此列表 — 如果提议的方法匹配
+# 禁止模式，必须在 ADR 可以被接受之前重新设计。
 #
-# Register a pattern when an ADR explicitly bans it AND other ADRs might
-# unknowingly use it (i.e., it's a tempting but wrong approach for this project).
+# 当 ADR 明确禁止某模式且其他 ADR 可能
+# 无意中使用时注册（即它是本项目中有诱惑力但错误的方法）。
 
 forbidden_patterns: []
 
-# Example:
+# 示例：
 #
 # forbidden_patterns:
 #   - pattern: autoload_singleton_coupling
 #     status: active
-#     description: "Systems must not directly reference Autoload singletons by name.
-#       Use dependency injection or signals instead."
-#     why: "Tight coupling to Autoloads makes systems untestable in isolation and
-#       creates hidden dependencies that break when Autoload load order changes."
+#     description: "系统不得通过名称直接引用 Autoload 单例。
+#       改为使用依赖注入或信号。"
+#     why: "与 Autoload 紧耦合使系统无法独立测试，并创建
+#       在 Autoload 加载顺序变更时中断的隐藏依赖。"
 #     adr: docs/architecture/adr-0001-health-system.md
 #     added: 2026-03-26
 #
 #   - pattern: direct_cross_system_state_write
 #     status: active
-#     description: "A system must never write to state owned by another system.
-#       Use signals or method calls on the owner instead."
-#     why: "Direct state writes create race conditions and break the state
-#       ownership model. The owning system must be the sole writer."
+#     description: "系统永远不得写入由另一个系统拥有的状态。
+#       改为使用信号或对所有者的方法调用。"
+#     why: "直接状态写入创建竞争条件并破坏状态
+#       所有权模型。拥有系统必须是唯一的写入者。"
 #     adr: docs/architecture/adr-0000-architecture-principles.md
 #     added: 2026-03-26

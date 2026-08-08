@@ -1,6 +1,6 @@
-# Skill Test Spec: /scope-check
+# 技能测试规格: /scope-check
 
-## Skill Summary
+## 技能摘要
 
 `/scope-check` 是 Haiku 层级的只读技能，用于分析功能、sprint 或 story 的范围蔓延风险。它读取 sprint 和 story 文件，并与活动里程碑目标进行比较。设计用于规划前或规划期间的快速、低成本检查。不触发任何 director gate。不写入任何文件。判定结果：ON SCOPE、CONCERNS 或 SCOPE CREEP DETECTED。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。范围检查是只读建议性技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Sprint story 与里程碑目标对齐
 
@@ -155,7 +155,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - sprint 文件本身不存在的情况未测试；skill 会输出 CONCERNS 判定并附带缺失 sprint 数据的消息。
 - 部分范围重叠（story 触及里程碑目标但也引入新范围）未显式测试；实现可能将其分类为 CONCERNS 而非 SCOPE CREEP DETECTED。

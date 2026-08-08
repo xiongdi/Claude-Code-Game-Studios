@@ -1,6 +1,6 @@
-# Skill Test Spec: /architecture-review
+# 技能测试规格: /architecture-review
 
-## Skill Summary
+## 技能摘要
 
 `/architecture-review` 是一个 Opus 层级的 skill，用于验证技术架构文档是否符合项目要求的 8 个架构章节，并检查其内部一致性、与现有 ADR 的一致性，以及是否正确针对已锁定的引擎版本。它产生 APPROVED / NEEDS REVISION / MAJOR REVISION NEEDED 的裁定。
 
@@ -21,7 +21,7 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 在 `full` 模式下：TD-ARCHITECTURE（technical-director）和 LP-FEASIBILITY（lead-programmer）在 skill 读取架构文档后并行派生。
 
@@ -32,7 +32,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——完整架构文档，full 模式
 
@@ -174,7 +174,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 8 个必需架构章节是项目特定的；测试使用 skill 正文中定义的章节列表——不在此重新列举。
 - 引擎版本兼容性检查（交叉引用 `docs/engine-reference/`）是 Case 1 happy path 的一部分，但不单独进行 fixture 测试。

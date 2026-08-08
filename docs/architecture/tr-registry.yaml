@@ -1,40 +1,40 @@
-# Technical Requirement ID Registry
+# 技术需求 ID 注册表
 #
-# PURPOSE: Persistent, stable IDs for every GDD technical requirement.
-# Prevents TR-ID renumbering across /architecture-review runs, which would
-# break story references.
+# 用途：为每个 GDD 技术需求提供持久、稳定的 ID。
+# 防止在多次 /architecture-review 运行中重新编号 TR-ID，
+# 否则会破坏 story 引用。
 #
-# RULES:
-#   - IDs are PERMANENT. Never renumber, never delete (use status: deprecated).
-#   - Add new entries only at the END of each system's list.
-#   - When a GDD requirement is reworded (same intent): update `requirement`
-#     text and add a `revised` date. The ID stays the same.
-#   - When a requirement is removed from the GDD: set status: deprecated.
-#   - When a requirement is split or replaced: set status: superseded-by with
-#     the new TR-ID(s).
+# 规则：
+#   - ID 是永久的。永远不要重新编号，永远不要删除（使用 status: deprecated）。
+#   - 仅在每个系统列表的末尾添加新条目。
+#   - 当 GDD 需求被重新措辞（相同意图）时：更新 `requirement`
+#     文本并添加 `revised` 日期。ID 保持不变。
+#   - 当需求从 GDD 中移除时：设置 status: deprecated。
+#   - 当需求被拆分或替换时：设置 status: superseded-by 指向
+#     新的 TR-ID。
 #
-# WRITTEN BY: /architecture-review (appends new entries, never overwrites)
-# READ BY:    /create-stories (embed IDs in stories)
-#             /story-done (look up current requirement text at review time)
-#             /story-readiness (validate TR-ID exists and is active)
+# 编写者：/architecture-review（追加新条目，不覆盖）
+# 读取者：/create-stories（在 story 中嵌入 ID）
+#          /story-done（审查时查找当前需求文本）
+#          /story-readiness（验证 TR-ID 存在且处于 active 状态）
 #
-# ID FORMAT: TR-[system-slug]-[NNN]
-#   system-slug = short slug matching the GDD system name
-#   NNN = three-digit zero-padded sequence per system, starting at 001
+# ID 格式：TR-[system-slug]-[NNN]
+#   system-slug = 匹配 GDD 系统名称的短横线名称
+#   NNN = 每个系统的三位零填充序号，从 001 开始
 #
-# STATUS VALUES: active | deprecated | superseded-by: TR-[system]-NNN
+# 状态值：active | deprecated | superseded-by: TR-[system]-NNN
 
 version: 1
 last_updated: ""
 
 requirements: []
 
-# --- EXAMPLE ENTRIES (remove when first real entries are added) ---
+# --- 示例条目（添加首个真实条目后删除）---
 #
 # - id: TR-combat-001
 #   system: combat
 #   gdd: design/gdd/combat-system.md
-#   requirement: "Player takes damage from enemies based on attack power minus defence"
+#   requirement: "玩家根据攻击力减去防御力从敌人处受到伤害"
 #   created: 2026-03-10
 #   revised: ""
 #   status: active
@@ -42,7 +42,7 @@ requirements: []
 # - id: TR-combat-002
 #   system: combat
 #   gdd: design/gdd/combat-system.md
-#   requirement: "Combo window timing is 0.4 seconds between hits"
+#   requirement: "连击窗口计时为两次攻击之间 0.4 秒"
 #   created: 2026-03-10
 #   revised: "2026-04-01"
 #   status: active
@@ -50,7 +50,7 @@ requirements: []
 # - id: TR-combat-003
 #   system: combat
 #   gdd: design/gdd/combat-system.md
-#   requirement: "Old damage formula using raw stats"
+#   requirement: "使用原始属性的旧伤害公式"
 #   created: 2026-03-10
 #   revised: ""
 #   status: superseded-by: TR-combat-001

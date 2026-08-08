@@ -1,6 +1,6 @@
-# Skill Test Spec: /security-audit
+# 技能测试规格: /security-audit
 
-## Skill Summary
+## 技能摘要
 
 `/security-audit` 审计游戏的安全风险，包括存档数据完整性、网络通信、反作弊暴露和数据隐私。它读取 `src/` 中的源文件查找安全模式，并检查敏感数据是否正确处理。不触发任何 director gate。Skill 不写入文件（仅结果报告）。判定结果：SECURE、CONCERNS 或 VULNERABILITIES FOUND。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。安全审计是只读建议性技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 存档数据加密，无硬编码凭证
 
@@ -153,7 +153,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 反作弊分析（客户端值验证、服务器权威）此处未显式测试；根据严重级别遵循 CONCERNS 或 VULNERABILITIES 模式。
 - 数据隐私合规（GDPR、COPPA）超出此 spec 范围；这些需要法律审查，超出代码扫描范围。

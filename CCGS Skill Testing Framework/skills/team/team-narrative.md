@@ -1,12 +1,12 @@
-# Skill Test Spec: /team-narrative
+# 技能测试规格: /team-narrative
 
-## Skill Summary
+## 技能摘要
 
 协调叙事团队完成一个五阶段流程：narrative direction（narrative-director）→ world foundation + dialogue drafting（world-builder 和 writer 并行）→ level narrative integration（level-designer）→ consistency review（narrative-director）→ polish + localization compliance（writer、localization-lead 和 world-builder 并行）。在每个阶段转换时使用 `AskUserQuestion`，将提案呈现为可选项。生成叙事摘要报告，通过各 sub-agent 交付叙事文档，每个 sub-agent 强制执行 "May I write?" 协议。当所有阶段成功时裁决为 COMPLETE，当依赖未解决时裁决为 BLOCKED。
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 - [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
 - [ ] Has ≥2 phase headings
@@ -22,7 +22,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — All five phases complete, narrative doc delivered
 
@@ -186,7 +186,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - Phase 3 (level-designer) and Phase 4 (narrative-director review) happy-path behavior are
   validated implicitly by Case 1. Separate edge cases are not needed for these phases as

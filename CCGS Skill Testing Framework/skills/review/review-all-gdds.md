@@ -1,6 +1,6 @@
-# Skill Test Spec: /review-all-gdds
+# 技能测试规格: /review-all-gdds
 
-## Skill Summary
+## 技能摘要
 
 `/review-all-gdds` 是一个 Opus 层级的 skill，对 `design/gdd/` 中的所有文件执行整体跨 GDD 审查。它并行运行两个互补的审查阶段：Phase 1 检查一致性（矛盾、公式不匹配、过时引用、竞争所有权），Phase 2 检查设计理论（主导策略、pillar drift、认知超载、经济失衡）。由于两个阶段是独立的，它们同时派生以节省时间。该 skill 产生 CONSISTENT / MINOR ISSUES / MAJOR ISSUES 的裁定，并且是只读的——未经用户明确批准不写入任何文件。
 
@@ -21,13 +21,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无 director gate——此 skill 不派生任何 director gate agent。它本身就是整体审查；委托给 director gate 会产生循环依赖。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——无矛盾的清洁 GDD 集
 
@@ -158,7 +158,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 经济平衡分析（source/sink 循环）需要跨 GDD 资源数据——由 Case 2 结构性覆盖
   （矛盾检测模式相同）。

@@ -1,6 +1,6 @@
-# Skill Test Spec: /balance-check
+# 技能测试规格: /balance-check
 
-## Skill Summary
+## 技能摘要
 
 `/balance-check` 读取平衡数据文件（`assets/data/` 中的 JSON 或 YAML），并根据 `design/gdd/` 中 GDD 定义的设计公式检查每个值。它生成一个结果表，列名为：Value → Formula → Deviation → Severity。不触发任何 director gate（只读分析）。Skill 可选择性地写入平衡报告，但会先询问 "May I write"。判定结果：BALANCED、CONCERNS 或 OUT OF BALANCE。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。平衡检查是只读分析技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 所有平衡值在公式容差范围内
 
@@ -158,7 +158,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - `assets/data/` 完全为空的情况未测试；行为遵循 CONCERNS 模式，附带未找到数据文件的消息。
 - 容差阈值（±10%、±20%）是 skill 的实现细节；测试验证偏差被检测和分类，而非精确阈值。

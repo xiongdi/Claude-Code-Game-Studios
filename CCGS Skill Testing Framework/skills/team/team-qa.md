@@ -1,6 +1,6 @@
-# Skill 测试规格：/team-qa
+# 技能测试规格: /team-qa
 
-## Skill 摘要
+## 技能摘要
 
 协调 QA 团队完成一个 7 阶段结构化测试周期。协调 qa-lead（策略、测试计划、签字报告）和 qa-tester（测试用例编写、bug 报告编写）。涵盖范围检测、Story 分类、QA 计划生成、smoke check 门控、测试用例编写、带 bug 归档的手动 QA 执行，以及最终签字报告（包含 APPROVED / APPROVED WITH CONDITIONS / NOT APPROVED 裁决）。在第 5 阶段对独立的 Story 使用并行 qa-tester 派生。
 

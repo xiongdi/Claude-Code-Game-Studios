@@ -1,6 +1,6 @@
-# Skill Test Spec: /skill-improve
+# 技能测试规格: /skill-improve
 
-## Skill Summary
+## 技能摘要
 
 `/skill-improve` 对技能文件运行自动化的测试-修复-重测改进循环。它调用 `/skill-test static`（以及可选的 `/skill-test category`）建立基线分数，诊断失败的检查，向 SKILL.md 文件提出有针对性的修复，询问 "May I write the improvements to [skill path]?"，应用修复，并重新运行测试以确认改进。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/skill-improve` 是一个元工具技能。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Skill With 2 Static Failures, Both Fixed, IMPROVED
 
@@ -156,7 +156,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在提出任何更改之前始终建立基线分数
 - [ ] 在输出中显示前后分数比较
@@ -167,7 +167,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 改进循环设计为每次调用只运行一个修复-重测周期；运行多次迭代需要重新调用 `/skill-improve`。
 - 行为合规性（spec 模式测试结果）不包含在改进循环中——只有结构（静态）和类别分数是自动化的。

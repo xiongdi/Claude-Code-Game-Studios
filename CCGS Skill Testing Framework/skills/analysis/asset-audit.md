@@ -1,6 +1,6 @@
-# Skill Test Spec: /asset-audit
+# 技能测试规格: /asset-audit
 
-## Skill Summary
+## 技能摘要
 
 `/asset-audit` 审计 `assets/` 目录的命名规范合规性、缺失元数据和格式/大小问题。它根据 `technical-preferences.md` 中定义的规范和预算读取资源文件。不触发任何 director gate。Skill 未经用户批准不写入。判定结果：COMPLIANT、WARNINGS 或 NON-COMPLIANT。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。资源审计是只读分析技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 所有资源遵循命名规范
 
@@ -157,7 +157,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 元数据检查（如 Godot `.import` 文件中缺失的纹理导入设置）此处未显式测试；它们遵循相同的 FORMAT ISSUE 标记模式。
 - `/asset-audit` 和 `/content-audit` 之间的交互（两者都检查 GDD 引用 vs. 资源）是有意的重叠；`/asset-audit` 关注合规性，而 `/content-audit` 关注完整性。

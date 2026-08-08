@@ -1,6 +1,6 @@
-# Skill Test Spec: /adopt
+# 技能测试规格: /adopt
 
-## Skill Summary
+## 技能摘要
 
 `/adopt` 审计现有项目的资源——GDD、ADR、story、基础设施文件和 `technical-preferences.md`——
 检查其格式是否符合模板的 skill 管道。它将每个差距按严重性分类（BLOCKING / HIGH / MEDIUM / LOW），
@@ -25,13 +25,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/adopt` 是 brownfield 审计实用工具。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——所有 GDD 合规，无差距，COMPLIANT
 
@@ -187,7 +187,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在静默读取阶段前发出 "Scanning project artifacts..."
 - [ ] 在呈现任何结果前静默读取所有资源
@@ -201,7 +201,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - `gdds`、`adrs`、`stories` 和 `infra` 参数模式缩小审计范围；
   每个都遵循与完整审计相同的模式但限于该资源类型。

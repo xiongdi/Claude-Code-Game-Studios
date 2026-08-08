@@ -1,12 +1,12 @@
-# Skill Test Spec: /team-release
+# 技能测试规格: /team-release
 
-## Skill Summary
+## 技能摘要
 
 协调发布团队完成一个 7 阶段流程，从 release candidate 到部署和发布后监控。协调 release-manager、qa-lead、devops-engineer、producer、security-engineer（可选，在线/多人游戏需要）、network-programmer（可选，多人游戏需要）、analytics-engineer 和 community-manager。第 3 阶段的 agent 并行运行。以 go/no-go 决策结束；如果 producer 判定 NO-GO，则跳过部署（第 6 阶段）。以发布后监控计划收尾。
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 - [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
 - [ ] Has ≥2 phase headings
@@ -22,7 +22,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path (Single-Player) — All phases complete, version deployed
 
@@ -200,7 +200,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - Phase 7 post-release actions (release report, milestone tracking, community publishing, dashboard monitoring) are validated implicitly by Case 1. No separate edge case is required as Phase 7 is non-gated and does not have a blocking failure mode.
 - The "devops-engineer build fails" path is not separately tested — it would surface as a BLOCKED result in Phase 3 and follow the standard error recovery protocol (surface → assess → AskUserQuestion options). This is validated structurally by the Static Assertions error recovery check.

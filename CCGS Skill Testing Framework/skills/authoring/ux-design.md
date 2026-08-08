@@ -1,6 +1,6 @@
-# Skill Test Spec: /ux-design
+# 技能测试规格: /ux-design
 
-## Skill Summary
+## 技能摘要
 
 `/ux-design` 是一个引导式逐章节 UX 规格编写 skill。它为指定屏幕或 HUD 元素生成用户流程图表（文本描述）、交互状态定义、线框图描述和可访问性说明。该 skill 遵循 skeleton-first 模式：立即创建包含所有章节标题的文件，然后通过讨论填写每个章节，并在用户批准后将每个章节写入磁盘。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/ux-design` 没有内联 director gate。`/ux-review` 是在此 skill 完成后调用的单独审查 skill。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——新 HUD 规格，所有章节编写并写入
 
@@ -146,7 +146,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在讨论内容前创建包含所有章节标题的骨架文件
 - [ ] 一次讨论和起草一个章节
@@ -157,7 +157,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 交互状态枚举（normal/hover/focus/disabled/error）是每个规格的核心要求；
   `/ux-review` skill 检查完整性。

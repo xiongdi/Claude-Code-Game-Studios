@@ -1,12 +1,12 @@
 # Godot — 破坏性变更
 
-Last verified: 2026-02-12
+最后验证: 2026-02-12
 
 Godot 各版本之间的变更，重点关注 LLM 截止时间之后的变更（4.4+）。
 
 ## 4.5 → 4.6（2026 年 1 月 — 截止时间后，高风险）
 
-| Subsystem | Change | Details |
+| 子系统 | 变更 | 详情 |
 |-----------|--------|---------|
 | Physics | Jolt 现在是默认的 3D 物理引擎 | 新项目自动使用 Jolt。现有项目保留其设置。部分 HingeJoint3D 属性（如 `damp`）仅在 GodotPhysics 下有效。 |
 | Rendering | Glow 在 tonemapping 之前处理 | 之前是在 tonemapping 之后。带 glow 的场景外观会发生变化。请在 WorldEnvironment 中调整 intensity/blend。 |
@@ -24,7 +24,7 @@ Godot 各版本之间的变更，重点关注 LLM 截止时间之后的变更（
 
 ## 4.4 → 4.5（2025 年末 — 截止时间后，高风险）
 
-| Subsystem | Change | Details |
+| 子系统 | 变更 | 详情 |
 |-----------|--------|---------|
 | GDScript | 新增 variadic arguments | 函数可接受 `...` 任意参数 — 新语言特性 |
 | GDScript | `@abstract` 装饰器 | 抽象类和方法现在可被强制实施 |
@@ -47,7 +47,7 @@ Godot 各版本之间的变更，重点关注 LLM 截止时间之后的变更（
 
 ## 4.3 → 4.4（2025 年中 — 接近截止时间，需验证）
 
-| Subsystem | Change | Details |
+| 子系统 | 变更 | 详情 |
 |-----------|--------|---------|
 | Core | `FileAccess.store_*` 返回 `bool` | 之前是 `void`。方法：`store_8`、`store_16`、`store_32`、`store_64`、`store_buffer`、`store_csv_line`、`store_double`、`store_float`、`store_half`、`store_line`、`store_pascal_string`、`store_real`、`store_string`、`store_var` |
 | Core | `OS.execute_with_pipe` | 新增可选的 `blocking` 参数 |
@@ -60,7 +60,7 @@ Godot 各版本之间的变更，重点关注 LLM 截止时间之后的变更（
 
 ## 4.2 → 4.3（在训练数据中 — 低风险）
 
-| Subsystem | Change | Details |
+| 子系统 | 变更 | 详情 |
 |-----------|--------|---------|
 | Animation | `Skeleton3D.add_bone` 返回 `int32` | 之前是 `void` |
 | Animation | `bone_pose_updated` signal | 被 `skeleton_updated` 替代 |

@@ -1,6 +1,6 @@
-# Skill Test Spec: /brainstorm
+# 技能测试规格: /brainstorm
 
-## Skill Summary
+## 技能摘要
 
 `/brainstorm` 促进引导式的游戏概念构思。它展示 2-4 个带有优缺点对比的概念选项，让用户选择并完善一个概念，并生成一个结构化的 `design/gdd/game-concept.md` 文档。该技能是协作式的——它在提出选项前会提出问题，并迭代直到用户批准一个概念方向。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -22,7 +22,7 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 在 `full` 模式下：CD-PILLARS、AD-CONCEPT-VISUAL、TD-FEASIBILITY 和 PR-SCOPE
 在用户批准概念草稿后并行派生。
@@ -34,7 +34,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Full mode, 3 concepts, user picks one, all 4 directors approve
 
@@ -158,7 +158,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在用户提交前展示 2-4 个带有优缺点对比的概念选项
 - [ ] 用户在 director gate 被调用前确认概念方向
@@ -169,7 +169,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - AD-CONCEPT-VISUAL gate（art director 可行性）与其他 3 个 gate 分在一组并行派生——未单独进行 fixture 测试。
 - 迭代概念完善循环（用户拒绝所有选项，skill 生成新选项）未进行 fixture 测试——它遵循与选项选择阶段相同的模式。

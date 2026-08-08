@@ -1,6 +1,6 @@
-# Skill Test Spec: /perf-profile
+# 技能测试规格: /perf-profile
 
-## Skill Summary
+## 技能摘要
 
 `/perf-profile` 是结构化的性能分析工作流，用于识别瓶颈并推荐优化。如果提供了性能分析器数据或性能日志，则直接分析。如果没有，则引导用户完成手动分析清单。不触发任何 director gate。Skill 在持久化报告前会询问 "May I write to `production/qa/perf-[date].md`?"。判定结果：WITHIN BUDGET、CONCERNS 或 OVER BUDGET。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。性能分析是建议性分析技能；不触发任何 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 提供帧数据，发现 draw call 峰值
 
@@ -158,7 +158,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 平台特定的性能分析工作流（主机、移动端）此处未测试；Case 2 中的清单输出在实践中会是平台特定的。
 - Case 4 中的增量比较假设报告涵盖同一场景；跨场景比较未显式处理。

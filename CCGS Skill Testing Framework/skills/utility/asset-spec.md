@@ -1,6 +1,6 @@
-# Skill Test Spec: /asset-spec
+# 技能测试规格: /asset-spec
 
-## Skill Summary
+## 技能摘要
 
 `/asset-spec` 从设计需求生成每个资产的视觉规格文档。它读取相关的 GDD、art bible 和设计系统，生成一个结构化的资产规格表，定义：尺寸、动画状态（如适用）、调色板参考、风格说明、技术约束（格式、文件大小预算）和交付清单。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/asset-spec` 是一个设计文档工具。技术艺术家可能单独审查规格，但这不是此技能中的 gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Enemy sprite spec with full GDD and art bible
 
@@ -150,7 +150,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在生成规格前读取 GDD、art bible 和设计系统
 - [ ] 包含所有 6 个规格组件（尺寸、动画、调色板、风格、技术、清单）
@@ -161,7 +161,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 音频资产规格（音效、音乐）遵循相同的结构，但使用不同的字段（持续时间、采样率、循环），未单独测试。
 - UI 资产规格（图标、按钮状态）遵循相同的流程，交互状态需求与 UX spec 对齐。

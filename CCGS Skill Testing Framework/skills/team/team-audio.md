@@ -1,6 +1,6 @@
-# Skill 测试规格：/team-audio
+# 技能测试规格: /team-audio
 
-## Skill 摘要
+## 技能摘要
 
 协调音频团队完成一个四步流程：audio direction（audio-director）→ sound design + accessibility review 并行（sound-designer + accessibility-specialist）→ technical implementation + engine validation 并行（technical-artist + 主要引擎专家）→ code integration（gameplay-programmer）。在派生 agent 之前读取相关 GDD、sound bible（如存在）和现有音频资源列表。将所有输出编译为一份音频设计文档，保存到 `design/gdd/audio-[feature].md`。在每个步骤转换时使用 `AskUserQuestion`。当音频设计文档生成后裁决为 COMPLETE。当未配置引擎时优雅地跳过引擎专家派生。
 

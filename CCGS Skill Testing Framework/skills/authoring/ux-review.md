@@ -1,6 +1,6 @@
-# Skill Test Spec: /ux-review
+# 技能测试规格: /ux-review
 
-## Skill Summary
+## 技能摘要
 
 `/ux-review` 根据可访问性和交互标准验证现有 UX 规格或 HUD 设计文档。它检查必需章节（User Flows、Interaction States、Wireframe Description、Accessibility Notes）、交互状态定义的完整性（hover、focus、disabled、error）、可访问性合规性（键盘导航、颜色对比度说明、屏幕阅读器考虑），以及如果这些文档存在时与 art bible 或 design system 的一致性。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/ux-review` 本身就是 UX 规格的审查 gate。在此 skill 内不调用其他 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——具有所有必需章节的完整 UX 规格，APPROVED
 
@@ -143,7 +143,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 检查所有 4 个必需章节（User Flows、Interaction States、Wireframe、
      Accessibility Notes）
@@ -155,7 +155,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - MAJOR REVISION NEEDED 在结构性章节完全缺失（不仅仅是空）或基本交互流程完全缺失时触发；
   不在此使用单独的 fixture 测试。

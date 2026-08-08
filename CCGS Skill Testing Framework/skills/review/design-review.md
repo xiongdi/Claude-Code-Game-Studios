@@ -1,6 +1,6 @@
-# Skill Test Spec: /design-review
+# 技能测试规格: /design-review
 
-## Skill Summary
+## 技能摘要
 
 `/design-review` 读取游戏设计文档（GDD）并根据项目的 8 章节设计标准（Overview、Player Fantasy、Detailed Rules、Formulas、Edge Cases、Dependencies、Tuning Knobs、Acceptance Criteria）对其进行评估。它检查内部一致性、可实现性和跨系统矛盾。它产生 APPROVED、NEEDS REVISION 或 MAJOR REVISION NEEDED 的裁定。它是一个只读 skill（无文件写入），作为 `context: fork` subagent 运行。
 
@@ -18,7 +18,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——完整的 GDD，所有 8 个章节存在
 
@@ -152,7 +152,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 跨系统一致性检查（skill 自身 phase 列表中的 Case 3）不在此直接测试，
   因为它需要多个 GDD 文件进行比较；这由 `/review-all-gdds` spec 覆盖。

@@ -1,6 +1,6 @@
-# Skill Test Spec: /test-setup
+# 技能测试规格: /test-setup
 
-## Skill Summary
+## 技能摘要
 
 `/test-setup` 根据配置的引擎为项目搭建测试框架。它创建 `coding-standards.md` 中定义的 `tests/` 目录结构（unit/、integration/、performance/、playtest/）并为检测到的引擎生成适当的测试运行器配置：Godot 的 GdUnit4 配置、Unity 的 Unity Test Runner asmdef 或 Unreal Engine 的无头运行器。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/test-setup` 是搭建实用工具。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——Godot 项目，搭建 GdUnit4 测试结构
 
@@ -143,7 +143,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在生成任何脚手架前从 `technical-preferences.md` 读取引擎
 - [ ] 生成引擎适当的测试运行器配置（不是通用的）
@@ -154,7 +154,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - Unreal Engine 测试搭建（带 `-nullrhi` 的无头运行器）遵循与 Case 1 和 2 相同的模式，
   不单独进行 fixture 测试。

@@ -1,6 +1,6 @@
-# Skill Test Spec: /onboard
+# 技能测试规格: /onboard
 
-## Skill Summary
+## 技能摘要
 
 `/onboard` 为新的团队成员生成一个针对特定上下文的项目 onboarding 摘要。它读取 CLAUDE.md、`technical-preferences.md`、活动的 sprint 文件、最近的 git 提交以及 `production/stage.txt`，生成一个结构化的入职文档。该技能在 Haiku 模型上运行（只读，格式化任务）且不生成任何文件写入——所有输出都是对话式的。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/onboard` 是一个只读的入职技能。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — Configured project in Production stage with active sprint
 
@@ -151,7 +151,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在生成输出前读取所有源文件（没有虚构的项目状态）
 - [ ] 根据项目阶段调整输出（Production ≠ Concept）
@@ -161,7 +161,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - `technical-preferences.md` 完全缺失（而不是有占位符）的情况未单独测试；行为遵循 Case 3 的优雅错误模式。
 - 假设 git 历史记录读取可用；离线/无 git 场景未在此测试。

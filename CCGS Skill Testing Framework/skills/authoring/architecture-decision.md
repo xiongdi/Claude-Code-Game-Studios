@@ -1,6 +1,6 @@
-# Skill Test Spec: /architecture-decision
+# 技能测试规格: /architecture-decision
 
-## Skill Summary
+## 技能摘要
 
 `/architecture-decision` 引导用户逐章节编写新的架构决策记录（ADR）。必需章节为：Status、Context、Decision、Consequences、Alternatives 和 Related ADRs。该 skill 还会将 `docs/engine-reference/` 中的引擎版本参考戳记到 ADR 中以供追溯。
 
@@ -23,7 +23,7 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 在 `full` 模式下：TD-ADR（technical-director）和 LP-FEASIBILITY（lead-programmer）
 在 ADR 草案完成后派生。如果两者都返回 APPROVED，ADR 状态被设置为 Accepted。
@@ -36,7 +36,7 @@
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path——新 ADR，渲染方法，full 模式，gate 批准
 
@@ -167,7 +167,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 所有 6 个必需章节在 gate 审查前编写
 - [ ] 引擎版本从 `docs/engine-reference/` 戳记到 ADR 中
@@ -179,7 +179,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - ADR 编号（自动递增 NNN）不单独进行 fixture 测试——
   skill 读取现有 ADR 文件名以分配下一个编号。

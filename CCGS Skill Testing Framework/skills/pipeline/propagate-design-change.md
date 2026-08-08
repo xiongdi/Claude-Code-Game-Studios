@@ -1,6 +1,6 @@
-# Skill Test Spec: /propagate-design-change
+# 技能测试规格: /propagate-design-change
 
-## Skill Summary
+## 技能摘要
 
 `/propagate-design-change` 处理 GDD 修订级联。当 GDD 更新时，该 skill 追踪所有引用它的下游产物：ADR、TR-registry 条目、story 和 epic。它生成一份结构化的影响报告，展示需要更改什么以及为什么。该 skill 不会自动应用更改 —— 它为每个受影响的产物提出编辑建议，并在进行任何修改之前按产物询问 "May I write"。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 Verified automatically by `/skill-test static` — no fixture needed.
 
@@ -21,7 +21,7 @@ Verified automatically by `/skill-test static` — no fixture needed.
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 No director gates — this skill spawns no director gate agents during analysis.
 The impact report is a mechanical tracing operation; no creative or technical
@@ -29,7 +29,7 @@ director review is required at the analysis stage.
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — GDD revision affects 2 stories and 1 epic
 
@@ -157,7 +157,7 @@ director review is required at the analysis stage.
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - ADR impact (when a GDD change requires an ADR update or new ADR) follows the
   same per-artifact approval pattern as story/epic updates — not independently

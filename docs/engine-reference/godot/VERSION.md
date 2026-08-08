@@ -1,6 +1,6 @@
 # Godot Engine — 版本参考
 
-| Field | Value |
+| 字段 | 值 |
 |-------|-------|
 | **Engine Version** | Godot 4.6 |
 | **Release Date** | 2026 年 1 月 |

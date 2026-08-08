@@ -1,6 +1,6 @@
-# Skill Test Spec: /test-evidence-review
+# 技能测试规格: /test-evidence-review
 
-## Skill Summary
+## 技能摘要
 
 `/test-evidence-review` 对 `tests/` 中的测试文件执行质量审查，检查测试命名规范、确定性、隔离性和无硬编码魔法数字 — 所有检查都基于 `coding-standards.md` 中定义的项目测试标准。结果可标记供 qa-lead 审查。不触发任何 director gate。Skill 未经用户批准不写入。判定结果：PASS、WARNINGS 或 FAIL。
 
@@ -18,13 +18,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。测试证据审查是建议性质量技能；QL-TEST-COVERAGE gate 是单独的 skill 调用，不在此处触发。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Happy Path — 测试遵循所有标准
 
@@ -161,7 +161,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 未显式测试 `tests/` 中所有测试文件的批量审查行为；假设逐文件应用相同检查并汇总判定。
 - QL-TEST-COVERAGE director gate（检查测试覆盖率百分比）是单独的关注点，此 skill 有意不触发。

@@ -1,6 +1,6 @@
-# Skill 测试规格：/team-level
+# 技能测试规格: /team-level
 
-## Skill 摘要
+## 技能摘要
 
 协调完整的关卡设计团队完成单个关卡或区域。协调 narrative-director、world-builder、level-designer、systems-designer、art-director、accessibility-specialist 和 qa-tester 五个顺序步骤（含一个并行阶段 Step 4）。将所有团队输出编译为一份关卡设计文档，保存到 `design/levels/[level-name].md`。在每个步骤转换时使用 `AskUserQuestion`。将所有文件写入委托给 sub-agent。生成包含 COMPLETE / BLOCKED 裁决的摘要报告，并交接给 `/design-review`、`/dev-story`、`/qa-plan`。
 

@@ -1,6 +1,6 @@
-# Skill Test Spec: /reverse-document
+# 技能测试规格: /reverse-document
 
-## Skill Summary
+## 技能摘要
 
 `/reverse-document` 从现有源代码生成设计或架构文档。它读取指定的源文件，从类结构、方法名、常量和注释中推断设计意图，并生成 GDD 骨架（针对游戏系统）或架构概述（针对技术系统）。输出是尽力推断——魔法数字和未记录的逻辑可能导致 PARTIAL 裁决。
 
@@ -8,7 +8,7 @@
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
 由 `/skill-test static` 自动验证——不需要 fixture。
 
@@ -20,13 +20,13 @@
 
 ---
 
-## Director Gate Checks
+## 导演门控检查
 
 无。`/reverse-document` 是一个文档工具。不适用 director gate。
 
 ---
 
-## Test Cases
+## 测试用例
 
 ### Case 1: Well-Structured Source — Accurate design doc skeleton produced
 
@@ -148,7 +148,7 @@
 
 ---
 
-## Protocol Compliance
+## 协议合规
 
 - [ ] 在生成任何内容前读取源文件
 - [ ] 当目标是游戏系统时生成所有 8 个必需的 GDD 部分
@@ -159,7 +159,7 @@
 
 ---
 
-## Coverage Notes
+## 覆盖说明
 
 - 架构概述格式（针对技术/基础设施系统）与 GDD 格式不同；推断的输出类型由源文件的性质决定（游戏逻辑 → GDD；引擎/基础设施代码 → 架构文档）。
 - 源文件可读但仅包含无有意义逻辑的自动生成样板代码的情况未测试；skill 可能会生成带有 PARTIAL 裁决的近乎空的骨架。

@@ -1,6 +1,6 @@
-# Skill 测试规格：/team-combat
+# 技能测试规格: /team-combat
 
-## Skill 摘要
+## 技能摘要
 
 协调完整的战斗团队端到端流程，完成单个战斗功能。协调 game-designer、gameplay-programmer、ai-programmer、technical-artist、sound-designer、主要引擎专家和 qa-tester 六个结构化阶段：Design → Architecture（含引擎专家验证）→ Implementation（并行）→ Integration → Validation → Sign-off。在每个阶段转换时使用 `AskUserQuestion`。将所有文件写入委托给 sub-agent。生成包含 COMPLETE / NEEDS WORK / BLOCKED 裁决的摘要报告，并交接给 `/code-review`、`/balance-check`、`/team-polish`。
 
