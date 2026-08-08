@@ -1,21 +1,21 @@
-# Godot Audio — Quick Reference
+# Godot Audio — 快速参考
 
-Last verified: 2026-02-12 | Engine: Godot 4.6
+最后验证：2026-02-12 | 引擎：Godot 4.6
 
-## What Changed Since ~4.3 (LLM Cutoff)
+## 自 ~4.3 以来的变更（LLM 知识截止点）
 
 4.4–4.6 版本中 audio API 没有重大破坏性更改。核心 audio 系统
 保持稳定。关键更新是工作流改进：
 
-### 4.6 Changes
+### 4.6 变更
 - **此版本没有 audio 特定的破坏性更改**
 
-### 4.5 Changes
+### 4.5 变更
 - **此版本没有 audio 特定的破坏性更改**
 
-## Current API Patterns
+## 当前 API 模式
 
-### Playing Audio
+### 播放音频
 ```gdscript
 @onready var sfx_player: AudioStreamPlayer = %SFXPlayer
 @onready var music_player: AudioStreamPlayer = %MusicPlayer
@@ -33,7 +33,7 @@ func play_music(stream: AudioStream, fade_time: float = 1.0) -> void:
     music_player.play()
 ```
 
-### 3D Spatial Audio
+### 3D 空间音频
 ```gdscript
 @onready var audio_3d: AudioStreamPlayer3D = %AudioPlayer3D
 
@@ -43,7 +43,7 @@ func _ready() -> void:
     audio_3d.unit_size = 10.0
 ```
 
-### Audio Buses
+### 音频总线
 ```gdscript
 # Set bus volumes
 AudioServer.set_bus_volume_db(AudioServer.get_bus_index(&"Music"), volume_db)
@@ -53,7 +53,7 @@ AudioServer.set_bus_volume_db(AudioServer.get_bus_index(&"SFX"), volume_db)
 AudioServer.set_bus_mute(AudioServer.get_bus_index(&"Music"), true)
 ```
 
-### Object Pooling for SFX
+### 用于 SFX 的对象池
 ```gdscript
 # Pre-create multiple AudioStreamPlayer nodes for concurrent sounds
 var _sfx_pool: Array[AudioStreamPlayer] = []
@@ -73,7 +73,7 @@ func play_pooled(stream: AudioStream) -> void:
             return
 ```
 
-## Common Mistakes
-- Creating new AudioStreamPlayer nodes at runtime instead of pooling
-- Not using audio buses for volume categories (Music, SFX, UI, Voice)
-- Using `_process()` for audio timing instead of signals (`finished`)
+## 常见错误
+- 在运行时创建新的 AudioStreamPlayer 节点而不是使用对象池
+- 不使用音频总线来划分音量类别（Music、SFX、UI、Voice）
+- 用 `_process()` 处理音频时序而不是用信号（`finished`）

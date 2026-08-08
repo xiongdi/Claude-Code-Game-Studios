@@ -1,201 +1,196 @@
-# Skill Test Spec: /team-audio
+# Skill 测试规格：/team-audio
 
-## Skill Summary
+## Skill 摘要
 
 协调音频团队完成一个四步流程：audio direction（audio-director）→ sound design + accessibility review 并行（sound-designer + accessibility-specialist）→ technical implementation + engine validation 并行（technical-artist + 主要引擎专家）→ code integration（gameplay-programmer）。在派生 agent 之前读取相关 GDD、sound bible（如存在）和现有音频资源列表。将所有输出编译为一份音频设计文档，保存到 `design/gdd/audio-[feature].md`。在每个步骤转换时使用 `AskUserQuestion`。当音频设计文档生成后裁决为 COMPLETE。当未配置引擎时优雅地跳过引擎专家派生。
 
 ---
 
-## Static Assertions (Structural)
+## 静态断言（结构性）
 
-- [ ] Has required frontmatter fields: `name`, `description`, `argument-hint`, `user-invocable`, `allowed-tools`
-- [ ] Has ≥2 step/phase headings
-- [ ] Contains verdict keywords: COMPLETE, BLOCKED
-- [ ] Contains "File Write Protocol" section
-- [ ] File writes are delegated to sub-agents — orchestrator does not write files directly
-- [ ] Sub-agents enforce "May I write to [path]?" before any write
-- [ ] Has a next-step handoff at the end (references `/dev-story`, `/asset-audit`)
-- [ ] Error Recovery Protocol section is present
-- [ ] `AskUserQuestion` is used at step transitions before proceeding
-- [ ] Step 2 explicitly spawns sound-designer and accessibility-specialist in parallel
-- [ ] Step 3 explicitly spawns technical-artist and engine specialist in parallel (when engine is configured)
-- [ ] Skill reads `design/gdd/sound-bible.md` during context gathering if it exists
-- [ ] Output document is saved to `design/gdd/audio-[feature].md`
-
----
-
-## Test Cases
-
-### Case 1: Happy Path — All steps complete, audio design document saved
-
-**Fixture:**
-- GDD for the target feature exists at `design/gdd/combat.md`
-- Sound bible exists at `design/gdd/sound-bible.md`
-- Existing audio assets are listed in `assets/audio/`
-- Engine is configured in `.claude/docs/technical-preferences.md`
-- No accessibility gaps exist in the planned audio event list
-
-**Input:** `/team-audio combat`
-
-**Expected behavior:**
-1. Context gathering: orchestrator reads `design/gdd/combat.md`, `design/gdd/sound-bible.md`, and `assets/audio/` asset list before spawning any agent
-2. Step 1: audio-director is spawned; defines sonic identity, emotional tone, adaptive music direction, mix targets, and adaptive audio rules for combat
-3. `AskUserQuestion` presents audio direction; user approves before Step 2 begins
-4. Step 2: sound-designer and accessibility-specialist are spawned in parallel; sound-designer produces SFX specifications, audio event list with trigger conditions, and mixing groups; accessibility-specialist identifies critical gameplay audio events and specifies visual fallback and subtitle requirements
-5. `AskUserQuestion` presents SFX spec and accessibility requirements; user approves before Step 3 begins
-6. Step 3: technical-artist and primary engine specialist are spawned in parallel; technical-artist designs bus structure, middleware integration, memory budgets, and streaming strategy; engine specialist validates that the integration approach is idiomatic for the configured engine
-7. `AskUserQuestion` presents technical plan; user approves before Step 4 begins
-8. Step 4: gameplay-programmer is spawned; wires up audio events to gameplay triggers, implements adaptive music, sets up occlusion zones, writes unit tests for audio event triggers
-9. Orchestrator compiles all outputs into a single audio design document
-10. Subagent asks "May I write the audio design document to `design/gdd/audio-combat.md`?" before writing
-11. Summary output lists: audio event count, estimated asset count, implementation tasks, and any open questions
-12. Verdict: COMPLETE
-
-**Assertions:**
-- [ ] Sound bible is read during context gathering (before Step 1) when it exists
-- [ ] audio-director is spawned before sound-designer or accessibility-specialist
-- [ ] `AskUserQuestion` appears after Step 1 output and before Step 2 launch
-- [ ] sound-designer and accessibility-specialist Task calls are issued simultaneously in Step 2
-- [ ] technical-artist and engine specialist Task calls are issued simultaneously in Step 3
-- [ ] gameplay-programmer is not launched until Step 3 `AskUserQuestion` is approved
-- [ ] Audio design document is written to `design/gdd/audio-combat.md` (not another path)
-- [ ] Summary includes audio event count and estimated asset count
-- [ ] No files are written by the orchestrator directly
-- [ ] Verdict is COMPLETE after document delivery
+- [ ] 具备必需的 frontmatter 字段：`name`、`description`、`argument-hint`、`user-invocable`、`allowed-tools`
+- [ ] 有 ≥2 个步骤/阶段标题
+- [ ] 包含判定关键词：COMPLETE、BLOCKED
+- [ ] 包含"File Write Protocol"章节
+- [ ] 文件写入委托给 sub-agent——编排器不直接写入文件
+- [ ] Sub-agent 在任何写入前强制执行"可以写入 [path]？"协议
+- [ ] 末尾有下一步交接（引用 `/dev-story`、`/asset-audit`）
+- [ ] Error Recovery Protocol 章节存在
+- [ ] 在步骤转换时使用 `AskUserQuestion` 以在继续前获取用户批准
+- [ ] Step 2 明确并行派生 sound-designer 和 accessibility-specialist
+- [ ] Step 3 明确并行派生 technical-artist 和引擎专家（当引擎配置时）
+- [ ] Skill 在上下文收集期间如存在则读取 `design/gdd/sound-bible.md`
+- [ ] 输出文档保存到 `design/gdd/audio-[feature].md`
 
 ---
 
-### Case 2: Accessibility Gap — Critical gameplay audio event has no visual fallback
+## 测试用例
 
-**Fixture:**
-- GDD for the target feature exists
-- Step 1 and Step 2 are in progress
-- sound-designer's audio event list includes "EnemyNearbyAlert" — a spatial audio cue that warns the player an enemy is approaching from off-screen
-- accessibility-specialist reviews the event list and finds "EnemyNearbyAlert" has no visual fallback (no on-screen indicator, no subtitle, no controller rumble specified)
+### 用例 1：正常路径——所有步骤完成，音频设计文档保存
 
-**Input:** `/team-audio stealth` (Step 2 scenario)
+**Fixture：**
+- 目标功能的 GDD 在 `design/gdd/combat.md` 存在
+- Sound bible 在 `design/gdd/sound-bible.md` 存在
+- 现有音频资源在 `assets/audio/` 中列出
+- 引擎在 `.claude/docs/technical-preferences.md` 中配置
+- 计划的音频事件列表中不存在无障碍缺口
 
-**Expected behavior:**
-1. Steps 1–2 proceed; accessibility-specialist and sound-designer are spawned in parallel
-2. accessibility-specialist returns its review with a BLOCKING concern: "`EnemyNearbyAlert` is a critical gameplay audio event (warns player of off-screen threat) with no visual fallback — hearing-impaired players cannot detect this threat. This is a BLOCKING accessibility gap."
-3. Orchestrator surfaces the concern immediately in conversation before presenting `AskUserQuestion`
-4. `AskUserQuestion` presents the accessibility concern as a BLOCKING issue with options:
-   - Add a visual indicator for EnemyNearbyAlert (e.g., directional arrow on HUD) and continue
-   - Add controller haptic feedback as the fallback and continue
-   - Stop here and resolve all accessibility gaps before proceeding to Step 3
-5. Step 3 (technical-artist + engine specialist) is not launched until the user resolves or explicitly accepts the gap
-6. The accessibility gap is included in the final audio design document under "Open Accessibility Issues" if unresolved
+**输入：** `/team-audio combat`
 
-**Assertions:**
-- [ ] Accessibility gap is labeled BLOCKING (not advisory) in the report
-- [ ] The specific event name ("EnemyNearbyAlert") and the nature of the gap are stated
-- [ ] `AskUserQuestion` surfaces the gap before Step 3 is launched
-- [ ] At least one resolution option is offered (add visual fallback, add haptic fallback)
-- [ ] Step 3 is not launched while the gap is unresolved without explicit user authorization
-- [ ] If the gap is carried forward unresolved, it is documented in the audio design doc as an open issue
+**预期行为：**
+1. 上下文收集：编排器在派生任何 agent 前读取 `design/gdd/combat.md`、`design/gdd/sound-bible.md` 和 `assets/audio/` 资源列表
+2. Step 1：派生 audio-director；定义声音身份、情感基调、自适应音乐方向、混音目标和战斗的自适应音频规则
+3. `AskUserQuestion` 展示音频方向；用户在 Step 2 开始前批准
+4. Step 2：并行派生 sound-designer 和 accessibility-specialist；sound-designer 产出 SFX 规格、带触发条件的音频事件列表和混音组；accessibility-specialist 识别关键游戏音频事件并指定视觉回退和字幕要求
+5. `AskUserQuestion` 展示 SFX 规格和无障碍要求；用户在 Step 3 开始前批准
+6. Step 3：并行派生 technical-artist 和主要引擎专家；technical-artist 设计总线结构、中间件集成、内存预算和流策略；引擎专家验证集成方法对所配置引擎是惯用的
+7. `AskUserQuestion` 展示技术计划；用户在 Step 4 开始前批准
+8. Step 4：派生 gameplay-programmer；将音频事件连接到游戏触发器、实现自适应音乐、设置遮挡区域、为音频事件触发器编写单元测试
+9. 编排器将所有输出编译为单一音频设计文档
+10. Subagent 在写入前询问"可以写入音频设计文档到 `design/gdd/audio-combat.md` 吗？"
+11. 摘要输出列出：音频事件数量、预估资源数量、实现任务和任何开放问题
+12. 判定：COMPLETE
 
----
-
-### Case 3: No Argument — Usage guidance or design doc inference
-
-**Fixture:**
-- Any project state
-
-**Input:** `/team-audio` (no argument)
-
-**Expected behavior:**
-1. Skill detects no argument is provided
-2. Outputs usage guidance: e.g., "Usage: `/team-audio [feature or area]` — specify the feature or area to design audio for (e.g., `combat`, `main menu`, `forest biome`, `boss encounter`)"
-3. Skill exits without spawning any agents
-
-**Assertions:**
-- [ ] Skill does NOT spawn any agents when no argument is provided
-- [ ] Usage message includes the correct invocation format with argument examples
-- [ ] Skill does NOT attempt to infer a feature from existing design docs without user direction
-- [ ] No `AskUserQuestion` is used — output is direct guidance
+**断言：**
+- [ ] Sound bible 在上下文收集期间（Step 1 前）存在时被读取
+- [ ] audio-director 在 sound-designer 或 accessibility-specialist 之前派生
+- [ ] `AskUserQuestion` 在 Step 1 输出后和 Step 2 启动前出现
+- [ ] sound-designer 和 accessibility-specialist Task 调用在 Step 2 同时发出
+- [ ] technical-artist 和引擎专家 Task 调用在 Step 3 同时发出
+- [ ] gameplay-programmer 在 Step 3 `AskUserQuestion` 批准前不启动
+- [ ] 音频设计文档写入 `design/gdd/audio-combat.md`（不是其他路径）
+- [ ] 摘要包含音频事件数量和预估资源数量
+- [ ] 编排器不直接写入任何文件
+- [ ] 文档交付后判定为 COMPLETE
 
 ---
 
-### Case 4: Missing Sound Bible — Skill notes the gap and proceeds without it
+### 用例 2：无障碍缺口——关键游戏音频事件无视觉回退
 
-**Fixture:**
-- GDD for the target feature exists at `design/gdd/main-menu.md`
-- `design/gdd/sound-bible.md` does NOT exist
-- Engine is configured; other context files are present
+**Fixture：**
+- 目标功能的 GDD 存在
+- Step 1 和 Step 2 进行中
+- sound-designer 的音频事件列表包括"EnemyNearbyAlert"——一个空间音频提示，警告玩家有敌人从屏幕外接近
+- accessibility-specialist 审查事件列表，发现"EnemyNearbyAlert"没有视觉回退（无屏幕指示器、无字幕、无手柄震动指定）
 
-**Input:** `/team-audio main menu`
+**输入：** `/team-audio stealth`（Step 2 场景）
 
-**Expected behavior:**
-1. Context gathering: orchestrator reads `design/gdd/main-menu.md` and checks for `design/gdd/sound-bible.md`
-2. Sound bible is not found; orchestrator notes the gap in conversation: "Note: `design/gdd/sound-bible.md` not found — audio direction will proceed without a project-wide sonic identity reference. Consider creating a sound bible if this is an ongoing project."
-3. Pipeline proceeds normally through all four steps without the sound bible as input
-4. audio-director in Step 1 is informed that no sound bible exists and must establish sonic identity from the feature GDD alone
-5. The missing sound bible is mentioned in the final summary as a recommended next step
+**预期行为：**
+1. Step 1-2 进行；accessibility-specialist 和 sound-designer 并行派生
+2. accessibility-specialist 返回审查结果，带有 BLOCKING 问题："`EnemyNearbyAlert` 是关键游戏音频事件（警告玩家屏幕外威胁），无视觉回退——听障玩家无法检测此威胁。这是 BLOCKING 无障碍缺口。"
+3. 编排器在呈现 `AskUserQuestion` 前立即在对话中浮现问题
+4. `AskUserQuestion` 将无障碍问题展示为 BLOCKING 问题，选项：
+   - 为 EnemyNearbyAlert 添加视觉指示器（例如，HUD 上的方向箭头）并继续
+   - 添加手柄触觉反馈作为回退并继续
+   - 在此停止并在进入 Step 3 前解决所有无障碍缺口
+5. Step 3（technical-artist + 引擎专家）在用户解决或明确接受缺口前不启动
+6. 如果未解决，无障碍缺口包含在最终音频设计文档的"Open Accessibility Issues"下
 
-**Assertions:**
-- [ ] Orchestrator checks for the sound bible during context gathering (before Step 1)
-- [ ] Missing sound bible is noted explicitly in conversation — not silently ignored
-- [ ] Pipeline does NOT halt due to the missing sound bible
-- [ ] audio-director is notified that no sound bible exists in its prompt context
-- [ ] Summary or Next Steps section recommends creating a sound bible
-- [ ] Verdict is still COMPLETE if all other steps succeed
-
----
-
-### Case 5: Engine Not Configured — Engine specialist step skipped gracefully
-
-**Fixture:**
-- Engine is NOT configured in `.claude/docs/technical-preferences.md` (shows `[TO BE CONFIGURED]`)
-- GDD for the target feature exists
-- Sound bible may or may not exist
-
-**Input:** `/team-audio boss encounter`
-
-**Expected behavior:**
-1. Context gathering: orchestrator reads `.claude/docs/technical-preferences.md` and detects no engine is configured
-2. Steps 1–2 proceed normally (audio-director, sound-designer, accessibility-specialist)
-3. Step 3: technical-artist is spawned normally; engine specialist spawn is SKIPPED
-4. Orchestrator notes in conversation: "Engine specialist not spawned — no engine configured in technical-preferences.md. Engine integration validation will be deferred until an engine is selected."
-5. Step 4: gameplay-programmer proceeds with a note that engine-specific audio integration patterns could not be validated
-6. The engine specialist gap is included in the audio design document under "Deferred Validation"
-7. Verdict: COMPLETE (skip is graceful, not a blocker)
-
-**Assertions:**
-- [ ] Engine specialist is NOT spawned when no engine is configured
-- [ ] Skill does NOT error out due to the missing engine configuration
-- [ ] The skip is explicitly noted in conversation — not silently omitted
-- [ ] technical-artist is still spawned in Step 3 (skip applies only to the engine specialist)
-- [ ] gameplay-programmer proceeds in Step 4 with the deferred validation noted
-- [ ] Deferred engine validation is recorded in the audio design document
-- [ ] Verdict is COMPLETE (engine not configured is a known graceful case)
+**断言：**
+- [ ] 无障碍缺口在报告中标记为 BLOCKING（不是建议）
+- [ ] 说明具体事件名称（"EnemyNearbyAlert"）和缺口性质
+- [ ] `AskUserQuestion` 在 Step 3 启动前浮现缺口
+- [ ] 至少提供一个解决选项（添加视觉回退、添加触觉回退）
+- [ ] Step 3 在缺口未解决且无用户明确授权时不启动
+- [ ] 如果缺口未解决被带入，它作为开放问题记录在音频设计文档中
 
 ---
 
-## Protocol Compliance
+### 用例 3：无参数——使用指引或设计文档推断
 
-- [ ] Context gathering (GDDs, sound bible, asset list) runs before any agent is spawned
-- [ ] `AskUserQuestion` is used after every step output before the next step launches
-- [ ] Parallel spawning: Step 2 (sound-designer + accessibility-specialist) and Step 3 (technical-artist + engine specialist) issue all Task calls before waiting for results
-- [ ] No files are written by the orchestrator directly — all writes are delegated to sub-agents
-- [ ] Each sub-agent enforces the "May I write to [path]?" protocol before any write
-- [ ] BLOCKED status from any agent is surfaced immediately — not silently skipped
-- [ ] A partial report is always produced when some agents complete and others block
-- [ ] Audio design document path follows the pattern `design/gdd/audio-[feature].md`
-- [ ] Verdict is exactly COMPLETE or BLOCKED — no other verdict values used
-- [ ] Next Steps handoff references `/dev-story` and `/asset-audit`
+**Fixture：**
+- 任何项目状态
+
+**输入：** `/team-audio`（无参数）
+
+**预期行为：**
+1. Skill 检测到未提供参数
+2. 输出使用指引：例如，"Usage: `/team-audio [feature or area]` —— 指定要设计音频的功能或区域（例如，`combat`、`main menu`、`forest biome`、`boss encounter`）"
+3. Skill 退出，不派生任何 agent
+
+**断言：**
+- [ ] Skill 在未提供参数时不派生任何 agent
+- [ ] 使用消息包含带参数示例的正确调用格式
+- [ ] Skill 不从现有设计文档推断功能而不经用户指示
+- [ ] 不使用 `AskUserQuestion`——输出为直接指引
 
 ---
 
-## Coverage Notes
+### 用例 4：缺失 Sound Bible——Skill 注明缺口并在没有它的情况下继续
 
-- The "Retry with narrower scope" and "Skip this agent" resolution paths from the Error
-  Recovery Protocol are not separately tested — they follow the same `AskUserQuestion`
-  + partial-report pattern validated in Cases 2 and 5.
-- Step 4 (gameplay-programmer) happy-path behavior is validated implicitly by Case 1.
-  Failure modes for this step follow the standard Error Recovery Protocol.
-- The accessibility-specialist's subtitle and caption requirements (beyond visual fallbacks)
-  are validated implicitly by Case 1. Case 2 focuses on the more severe case where a
-  critical gameplay event has no fallback at all.
-- Engine specialist validation logic (idiomatic integration, version-specific changes) is
-  tested only for the configured and unconfigured states. The specific content of the
-  engine specialist's output is out of scope for this behavioral spec.
+**Fixture：**
+- 目标功能的 GDD 在 `design/gdd/main-menu.md` 存在
+- `design/gdd/sound-bible.md` 不存在
+- 引擎已配置；其他上下文文件存在
+
+**输入：** `/team-audio main menu`
+
+**预期行为：**
+1. 上下文收集：编排器读取 `design/gdd/main-menu.md` 并检查 `design/gdd/sound-bible.md`
+2. Sound bible 未找到；编排器在对话中注明缺口："Note: `design/gdd/sound-bible.md` 未找到——音频方向将在无项目范围声音身份参考的情况下继续。如果这是持续项目，建议创建 sound bible。"
+3. 管线正常通过全部四个步骤，不以 sound bible 作为输入
+4. Step 1 中的 audio-director 被告知不存在 sound bible，必须仅从功能 GDD 建立声音身份
+5. 缺失的 sound bible 在最终摘要中被提及为推荐的下一步
+
+**断言：**
+- [ ] 编排器在上下文收集期间（Step 1 前）检查 sound bible
+- [ ] 缺失的 sound bible 在对话中明确注明——不静默忽略
+- [ ] 管线不因缺失 sound bible 而停止
+- [ ] audio-director 在其提示上下文中被告知不存在 sound bible
+- [ ] 摘要或 Next Steps 章节建议创建 sound bible
+- [ ] 如果所有其他步骤成功，判定仍为 COMPLETE
+
+---
+
+### 用例 5：引擎未配置——引擎专家步骤被优雅跳过
+
+**Fixture：**
+- 引擎在 `.claude/docs/technical-preferences.md` 中未配置（显示 `[TO BE CONFIGURED]`）
+- 目标功能的 GDD 存在
+- Sound bible 可能存在也可能不存在
+
+**输入：** `/team-audio boss encounter`
+
+**预期行为：**
+1. 上下文收集：编排器读取 `.claude/docs/technical-preferences.md` 并检测到未配置引擎
+2. Step 1-2 正常进行（audio-director、sound-designer、accessibility-specialist）
+3. Step 3：technical-artist 正常派生；引擎专家派生被跳过
+4. 编排器在对话中注明："Engine specialist not spawned — no engine configured in technical-preferences.md. Engine integration validation will be deferred until an engine is selected."
+5. Step 4：gameplay-programmer 继续，附带说明引擎特定音频集成模式无法被验证的注释
+6. 引擎专家缺口包含在音频设计文档的"Deferred Validation"下
+7. 判定：COMPLETE（跳过是优雅的，不是阻塞项）
+
+**断言：**
+- [ ] 引擎专家在未配置引擎时不被派生
+- [ ] Skill 不错误退出，因为缺失引擎配置
+- [ ] 跳过在对话中明确注明——不静默省略
+- [ ] technical-artist 在 Step 3 仍被派生（跳过仅适用于引擎专家）
+- [ ] gameplay-programmer 在 Step 4 继续，附带延期验证的注释
+- [ ] 延期引擎验证记录在音频设计文档中
+- [ ] 判定为 COMPLETE（引擎未配置是已知的优雅情况）
+
+---
+
+## 协议合规性
+
+- [ ] 上下文收集（GDD、sound bible、资源列表）在任何 agent 派生前运行
+- [ ] `AskUserQuestion` 在每个步骤输出后和下一步启动前使用
+- [ ] 并行派生：Step 2（sound-designer + accessibility-specialist）和 Step 3（technical-artist + 引擎专家）在等待结果前发出所有 Task 调用
+- [ ] 编排器不直接写入任何文件——所有写入委托给 sub-agent
+- [ ] 每个 sub-agent 在任何写入前强制执行"可以写入 [path]？"协议
+- [ ] 任何 agent 的 BLOCKED 状态立即浮现——不静默跳过
+- 当一些 agent 完成而另一些阻塞时，始终生成部分报告
+- [ ] 音频设计文档路径遵循模式 `design/gdd/audio-[feature].md`
+- [ ] 判定严格为 COMPLETE 或 BLOCKED——不使用其他判定值
+- [ ] Next Steps 交接引用 `/dev-story` 和 `/asset-audit`
+
+---
+
+## 覆盖说明
+
+- Error Recovery Protocol 中的"用更窄范围重试"和"跳过此 agent"解决路径未单独测试——它们遵循用例 2 和 5 中验证的相同 `AskUserQuestion` + 部分报告模式。
+- Step 4（gameplay-programmer）正常路径行为由用例 1 隐式验证。
+  此步骤的故障模式遵循标准 Error Recovery Protocol。
+- Accessibility-specialist 的字幕和字幕要求（超出视觉回退）由用例 1 隐式验证。用例 2 关注更严重的情况，即关键游戏事件完全没有回退。
+- 引擎专家验证逻辑（惯用集成、版本特定变化）仅针对配置和未配置状态测试。
+  引擎专家输出的具体内容在此行为规格范围之外。

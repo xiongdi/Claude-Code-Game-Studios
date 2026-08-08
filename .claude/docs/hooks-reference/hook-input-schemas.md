@@ -1,10 +1,10 @@
-# Hook Input/Output Schemas
+# Hook Input/Output Schemas（Hook 输入/输出结构）
 
-This documents the JSON payloads each Claude Code hook receives on stdin for every event type.
+本文档记录了每个 Claude Code hook 在每种事件类型下通过 stdin 接收的 JSON 负载。
 
 ## PreToolUse
 
-Fired before a tool is executed. Can **allow** (exit 0) or **block** (exit 2).
+在工具执行之前触发。可以 **允许**（退出码 0）或 **阻止**（退出码 2）。
 
 ### PreToolUse: Bash
 
@@ -57,7 +57,7 @@ Fired before a tool is executed. Can **allow** (exit 0) or **block** (exit 2).
 
 ## PostToolUse
 
-Fired after a tool completes. **Cannot block** (exit code ignored for blocking). Stderr messages are shown as warnings.
+在工具完成之后触发。**不能阻止**（退出码对阻止无效）。stderr 消息显示为警告。
 
 ### PostToolUse: Write
 
@@ -88,7 +88,7 @@ Fired after a tool completes. **Cannot block** (exit code ignored for blocking).
 
 ## SubagentStart
 
-Fired when a subagent is spawned via the Task tool.
+当通过 Task 工具派生 subagent 时触发。
 
 ```json
 {
@@ -100,27 +100,27 @@ Fired when a subagent is spawned via the Task tool.
 
 ## SessionStart
 
-Fired when a Claude Code session begins. **No stdin input** — the hook just runs and its stdout is shown to Claude as context.
+当 Claude Code 会话开始时触发。**无 stdin 输入** — hook 只是运行，其 stdout 作为上下文显示给 Claude。
 
 ## PreCompact
 
-Fired before context window compression. **No stdin input** — the hook runs to save state before compression occurs.
+在上下文窗口压缩之前触发。**无 stdin 输入** — hook 在压缩发生之前运行以保存状态。
 
 ## Stop
 
-Fired when the Claude Code session ends. **No stdin input** — the hook runs for cleanup and logging.
+当 Claude Code 会话结束时触发。**无 stdin 输入** — hook 运行以进行清理和日志记录。
 
-## Exit Code Reference
+## Exit Code Reference（退出码参考）
 
-| Exit Code | Meaning | Applicable Events |
+| 退出码 | 含义 | 适用事件 |
 |-----------|---------|-------------------|
-| 0 | Allow / Success | All events |
-| 2 | Block (stderr shown to Claude) | PreToolUse only |
-| Other | Treated as error, tool proceeds | All events |
+| 0 | 允许 / 成功 | 所有事件 |
+| 2 | 阻止（stderr 显示给 Claude） | 仅 PreToolUse |
+| 其他 | 视为错误，工具继续执行 | 所有事件 |
 
-## Notes
+## Notes（备注）
 
-- Hooks receive JSON on **stdin** (pipe). Use `INPUT=$(cat)` to capture.
-- Parse with `jq` if available, fall back to `grep` for cross-platform compatibility.
-- On Windows, `grep -P` (Perl regex) is often unavailable. Use `grep -E` (POSIX extended) instead.
-- Path separators may be `\` on Windows. Normalize with `sed 's|\\|/|g'` when comparing paths.
+- Hook 通过 **stdin**（管道）接收 JSON。使用 `INPUT=$(cat)` 捕获。
+- 如果可用则用 `jq` 解析，否则回退到 `grep` 以保证跨平台兼容性。
+- 在 Windows 上，`grep -P`（Perl 正则）通常不可用。使用 `grep -E`（POSIX 扩展）代替。
+- 在 Windows 上路径分隔符可能是 `\`。比较路径时用 `sed 's|\\|/|g'` 规范化。

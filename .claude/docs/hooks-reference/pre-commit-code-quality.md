@@ -1,16 +1,14 @@
 # Hook: pre-commit-code-quality
 
-## Trigger
+## Trigger（触发）
 
-Runs before any commit that modifies files in `src/`.
+在任何修改 `src/` 中文件的提交之前运行。
 
-## Purpose
+## Purpose（目的）
 
-Enforces coding standards before code enters version control. Catches style
-violations, missing documentation, overly complex methods, and hardcoded
-values that should be data-driven.
+在代码进入版本控制之前强制执行编码标准。捕获风格违规、缺失的文档注释、过于复杂的方法，以及本应为数据驱动的硬编码值。
 
-## Implementation
+## Implementation（实现）
 
 ```bash
 #!/bin/bash
@@ -52,9 +50,9 @@ fi
 exit $EXIT_CODE
 ```
 
-## Agent Integration
+## Agent Integration（Agent 集成）
 
-When this hook fails:
-1. For style violations: auto-fix with your formatter or invoke `lead-programmer`
-2. For hardcoded values: invoke `gameplay-programmer` to externalize the values
-3. For test failures: invoke `qa-tester` to diagnose and `gameplay-programmer` to fix
+当此 hook 失败时：
+1. 风格违规：用你的格式化工具自动修复，或调用 `lead-programmer`
+2. 硬编码值：调用 `gameplay-programmer` 将值外部化
+3. 测试失败：调用 `qa-tester` 诊断，调用 `gameplay-programmer` 修复

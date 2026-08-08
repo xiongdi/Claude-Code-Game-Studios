@@ -1,16 +1,14 @@
 # Hook: pre-commit-design-check
 
-## Trigger
+## Trigger（触发）
 
-Runs before any commit that modifies files in `design/` or `assets/data/`.
+在任何修改 `design/` 或 `assets/data/` 中文件的提交之前运行。
 
-## Purpose
+## Purpose（目的）
 
-Ensures design documents and game data files maintain consistency and
-completeness before they enter version control. Catches missing sections,
-broken cross-references, and invalid data before they propagate.
+确保设计文档和游戏数据文件在进入版本控制之前保持一致性和完整性。在问题扩散之前捕获缺失章节、断裂的交叉引用和无效数据。
 
-## Implementation
+## Implementation（实现）
 
 ```bash
 #!/bin/bash
@@ -62,9 +60,8 @@ fi
 exit $EXIT_CODE
 ```
 
-## Agent Integration
+## Agent Integration（Agent 集成）
 
-When this hook fails, the committer should:
-1. For missing design sections: invoke the `game-designer` agent to complete
-   the document
-2. For invalid JSON: invoke the `tools-programmer` agent or fix manually
+当此 hook 失败时，提交者应：
+1. 缺失设计章节：调用 `game-designer` agent 补全文档
+2. 无效 JSON：调用 `tools-programmer` agent 或手动修复
